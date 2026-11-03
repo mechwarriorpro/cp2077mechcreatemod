@@ -2,7 +2,7 @@
 
 > This is a draft description only. It must not be published until (a) base-mod permission is
 > settled in writing with the authors of Nexus mod 35041, (b) the CET mod has been tested in-game
-> against CP2077 2.5, and (c) the Donation Points question is resolved. See `PERMISSIONS.md`.
+> against the target patch CP2077 2.31 (CET 1.37.1), and (c) the Donation Points question is resolved. See `PERMISSIONS.md`.
 
 ---
 
@@ -51,7 +51,9 @@ dissipation, radar cross section and ECM** — then deploy your build into a com
 
 - Browser prototype: any modern browser. No install, no network, no external assets.
 - CET overlay: Cyber Engine Tweaks. Base mod + its requirements are **optional**, not bundled.
-- CP2077 2.5 + Phantom Liberty for the base-mod context.
+- CP2077 2.5 + Phantom Liberty for the **external base-mod context** only.
+- **This project's target patch is 2.31**: CET 1.37.1 + RED4ext 1.29.0/1.30.0. CET 1.38.x is for
+  2.5 and drops 2.31 support. Phantom Liberty is optional (PL-only records skipped by default).
 
 ### Installation (draft)
 
@@ -93,3 +95,11 @@ Crystal Coat Picker hex/share-code mod (Nexus 35571). FORGE 77 uses the same pub
 key names and share-code format in its own procedural implementations, and CET detects the mods with
 `pcall(GetMod)`. It does not ship, patch or control them. A fully custom pilotable mech inside CP2077 still needs
 real meshes, rigs, animations, VO, the game itself and private base-mod APIs.
+
+
+### MODEL LIBRARY (0.1.6-test)
+
+`models.json` + the tenth browser tab add **full models and front / side / top traces for the 30
+example chassis — and only those examples**. Complete shape vectors, signature-part compositions,
+component polygons and internal mounting bays; no imported / ripped / extracted geometry. Custom
+designs still mix example parts freely. See `docs/FULL_MODELS.md`.

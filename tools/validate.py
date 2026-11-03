@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.json",
-              "components.json", "teardowns.json", "compat.json")
+              "components.json", "teardowns.json", "compat.json", "models.json")
 SIX = ("powerDraw", "mass", "heatGen", "heatDiss", "rcs", "ecm")
 SHAPE_KEYS = ("torsoW", "torsoH", "torsoD", "headScale", "shoulderW", "shoulderH", "upperArm",
               "foreArm", "upperLeg", "lowerLeg", "hipW", "footL", "weaponX", "weaponY",
@@ -32,7 +32,7 @@ ANCHORS = {"torso", "head", "sensor", "backpack", "reactor", "bus", "capacitor",
            "sigExtra2", "sigExtra3",
            "ventL", "ventR", "jointL", "jointR", "kneeL", "kneeR"}
 TABS = ("HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST",
-        "PILOT TEST", "DOSSIER", "SETTINGS")
+        "PILOT TEST", "MODEL LIBRARY", "DOSSIER", "SETTINGS")
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -243,7 +243,8 @@ def main() -> int:
     # ---------------------------------------------------------------- in-game CET pilot
     ig = cp.get("ingamePilot", {})
     for key in ("note", "since", "requirements", "sources", "coreRecords", "partRecords",
-                "entityTemplates", "controls", "physics", "cameraModes", "disclaimer"):
+                "entityTemplates", "controls", "physics", "cameraModes", "disclaimer",
+                "targetPatch", "gamePatches", "defaultHasPL", "hostileRecord", "plHostileRecord"):
         if key not in ig:
             err(f"compat.ingamePilot missing {key}")
     if len(ig.get("coreRecords", [])) < 3:
@@ -268,6 +269,63 @@ def main() -> int:
             err(f"compat.ingamePilot.physics.{k} must be numeric")
     if "no meshes" not in ig.get("disclaimer", "").lower() and "does not add" not in ig.get("disclaimer", "").lower():
         err("compat.ingamePilot.disclaimer must state that no custom mesh/rig is shipped")
+    if ig.get("targetPatch") != "2.31":
+        err("compat.ingamePilot.targetPatch must be 2.31 (user is on Cyberpunk 2077 patch 2.31)")
+    gp = ig.get("gamePatches", {})
+    for k in ("2.3", "2.31", "2.5"):
+        if k not in gp:
+            err(f"compat.ingamePilot.gamePatches missing {k}")
+    if gp.get("2.31", {}).get("cet") != "1.37.1":
+        err("patch 2.31 must prescribe CET 1.37.1, not CET 1.38.x")
+    if "1.38" not in gp.get("2.31", {}).get("note", ""):
+        err("patch 2.31 note must warn that CET 1.38.x drops pre-2.5 support")
+    if ig.get("defaultHasPL") is not False:
+        err("compat.ingamePilot.defaultHasPL must be false (Phantom Liberty is optional)")
+    for r in ig.get("coreRecords", []) + ig.get("partRecords", []):
+        if not isinstance(r.get("requiresPL"), bool):
+            err(f"ingamePilot record {r.get('id')} must declare requiresPL")
+    if not any(not r.get("requiresPL") for r in ig.get("partRecords", [])):
+        err("at least one vanilla signature-part record must work without Phantom Liberty")
+    for x in ig.get("requirements", []):
+        if "1.38+" in x or ("1.38" in x and "does NOT" not in x):
+            err("ingamePilot.requirements still prescribes an obsolete CET 1.38+ install")
+
+    # ------------------------------------------- example-only full models / traces
+    mdl = d.get("models", {})
+    pol = mdl.get("policy", {})
+    lib = mdl.get("models", [])
+    if pol.get("onlyExamplesAllowed") is not True or pol.get("rejectGenericHulls") is not True:
+        err("models.policy must set onlyExamplesAllowed and rejectGenericHulls")
+    if len(lib) != len(roster) or pol.get("allowedCount") != len(roster):
+        err(f"models.json must contain exactly {len(roster)} example full models")
+    allowed = set(pol.get("allowedSourceIds", []))
+    roster_ids = {x.get("id") for x in roster}
+    if allowed != roster_ids:
+        err("models.policy.allowedSourceIds must be exactly the chassis.json roster ids")
+    if any(m.get("sourceId") not in roster_ids for m in lib):
+        err("every full model must cite an example chassis as its sourceId")
+    if any(m.get("allowed") is not True for m in lib):
+        err("every example full model must be marked allowed")
+    views = ("front", "side", "top")
+    for m in lib:
+        src = next((x for x in roster if x["id"] == m.get("sourceId")), None)
+        if not src:
+            continue
+        if m.get("shape") != src.get("shape") or m.get("sig") != src.get("shape", {}).get("sig"):
+            err(f"full model {m.get('id')} must reproduce its example shape + signature composition")
+        for v in views:
+            tr = (m.get("trace") or {}).get(v, {})
+            if not tr.get("outline") or len(tr["outline"]) < 10:
+                err(f"full model {m.get('id')} has an incomplete {v} outline")
+            if not tr.get("parts") or len(tr["parts"]) < 3:
+                err(f"full model {m.get('id')} has no {v} component polygons")
+            if not tr.get("bays"):
+                err(f"full model {m.get('id')} has no {v} internal mounting bays")
+    outlines = {json.dumps(m["trace"]["front"]["outline"]) for m in lib if m.get("trace", {}).get("front")}
+    if len(outlines) != len(lib):
+        err("example full models must have distinct front outlines (no shared generic hull)")
+    if mdl.get("meta", {}).get("version") != d["compat"]["meta"]["version"]:
+        err("models.meta.version must match compat.meta.version")
     if not (ROOT / "tools/lua_ingame.part").exists():
         err("tools/lua_ingame.part (CET in-game pilot module) missing")
 
@@ -362,7 +420,12 @@ def main() -> int:
                       "CRYSTAL COAT (PROCEDURAL)", "CCP1", "NEW TERRAIN SEED",
                       "IN-GAME PILOT (CET)", "MF.ingame.luaSnippet", "MF.ingame.checklistHTML",
                       "exEntitySpawner.SpawnRecord", "Character.q003_militech_mech",
-                      "GENERATE IN-GAME CET LUA", "DEPLOY CHECKLIST", "EMERGENCY UNDEPLOY"):
+                      "GENERATE IN-GAME CET LUA", "DEPLOY CHECKLIST", "EMERGENCY UNDEPLOY",
+                      "MODEL LIBRARY", "FULL MODELS & TRACES", "MF.models.isAllowed",
+                      "MF.models.drawTrace", "models.json", "onlyExamplesAllowed",
+                      "onlyExamplesAllowed", "EXAMPLE-ONLY FULL MODEL POLICY",
+                      "GAME PATCH (CET BUILDS ARE PATCH-LOCKED)", "CET 1.37.1",
+                      "PHANTOM LIBERTY INSTALLED?", "PATCH MATRIX"):
             if token not in text:
                 err(f"test_build.html missing expected content {token!r}")
         if "MF.draw.matrix" in text or "NO FRANCHISE GEOMETRY" in text:
@@ -387,7 +450,10 @@ def main() -> int:
         for token in ("IN-GAME PILOT", "function IG.deploy", "function IG.undeploy", "function IG.update",
                       "registerInput", "onUpdate", "SpawnRecord", "exEntitySpawner.Despawn",
                       "Game.FindEntityByID", "SetWorldTransform", "SetOrientationEuler",
-                      "Game.GetTeleportationFacility", "WorldTransform.new", "Character.q003_militech_mech"):
+                      "Game.GetTeleportationFacility", "WorldTransform.new", "Character.q003_militech_mech",
+                      "function IG.detect", "function IG.setPatch", "function IG.setHasPL",
+                      "function IG.records", "function IG.hostileRec", "GetVersion",
+                      "CET VERSION MISMATCH", "onlyExamplesAllowed"):
             if token not in code:
                 err(f"CET init.lua missing in-game pilot API {token!r}")
         if "Game.AddToInventory" in code and "pcall(function()" not in code:
@@ -411,7 +477,8 @@ def main() -> int:
             err(f"missing deliverable {f}")
     for f in ("docs/REACTOR_MODEL.md", "docs/TEARDOWN_SCHEMA.md", "docs/SUBSYSTEM_MODEL.md",
               "docs/BaseModHooks.md", "docs/AssetManifest.md",
-              "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md"):
+              "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
+              "docs/FULL_MODELS.md", "models.json"):
         if not (ROOT / f).exists():
             err(f"missing doc {f}")
     examples = list((ROOT / "docs/integration").glob("*.example*"))

@@ -4,6 +4,8 @@
 
 **Titanfall BT-7274 (Quest and Companion)** — https://www.nexusmods.com/cyberpunk2077/mods/35041 —
 by **whatmynickname & sdh0**, for CP2077 2.5 + Phantom Liberty, updated 27 Oct 2026.
+> **Note (0.1.6-test):** that line describes the *external* base mod. **This project targets CP2077
+> patch 2.31** with CET 1.37.1 + RED4ext 1.29/1.30; no base-mod files are used.
 
 The mod page states that you must **get permission before using or modifying its assets**, forbids
 **re-uploading elsewhere**, and forbids **Donation Points on derivative asset use**.
@@ -75,3 +77,12 @@ key names, colour fields and share-code shape in our own procedural implementati
 for them with `pcall(GetMod)`. No files, code, textures, models or assets from those mods — or from
 the optional BT-7274 base mod — are bundled, edited, redistributed or required. Detection is
 optional and never gates the prototype.
+
+
+## Full models / traces — examples only
+
+`models.json` derives every full model and every blueprint trace **only** from the 30 example chassis
+in `chassis.json`. There is no asset import, no mesh download, no screenshot tracing, no extraction
+from game archives and no base-mod or third-party geometry. Generic untyped hulls and numeric-only
+silhouettes are rejected. This is procedural engineering data, not a derivative of any mod's assets;
+see `docs/FULL_MODELS.md` and `docs/AssetManifest.md`.

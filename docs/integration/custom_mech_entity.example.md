@@ -24,7 +24,7 @@ See `docs/INGAME_PILOT.md`.
    seat, camera takeover (`base\entities\cameras\simple_free_camera.ent` or equivalent), input
    mapping and weapon firing through the game's own systems.
 5. **Audioware / VO** and damage / hit-reaction / HUD integration.
-6. **Validation against CP2077 2.5 + Phantom Liberty** before shipping — a syntax error in
+6. **Validation against the target patch (CP2077 2.31, CET 1.37.1 + RED4ext)** before shipping — a syntax error in
    `r6/scripts` breaks the player's game at launch.
 7. **Written permission from the BT-7274 authors** before any derivative use of their assets
    (and no Donation Points on such derivatives). See `PERMISSIONS.md`.

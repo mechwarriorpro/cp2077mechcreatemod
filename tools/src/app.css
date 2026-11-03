@@ -178,3 +178,13 @@ input[type=range]::-moz-range-thumb{width:11px;height:14px;background:var(--ambe
   .mf-top{flex-wrap:wrap} #combat-canvas{height:420px}
   .mf-canvas.med{height:190px} .mf-canvas.large{height:270px}
 }
+
+/* ---- FULL MODEL LIBRARY / TRACES (examples only) ---- */
+.models-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px;margin-top:10px}
+.models-card{cursor:pointer;border:1px solid #244054;transition:border-color .15s,transform .15s}
+.models-card:hover{border-color:#56d8f2;transform:translateY(-2px)}
+.models-card.sel{border-color:#ffb347;box-shadow:0 0 0 1px #ffb34755 inset}
+.models-card canvas{width:100%;height:auto;display:block;background:#07121a;border:1px solid #1b3341;margin-bottom:6px}
+.models-card .mf-note{font-size:10px;line-height:1.35;margin:3px 0}
+.models-card .mf-row{flex-wrap:wrap;gap:4px;margin-top:6px}
+#models-3d,#models-trace{width:100%;height:auto;display:block;background:#07121a;border:1px solid #1b3341}

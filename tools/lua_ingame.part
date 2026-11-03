@@ -33,7 +33,8 @@ MF.ingame = {
   telemetry = nil, heat = 0.34, kills = 0, venting = 0,
   cameraMode = "CHASE", coreIndex = 1, partCount = 6,
   cockpitLock = true, autopilot = false, showThreats = true,
-  waypoint = { x = 40, y = 10 }, lastError = nil, logLines = {}
+  waypoint = { x = 40, y = 10 }, lastError = nil, logLines = {},
+  patch = "2.31", patchKeys = {}, hasPL = false, cetVersion = "unknown", expectedCet = "unknown"
 }
 local IG = MF.ingame
 local IGC = (MF_DATA.compat or {}).ingamePilot or {}
@@ -46,7 +47,9 @@ IG.cfg = {
   requirements = IGC.requirements or {},
   sources = IGC.sources or {},
   disclaimer = IGC.disclaimer or "",
-  hostileRecord = "Character.kurtz_base_drone_wyvern"
+  patches = IGC.gamePatches or {},
+  hostileRecord = IGC.hostileRecord or "Character.militech_base_android",
+  plHostileRecord = IGC.plHostileRecord or "Character.kurtz_base_drone_wyvern"
 }
 local function pnum(k, d)
   local v = tonumber((IGC.physics or {})[k])
@@ -76,6 +79,58 @@ local function iglog(msg)
   log("[INGAME] " .. tostring(msg))
 end
 IG.log = iglog
+
+IG.patch = IGC.targetPatch or "2.31"
+IG.hasPL = IGC.defaultHasPL == true
+for k, _ in pairs(IG.cfg.patches) do table.insert(IG.patchKeys, k) end
+table.sort(IG.patchKeys)
+if #IG.patchKeys == 0 then IG.patchKeys = { "2.3", "2.31", "2.5" } end
+
+-- Patch-aware helpers --------------------------------------------------------
+function IG.patchInfo()
+  return IG.cfg.patches[IG.patch] or {}
+end
+function IG.setPatch(p)
+  if not IG.cfg.patches[p] then return IG.patch end
+  IG.patch = p
+  local info = IG.patchInfo()
+  iglog("GAME PATCH " .. p .. " · CET " .. tostring(info.cet) .. " · RED4ext " .. tostring(info.red4ext))
+  IG.detect()
+  return IG.patch
+end
+function IG.setHasPL(on)
+  IG.hasPL = on and true or false
+  iglog("PHANTOM LIBERTY " .. (IG.hasPL and "INSTALLED — PL-only records enabled" or
+    "NOT INSTALLED — PL-only records skipped"))
+  return IG.hasPL
+end
+function IG.records()
+  local out = {}
+  for _, r in ipairs(IG.cfg.partRecords) do
+    if not r.requiresPL or IG.hasPL then table.insert(out, r) end
+  end
+  return out
+end
+function IG.hostileRec()
+  return IG.hasPL and IG.cfg.plHostileRecord or IG.cfg.hostileRecord
+end
+-- CET exposes GetVersion() returning its build tag (e.g. "v1.37.1").
+function IG.detect()
+  local v = "unknown"
+  pcall(function() if type(GetVersion) == "function" then v = tostring(GetVersion()) end end)
+  IG.cetVersion = v
+  local info = IG.patchInfo()
+  IG.expectedCet = info.cet or "unknown"
+  local num = string.match(v, "(%d+%.%d+%.?%d*)") or ""
+  local expected = string.match(IG.expectedCet, "(%d+%.%d+%.?%d*)") or ""
+  if num ~= "" and expected ~= "" and num ~= expected then
+    iglog("CET VERSION MISMATCH — running " .. v .. " but game patch " .. IG.patch ..
+      " needs CET " .. IG.expectedCet .. " (" .. tostring(info.note) .. ")")
+  else
+    iglog("CET " .. v .. " · patch " .. IG.patch .. " expects CET " .. IG.expectedCet)
+  end
+  return v
+end
 
 -- Special type constructors, with ToVector4 / ToEulerAngles fallbacks. -------
 local function vec(x, y, z)
@@ -127,6 +182,7 @@ end
 
 -- Probe: report exactly which CET APIs this game build exposes. ---------------
 function IG.probe()
+  IG.detect()
   local a = {}
   a.game = type(Game) == "table"
   a.player = false
@@ -285,14 +341,16 @@ function IG.deploy()
       (IG.usedTemplates and " (.ent template fallback)" or " (vanilla record)")
     iglog(IG.status .. " · record " .. tostring(IG.coreRecord))
   end
-  local n = math.min(IG.partCount, IG.ph.maxParts, #IG.cfg.partRecords)
+  local recs = IG.records()
+  local n = math.min(IG.partCount, IG.ph.maxParts, #recs)
   for i = 1, n do
-    local pr = IG.cfg.partRecords[i]
+    local pr = recs[i]
     local off = rotated(partOffset(i, n), IG.yaw)
     local id = spawnRecord(pr.id, IG.pos.x + off.x, IG.pos.y + off.y, IG.pos.z + off.z, d)
     table.insert(IG.parts, { id = id, entity = nil, off = partOffset(i, n), rec = pr.id, slot = pr.slot, name = pr.name })
   end
-  iglog(tostring(n) .. " in-game signature part records queued (" .. tostring(#IG.cfg.partRecords) .. " configured)")
+  iglog(tostring(n) .. " in-game signature part records queued (" .. tostring(#recs) ..
+    " allowed for patch " .. IG.patch .. (IG.hasPL and " + PL" or " / no PL") .. ")")
   pcall(function() IG.telemetry = MF.compute(MF.activeDesignId) end)
   if IG.cockpitLock then iglog("Cockpit lock ENGAGED — " .. IG.cameraMode .. " camera, F7 emergency undeploy") end
   return true
@@ -319,7 +377,7 @@ function IG.spawnHostile()
   local a = IG.gait * 0.37 + #IG.hostiles * 2.1
   local x = IG.pos.x + math.cos(a) * IG.ph.threatDistance
   local y = IG.pos.y + math.sin(a) * IG.ph.threatDistance
-  local id = spawnRecord(IG.cfg.hostileRecord, x, y, IG.pos.z + 1, yawDeg(IG.yaw) + 180)
+  local id = spawnRecord(IG.hostileRec(), x, y, IG.pos.z + 1, yawDeg(IG.yaw) + 180)
   if not id then return false end
   table.insert(IG.hostiles, { id = id, entity = nil, x = x, y = y })
   iglog("RCS / EMISSION LOCK — in-game drone acquired you (" .. tostring(#IG.hostiles) .. " active)")
@@ -522,7 +580,13 @@ local function drawIngame(t)
   ImGui.Text("IN-GAME PILOT · CET SPAWN / COCKPIT LOCK / VANILLA RECORDS")
   ImGui.Separator()
   ImGui.Text("STATUS " .. IG.statusText())
+  ImGui.Text("GAME PATCH " .. IG.patch .. " · CET " .. IG.cetVersion ..
+    " · EXPECTS CET " .. IG.expectedCet .. " · RED4ext " .. tostring(IG.patchInfo().red4ext))
+  if string.match(IG.cetVersion, "1%.38") then
+    ImGui.TextColored(1, 0.35, 0.35, 1, "WARNING · CET 1.38.x drops pre-2.5 game support — use CET 1.37.1 on patch 2.31")
+  end
   ImGui.Text("SPAWNER " .. IG.spawner)
+  ImGui.Text("PHANTOM LIBERTY " .. (IG.hasPL and "INSTALLED" or "NOT INSTALLED (PL records skipped)"))
   ImGui.Text("CORE RECORD " .. tostring(IG.coreRecord) .. " · " .. tostring(IG.coreName))
   if IG.usedTemplates then ImGui.TextColored(1, 0.75, 0.3, 1, ".ent template fallback active (record rejected)") end
   if IG.phantom then ImGui.TextColored(1, 0.4, 0.4, 1, "PHANTOM MODE · no visible chassis, cockpit flight only") end
@@ -534,6 +598,19 @@ local function drawIngame(t)
   if ImGui.Button("EMERGENCY RESET (F7)") then IG.undeploy() end
   ImGui.SameLine()
   if ImGui.Button("PROBE APIs") then IG.probe(); iglog("API probe: " .. IG.spawner) end
+  ImGui.SameLine()
+  if ImGui.Button("DETECT CET VERSION") then IG.detect() end
+  ImGui.Separator()
+  local pnames = {}
+  for i, k in ipairs(IG.patchKeys) do
+    pnames[i] = k .. " → CET " .. tostring((IG.cfg.patches[k] or {}).cet or "?")
+  end
+  local pidx = 1
+  for i, k in ipairs(IG.patchKeys) do if k == IG.patch then pidx = i end end
+  local pi, pch = ImGui.Combo("GAME PATCH##ig", pidx - 1, pnames, #pnames)
+  if pch then IG.setPatch(IG.patchKeys[pi + 1]) end
+  local plv, plc = ImGui.Checkbox("PHANTOM LIBERTY INSTALLED##ig", IG.hasPL)
+  if plc then IG.setHasPL(plv) end
   ImGui.Separator()
   local names = {}
   for i, r in ipairs(IG.cfg.coreRecords) do names[i] = r.name .. " [" .. r.role .. "]" end
@@ -544,7 +621,7 @@ local function drawIngame(t)
     if r then IG.coreRecord, IG.coreName = r.id, r.name; iglog("Core chassis selected: " .. r.name) end
   end
   local pn = { IG.partCount }
-  local nv, pc = ImGui.SliderInt("SIGNATURE PARTS##ig", pn[1], 0, math.min(IG.ph.maxParts, #IG.cfg.partRecords))
+  local nv, pc = ImGui.SliderInt("SIGNATURE PARTS##ig", pn[1], 0, math.min(IG.ph.maxParts, #IG.records()))
   if pc then IG.partCount = nv end
   local cv, cch = ImGui.Checkbox("COCKPIT LOCK (teleport V)##ig", IG.cockpitLock)
   if cch then IG.cockpitLock = cv end

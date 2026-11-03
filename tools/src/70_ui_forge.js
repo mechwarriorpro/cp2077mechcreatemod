@@ -193,6 +193,10 @@ MF.tabs.forge = (function () {
         MF.save(); render(sec);
       } else if (a === "fg-reset") { MF.state.shape = clone(DATA.chassis.presets.biped); MF.save(); render(sec); }
       else if (a === "fg-bake") {
+        const chk = MF.models ? MF.models.isAllowed(MF.state.shape) : { ok: true, reason: "" };
+        if (DATA.models.policy.onlyExamplesAllowed && !chk.ok) {
+          MF.toast("EXAMPLE-ONLY POLICY: " + chk.reason, "err"); render(sec); return;
+        }
         const d = MF.saveWorkingDesign(($("fg-name") || {}).value);
         MF.setActive(d.id);
         MF.toast("BAKED: " + d.name + " silhouette now drives the combat sprite", "ok");
@@ -210,6 +214,10 @@ MF.tabs.forge = (function () {
         MF.exportJSON("mechfall-design-" + d.id + ".json", d);
       } else if (a === "fg-import") importModal(sec);
       else if (a === "fg-deploy") {
+        const chk = MF.models ? MF.models.isAllowed(MF.state.shape) : { ok: true, reason: "" };
+        if (DATA.models.policy.onlyExamplesAllowed && !chk.ok) {
+          MF.toast("EXAMPLE-ONLY POLICY: " + chk.reason, "err"); render(sec); return;
+        }
         const d = MF.saveWorkingDesign(($("fg-name") || {}).value);
         MF.setActive(d.id); MF.setTab("combat");
         MF.toast(d.name + " ready in COMBAT TEST", "ok"); return;

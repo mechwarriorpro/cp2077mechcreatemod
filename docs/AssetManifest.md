@@ -47,3 +47,17 @@ entities at runtime with CET's `exEntitySpawner`, `WorldTransform`, `registerInp
 `Game.GetTeleportationFacility`. No mesh, rig, texture, animation, VO, `.archive`, base-mod file or
 ripped franchise asset is added. Honest limitation: scripted pilot over vanilla entities, not a new
 custom mech asset; verified only by Lua/JS tests, not in-game.
+
+
+## Full model / trace library (0.1.6-test)
+
+| Asset | Origin | Ships in package? |
+|---|---|---|
+| `models.json` — 30 complete shape vectors + signature compositions | `chassis.json` roster examples, verbatim | yes (data); also embedded in `test_build.html` |
+| 90 blueprint traces (front / side / top per example) | deterministic projection of each example's own parameters in `tools/build_models.py` | embedded in `test_build.html` |
+| 30 full 3D meshes | runtime `MF.mesh3d.fromShape()` over the example shape + signature parts | runtime only, no files |
+| 30 trace thumbnails | runtime canvas drawing in `tools/src/26_models.js` | runtime only, no files |
+
+**No** `.mesh`, `.ent`, `.archive`, texture, image, screenshot, rig, animation, VO, base-mod file or
+third-party model is included or generated. The **only** allowed full-model / trace sources are the
+30 example chassis. See `docs/FULL_MODELS.md`.

@@ -222,6 +222,7 @@ Spelling varies across wikis (Earlcumber/Erlecumber, Tzendolg/Tzendolimble, Toyb
 4. Meltdown severity: destroy frame, or just Protocol 3 eject?
 5. Exponents for `S`, `F`, RCS and ECM — expose as config, don't hard-code.
 6. Target patch: CP2077 2.5 (current base mod) — confirm.
+   > **CONFIRMED (0.1.6-test): this project targets CP2077 patch 2.31** → CET 1.37.1 + RED4ext 1.29/1.30. The 2.5 line refers to the external base mod only.
 
 ---
 

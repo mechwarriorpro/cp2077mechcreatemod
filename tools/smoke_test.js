@@ -69,15 +69,15 @@ setTimeout(() => {
     const MF = w.MF;
     must(!!MF, 'MF global exists');
     const h = MF.health();
-    must(h.tabs.length === 9, 'all 9 tabs registered: ' + h.tabs.join(','));
-    must(h.data.length === 8, 'data bundle has 8 sections');
+    must(h.tabs.length === 10, 'all 10 tabs registered: ' + h.tabs.join(','));
+    must(h.data.length === 9, 'data bundle has 9 sections');
     must(Number.isFinite(h.powerMargin) && Number.isFinite(h.totalMass) && Number.isFinite(h.rcsFront), 'simulation produces finite telemetry');
     must(h.powerMargin > 0, 'baseline build has positive power margin (got ' + h.powerMargin.toFixed(1) + ')');
     must(h.validation.indexOf('BROWNOUT') < 0, 'baseline build is not in BROWNOUT');
     console.log('  health', JSON.stringify(h));
 
     // Tab sweep
-    ['hangar','teardown','reactor','systems','forge','combat','pilot','dossier','settings'].forEach(tab => {
+    ['hangar','teardown','reactor','systems','forge','combat','pilot','models','dossier','settings'].forEach(tab => {
       MF.setTab(tab);
       const sec = w.document.getElementById('tab-' + tab);
       must(sec && sec.innerHTML.length > 100, 'tab ' + tab + ' renders');
@@ -142,7 +142,52 @@ setTimeout(() => {
     click('[data-act="ingame-checklist"]');
     must(/EMERGENCY UNDEPLOY/.test(w.document.getElementById('mf-modal-body').innerHTML),
       'deploy checklist includes emergency undeploy');
+    must(/CET 1\.37\.1|1\.37\.1/.test(w.document.getElementById('mf-modal-body').innerHTML),
+      'patch 2.31 checklist prescribes CET 1.37.1, not 1.38.x');
     click('#mf-modal-close');
+
+    // PATCH 2.31 + PHANTOM LIBERTY gating
+    must(!!w.document.getElementById('ingame-patch'), 'in-game console exposes a game patch selector');
+    change('#ingame-patch', '2.31');
+    must(MF.state.ingamePatch === '2.31', 'patch selector persists 2.31');
+    must(MF.ingame.patchInfo().cet === '1.37.1', 'patch 2.31 maps to CET 1.37.1');
+    must(/1\.38/.test(MF.ingame.patchInfo().note), 'patch note warns about CET 1.38.x');
+    const plBox = w.document.getElementById('ingame-pl');
+    must(!!plBox, 'in-game console exposes Phantom Liberty toggle');
+    plBox.checked = true; plBox.dispatchEvent(new w.Event('change', { bubbles: true }));
+    must(MF.state.ingameHasPL === true, 'Phantom Liberty toggle persists');
+    click('[data-act="ingame-matrix"]');
+    must(/PATCH MATRIX|RED4EXT/.test(w.document.getElementById('mf-modal-body').innerHTML) &&
+      /1\.37\.1/.test(w.document.getElementById('mf-modal-body').innerHTML),
+      'patch matrix modal lists CET versions');
+    click('#mf-modal-close');
+    must(/setPatch/.test(MF.ingame.luaSnippet()) && /setHasPL/.test(MF.ingame.luaSnippet()),
+      'generated CET Lua is patch-aware');
+
+    // FULL MODELS / TRACES — example chassis only
+    MF.setTab('models');
+    must(MF.state.tab === 'models', 'MODEL LIBRARY tab opens');
+    must(MF.DATA.models.models.length === 30 && MF.DATA.models.policy.onlyExamplesAllowed === true,
+      'models.json defines exactly 30 allowed example full models');
+    const outlines = MF.DATA.models.models.map((m) => JSON.stringify(m.trace.front.outline));
+    must(new Set(outlines).size === 30, 'all 30 example full-model traces are distinct');
+    must(['front','side','top'].every((v) => MF.DATA.models.models.every((m) =>
+      m.trace[v] && m.trace[v].outline.length > 10 && m.trace[v].parts.length > 3)),
+      'every example has a complete front / side / top blueprint trace');
+    must(MF.DATA.models.models.every((m) => m.shape.torsoW && m.sig && m.sig.frame),
+      'every example carries its own full shape vector + signature composition');
+    const allowed = MF.models.isAllowed(MF.DATA.models.models[0].shape);
+    must(allowed.ok === true, 'example-derived full model is allowed');
+    const generic = MF.models.isAllowed({ torsoW: 2.4 });
+    must(generic.ok === false, 'generic untyped hull is rejected by the example-only policy');
+    must(!!w.document.getElementById('models-3d') && !!w.document.getElementById('models-trace'),
+      'MODEL LIBRARY renders a full 3D model and a blueprint trace');
+    must(w.document.querySelectorAll('.models-thumb').length === 30,
+      'gallery draws all 30 example trace thumbnails');
+    click('[data-act="models-view"][data-v="side"]');
+    must(MF.models.view === 'side', 'trace view switches to SIDE');
+    click('[data-act="models-rotate"]');
+    must(MF.models.yaw > 0.42, 'full 3D model rotates');
     MF.setTab('systems');
 
     // INTERNAL SYSTEMS: blank-slate authoring

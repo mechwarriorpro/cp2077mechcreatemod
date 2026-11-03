@@ -8,7 +8,7 @@ A real release would require:
 1. Original, permission-free meshes, rigs and animations authored from scratch.
 2. An `.archive` with those assets and a validated `.xl` manifest (appearances, entity records,
    factory definitions).
-3. Verified compatibility with CP2077 2.5 + Phantom Liberty and the base mod's dependencies
+3. Verified compatibility with the target patch (CP2077 2.31, CET 1.37.1 + RED4ext) and the base mod's dependencies
    (ArchiveXL, TweakXL, RED4ext, redscript, Codeware, AudioXL 0.9.x, CET, Vehicle Turret Core).
 4. Written permission from the BT-7274 authors before any derivative asset use.
 5. A compile/validation test before shipping, because a broken archive or manifest can break the

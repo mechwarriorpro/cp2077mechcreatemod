@@ -23,11 +23,13 @@ FILES = [
     "docs/REACTOR_MODEL.md", "docs/TEARDOWN_SCHEMA.md", "docs/SUBSYSTEM_MODEL.md",
     "docs/BaseModHooks.md", "docs/AssetManifest.md",
     "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
+    "docs/FULL_MODELS.md", "models.json",
     "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua",
     "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/README.md",
 ]
 # Deliberately NOT packaged: docs/integration/*.example (unvalidated redscript/TweakXL/ArchiveXL
-# templates), tools/, JSON source data, .github/, generated bundles, and any base-mod files.
+# templates), tools/, the other JSON source data, .github/, generated bundles, and any base-mod
+# files. models.json IS packaged: it is the delivered example-only full-model / trace library.
 
 
 def main() -> int:

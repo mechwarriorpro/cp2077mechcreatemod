@@ -125,6 +125,7 @@ function _stubSpawn(rec)
   _stubEntities[tostring(_stubNext)] = _stubEntity(id)
   return id
 end
+function GetVersion() return "v1.37.1" end
 _stubPlayer = _stubEntity({hash=0})
 _stubPlayer.tr:SetPosition(Vector4.new(100,200,0,1))
 Game = {
@@ -220,7 +221,12 @@ const checks = [
   ['MF.ingame.spawnHostile(); local n=#MF.ingame.hostiles; local ok=MF.ingame.fire(); return tostring(n) .. "|" .. tostring(ok) .. "|" .. tostring(#MF.ingame.hostiles)', 'RCS hostile spawn + ECM/salvo lock break'],
   ['MF.ingame.setWaypoint(50,20); MF.ingame.cycleCamera(); MF.ingame.vent(); MF.ingame.jump(); return tostring(MF.ingame.waypoint.x)', 'in-game pilot actions'],
   ['MF.ingame.undeploy(); return tostring(MF.ingame.active) .. "|" .. tostring(_stubDespawns) .. "|" .. tostring(MF.ingame.status)', 'emergency undeploy despawns all'],
-  ['return tostring(#MF.ingame.cfg.controls) .. "|" .. tostring(#MF.ingame.cfg.coreRecords) .. "|" .. tostring(#MF.ingame.cfg.partRecords)', 'generated in-game config']
+  ['return tostring(#MF.ingame.cfg.controls) .. "|" .. tostring(#MF.ingame.cfg.coreRecords) .. "|" .. tostring(#MF.ingame.cfg.partRecords)', 'generated in-game config'],
+  ['return MF.ingame.patch .. "|" .. MF.ingame.cetVersion .. "|" .. MF.ingame.expectedCet .. "|" .. tostring(MF.ingame.patchInfo().red4ext)', 'patch 2.31 + CET version detection'],
+  ['return tostring(#MF.ingame.records()) .. "|" .. tostring(MF.ingame.hasPL) .. "|" .. tostring(MF.ingame.hostileRec())', 'PL records skipped by default'],
+  ['MF.ingame.setHasPL(true); local n=#MF.ingame.records(); local h=MF.ingame.hostileRec(); MF.ingame.setHasPL(false); return tostring(n).."|"..tostring(h)', 'PL enabled adds signature records'],
+  ['MF.ingame.setPatch("2.5"); local p=MF.ingame.patch; MF.ingame.setPatch("2.31"); return tostring(p).."|"..tostring(MF.ingame.patch)', 'game patch switching'],
+  ['return tostring(MF.data.models.onlyExamplesAllowed) .. "|" .. tostring(MF.data.models.allowedCount) .. "|" .. tostring(#MF.data.models.allowedSourceIds)', 'example-only full model policy in CET data']
 ];
 for (const [code, label] of checks) {
   const s1 = lauxlib.luaL_loadstring(L, enc(code));

@@ -18,6 +18,16 @@
   pcall-wrapped, user-triggered and never required. No ripped franchise assets.
   No redscript / TweakXL / ArchiveXL files in the installable path: those are
   .example templates only, because a syntax error in r6/scripts breaks the game.
+
+  PATCH 2.31: this build targets CP2077 patch 2.31 and needs CET 1.37.1 (or
+  1.37.0) + a 2.31-compatible RED4ext. CET 1.38.x supports patch 2.5 and drops
+  older game patches. GetVersion() returns the CET build tag, so the IN-GAME
+  PILOT tab selects the patch manually and warns on a mismatch. Phantom Liberty
+  is optional; PL-only records are skipped unless explicitly enabled.
+
+  FULL MODELS / TRACES: models.json supplies 30 example-only full models and
+  front / side / top traces to the browser MODEL LIBRARY tab. Those 30 examples
+  are the ONLY allowed model sources; no imported or extracted geometry.
 ]]
 
 local MF = {}
@@ -712,7 +722,11 @@ local function drawCompat()
   ImGui.Separator()
   ImGui.Text("AutoDrive: " .. tostring(MF.compat.autodriveName or "not detected — procedural autopilot"))
   ImGui.Text("Crystal Coat: " .. tostring(MF.compat.crystalCoatName or "not detected — procedural coat"))
-  ImGui.Text("Vanilla Auto Drive is CP2077 2.3 (V key); CrystalCoat is 2.2+ (hold Y).")
+  ImGui.Text("Vanilla Auto Drive: CP2077 2.3 (V key), UPGRADED in patch 2.31; CrystalCoat 2.2+ (hold Y).")
+  ImGui.Text("Our autopilot is self-contained and never calls vanilla AutoDrive.")
+  ImGui.Text("MODEL LIBRARY: " .. tostring((MF_DATA.models or {}).allowedCount or 30) ..
+    " example-only full models / traces · onlyExamplesAllowed=" ..
+    tostring((MF_DATA.models or {}).onlyExamplesAllowed))
   local v, ch = ImGui.Checkbox("AUTODRIVE LINK (state only)", MF.compat.autopilot)
   if ch then MF.compat.autopilot = v end
   if ImGui.Button("PROBE GetMod") then MF.compatProbe() end
@@ -757,6 +771,12 @@ registerForEvent("onInit", function()
   log("MECHFALL // FORGE 77 loaded · " .. tostring(#(MF_DATA.roster or {})) .. " prefabs, " ..
     tostring(#MF.subsystems) .. " subsystem templates")
   log("Open the overlay with the CET hotkey binding: MECHFALL // FORGE 77")
+  log("Target CP2077 patch " .. tostring((MF_DATA.compat or {}).ingamePilot and
+    MF_DATA.compat.ingamePilot.targetPatch or "2.31") ..
+    " · needs CET 1.37.1 + RED4ext 1.29/1.30 (NOT CET 1.38.x) · Phantom Liberty optional")
+  log("FULL MODELS: " .. tostring((MF_DATA.models or {}).allowedCount or 30) ..
+    " example-only full models / traces · onlyExamplesAllowed=" ..
+    tostring((MF_DATA.models or {}).onlyExamplesAllowed))
   pcall(MF.compatProbe)
   pcall(function()
     MF.ingame.probe()

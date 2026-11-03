@@ -4,7 +4,16 @@
 > This document is deliberately explicit about what works, what is *attempted*, and what a
 > production-grade pilotable mech would still need.
 
-## 0. What changed in 0.1.5-test
+## 0. What changed in 0.1.5-test (and the 0.1.6-test corrections)
+
+> **`0.1.6-test` corrections:** the target game patch is **2.31**, so the required CET build is
+> **1.37.1** (or 1.37.0, the release tagged `Patch 2.31`), **not CET 1.38.x**. RED4ext is a CET
+> prerequisite. Patch 2.31 also **upgraded vanilla AutoDrive**; our procedural autopilot does not
+> call AutoDrive, so no behaviour change is assumed. `models.json` now supplies the only allowed
+> full models / traces (30 examples) to the browser MODEL LIBRARY — see `docs/FULL_MODELS.md`.
+> The CET installable path still references vanilla game records only.
+
+## 0a. What changed in 0.1.5-test
 
 `0.1.4` shipped a **browser** procedural 3D pilot. `0.1.5` adds a **Cyber Engine Tweaks in-game
 layer** that actually spawns, moves and rides mech entities *inside Cyberpunk 2077*. It does this
@@ -68,13 +77,44 @@ file is bundled, edited or required**.
 | `Game.GetSystemRequestsHandler():IsPreGame() / :IsGamePaused()` | Gate the update loop so nothing runs in menus or while paused |
 
 `exEntitySpawner` was added in CET 1.15 and was documented as broken in the 1.19.0-rc notes;
-modern CET builds (1.38+ for patch 2.5) are the target. The **PROBE APIs** button exists precisely
-because this varies by game build. If `SpawnRecord` is unavailable the code tries `Spawn` with
+on **patch 2.31** the correct build is **CET 1.37.1** (or 1.37.0 `Patch 2.31`); CET **1.38.x**
+supports game patch **2.5** and explicitly drops older patches. The **PROBE APIs** and **DETECT CET
+VERSION** buttons exist precisely because this varies by game build; `GetVersion()` returns the CET
+build tag and is matched against `compat.json → ingamePilot.gamePatches`. If `SpawnRecord` is unavailable the code tries `Spawn` with
 `.ent` paths, then `Game.GetStaticEntitySystem` (Codeware), then PHANTOM.
+
+## 3b. Patch matrix & Phantom Liberty gating
+
+
+| GAME PATCH | CET build | RED4ext | AutoDrive | Crystal Coat |
+|---|---|---|---|---|
+| 2.3 | 1.36.0 (`Patch 2.3`) | 1.28.0 | vanilla Auto Drive introduced (tracked pin / `V`) | native 2.2+ |
+| **2.31 — target** | **1.37.1** (or 1.37.0 `Patch 2.31`) | **1.29.0 / 1.30.0** | **vanilla Auto Drive UPGRADED in patch 2.31** | native 2.2+ |
+| 2.5 | 1.38.0 / 1.38.1 | 1.31.0 | vanilla | native 2.2+ |
+
+> ⚠️ **Do not install CET 1.38.x on patch 2.31.** CET 1.38.0 supports game version 2.5 and
+> explicitly drops support for older game patches; the earlier `0.1.5-test` wording "CET 1.38+ for
+> 2.5" was wrong for a 2.31 install. CET's own 1.37.1 README says **install RED4ext first**.
+> CET exposes `GetVersion()` (its build tag), not a reliable Lua game-version API, so the patch is
+> selected manually in the overlay and matched against `compat.json → ingamePilot.gamePatches`.
+> No Redscript / TweakXL / ArchiveXL / Codeware is needed for this CET-only path.
+
+The browser IN-GAME PILOT console has a **GAME PATCH** selector, a **PHANTOM LIBERTY INSTALLED**
+checkbox, a **PATCH MATRIX** modal and a **GENERATE IN-GAME CET LUA** snippet. The CET overlay has
+the same selector / checkbox plus **DETECT CET VERSION**; `MF.ingame.setPatch()`,
+`MF.ingame.setHasPL()` and `MF.ingame.detect()` are the runtime API. `IG.records()` filters out
+every record flagged `requiresPL` when Phantom Liberty is not installed, and `IG.hostileRec()`
+switches the threat spawner to a base-game record. A running CET 1.38.x on patch 2.31 shows a red
+**WARNING** line in the overlay. Third-party matrix `2077mods.com` claims 1.38.1 works on 2.31;
+official CET releases contradict that, so the official matrix is used and this remains unverified
+in-game.
 
 ## 4. Install & deploy
 
-1. Install **Cyber Engine Tweaks** (1.38+ for CP2077 2.5 / Phantom Liberty). PC only.
+1. Install **RED4ext (1.29.0 / 1.30.0 for CP2077 patch 2.31)** first — CET 1.37.1's own README
+   lists it as a prerequisite — then **Cyber Engine Tweaks 1.37.1** (or 1.37.0). PC only.
+   **Do NOT install CET 1.38.x on patch 2.31.** On 2.3 use CET 1.36.0; on 2.5 use CET 1.38.x.
+   Phantom Liberty is optional; PL-only records are skipped unless you enable it in the overlay.
 2. Copy the folder
    `cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/`
    into `Cyberpunk 2077/bin/x64/plugins/cyber_engine_tweaks/mods/`.
@@ -145,7 +185,8 @@ any derivative-asset work.
 
 | Symptom | What to do |
 |---|---|
-| `SPAWNER UNAVAILABLE — PHANTOM` | CET version mismatch or `exEntitySpawner` disabled. Update CET; the browser prototype still works. |
+| `SPAWNER UNAVAILABLE — PHANTOM` | CET version mismatch or `exEntitySpawner` disabled. On patch 2.31 install CET 1.37.1 (not 1.38.x) + RED4ext; the browser prototype still works. |
+| `CET VERSION MISMATCH` in the log | `GetVersion()` does not match the selected game patch's expected CET build. Use **GAME PATCH** or install the correct CET build. |
 | `DEPLOYED` but no visible mech | Records can be rejected on some patches. The `.ent` fallback templates are tried automatically; check the CET console log. |
 | Parts stay at `0/N` | Spawning is asynchronous. Wait a few seconds; the resolver retries each frame. |
 | V teleports awkwardly / camera fights | Uncheck **COCKPIT LOCK**, or switch to **ORBIT**. Press `F7` to stop. |

@@ -20,7 +20,7 @@ library · ~10% combat test harness (it exists to prove custom builds work).
 | **`test_build.html`** | **Main playable prototype.** One self-contained file: inline CSS/JS, canvas graphics, inline JSON data. No CDN, no fonts, no images, no network. | Open it in any modern browser (double-click). Works inside a sandboxed iframe; `localStorage` failures fall back to in-memory state. |
 | **`cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua`** | **CET-only CP2077 test mod.** ImGui overlay with hangar, subsystem authoring, forge params, reactor lab, settings, compat bridges and an **IN-GAME PILOT** tab that spawns/moves vanilla mech entity records and locks V into a cockpit transform. Live power / mass / heat / RCS / ECM bars with in-world consequences. Generated from the same JSON files. | Copy the `cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/` folder into `Cyberpunk 2077/bin/x64/plugins/cyber_engine_tweaks/mods/`. Requires Cyber Engine Tweaks. Open the overlay with **MECHFALL // FORGE 77**, press `F6` to deploy, `F7` to emergency undeploy. |
 
-**`0.1.5-test`: an in-game pilotable mech layer.** CET spawns the vanilla **Militech Minotaur**
+**`0.1.6-test`: full models / traces from the 30 examples only, plus a patch-2.31-aware CET pilot.** CET spawns the vanilla **Militech Minotaur**
 (`Character.q003_militech_mech`) plus drone/android/turret signature parts by TweakDB record id,
 moves them every frame with `WorldTransform` / `SetWorldTransform`, reads continuous controls with
 `registerInput` + `onUpdate`, and locks V to a COCKPIT / CHASE / ORBIT transform with
@@ -31,6 +31,37 @@ bundled — every game call is `pcall`-wrapped and falls back to PHANTOM mode. S
 Optional **Autodrive** and **Crystal Coat** compatibility is a data-driven bridge (`compat.json`):
 procedural equivalents in the browser plus `pcall(GetMod)` detection in CET. No other mod is bundled,
 required, patched or redistributed.
+
+### Full models & traces — examples only
+
+`0.1.6-test` adds `models.json` and a tenth browser tab, **MODEL LIBRARY**. **The 30 example chassis
+in `chassis.json` are the only allowed full models and traces.** Each of the 30 entries carries its
+own complete 20-parameter shape vector, its signature-part composition, and front / side / top
+blueprint traces with physical internal mounting bays. Generic untyped hulls, numeric-only scaling
+and any geometry from outside those examples are rejected (`MF.models.isAllowed()`); MECH FORGE
+refuses to BAKE a design that is not example-derived. Players still mix example parts freely — the
+restriction is on **model sources**, not customisation. Regenerate from the examples with
+`python3 tools/build_models.py`. See **`docs/FULL_MODELS.md`**.
+
+### Patch matrix — the target is CP2077 2.31
+
+CET builds are **patch-locked** and this project targets game patch **2.31**, not 2.5.
+
+| GAME PATCH | CET build | RED4ext | AutoDrive | Crystal Coat |
+|---|---|---|---|---|
+| 2.3 | 1.36.0 (`Patch 2.3`) | 1.28.0 | vanilla Auto Drive introduced (tracked pin / `V`) | native 2.2+ |
+| **2.31 — target** | **1.37.1** (or 1.37.0 `Patch 2.31`) | **1.29.0 / 1.30.0** | **vanilla Auto Drive UPGRADED in patch 2.31** | native 2.2+ |
+| 2.5 | 1.38.0 / 1.38.1 | 1.31.0 | vanilla | native 2.2+ |
+
+> ⚠️ **Do not install CET 1.38.x on patch 2.31.** CET 1.38.0 supports game version 2.5 and
+> explicitly drops support for older game patches; the earlier `0.1.5-test` wording "CET 1.38+ for
+> 2.5" was wrong for a 2.31 install. CET's own 1.37.1 README says **install RED4ext first**.
+> CET exposes `GetVersion()` (its build tag), not a reliable Lua game-version API, so the patch is
+> selected manually in the overlay and matched against `compat.json → ingamePilot.gamePatches`.
+> No Redscript / TweakXL / ArchiveXL / Codeware is needed for this CET-only path.
+
+Phantom Liberty is **optional**: PL-only mech / drone records are skipped unless you tick
+**PHANTOM LIBERTY INSTALLED** in the IN-GAME PILOT tab (browser console *and* CET overlay).
 
 Redscript, TweakXL and ArchiveXL stay as **`.example` templates only** under `docs/integration/`.
 They are deliberately **not installed**: redscript compiles `r6/scripts` at launch and a syntax error
@@ -149,6 +180,7 @@ docs/BaseModHooks.md · docs/AssetManifest.md · docs/INGAME_PILOT.md · docs/in
 `tools/lua_ingame.part`, then:
 
 ```bash
+python3 tools/build_models.py     # regenerate models.json from the 30 examples only
 python3 tools/generate.py          # regenerate html, lua, roster
 python3 tools/validate.py          # JSON integrity + drift + self-containment checks
 python3 tools/build_package.py     # optional: dist/ test zip
@@ -163,6 +195,9 @@ cd tools && npm install && npm test # optional: jsdom browser smoke test + Lua p
 
 - Target: **Titanfall BT-7274 v1.2.0 (Quest and Companion)**, Nexus 35041, by whatmynickname & sdh0,
   for CP2077 2.5 + Phantom Liberty (updated 27 Oct 2026). Standalone, ~460 MB.
+- **This project targets CP2077 patch 2.31**, not 2.5. The line above describes the *external* base
+  mod's own compatibility, not a requirement here. Our CET path uses CET 1.37.1 + a 2.31-compatible
+  RED4ext; no base-mod files are bundled, edited or redistributed.
 - Its requirements: ArchiveXL, TweakXL, RED4ext, redscript, Codeware, AudioXL 0.9.x, CET,
   Vehicle Turret Core; AMM / Mod Settings optional.
 - Features mirrored as *test harness only*: Badlands prologue, Vanguard Link Shard, Titanfall drop,
@@ -189,6 +224,8 @@ would still need original meshes, rigs, animations, VO, the game itself and priv
 This repo does **not** contain those. Autodrive / Crystal Coat compatibility means shared concepts,
 key names, share codes and optional `pcall(GetMod)` detection — not bundled or controlled mods.
 `NEXUS_PAGE.md` is a **DRAFT** and must not be published until base-mod permission is settled.
+The MODEL LIBRARY full models / traces are procedural data derived from the 30 example chassis; they
+are **not** in-game meshes, rigs, animations, textures or extracted game geometry.
 
 ---
 

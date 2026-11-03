@@ -41,3 +41,13 @@ and locks V into a cockpit transform — see `docs/INGAME_PILOT.md`. That in-gam
 no custom meshes, rigs, animations, VO, vehicle seat or mount system; a production-grade custom
 mech would need those plus ArchiveXL/TweakXL/Codeware/redscript work and possibly private base-mod
 APIs. No third-party or base-mod assets are used.
+
+
+## 0.1.6-test additions
+
+The **MODEL LIBRARY** tab now supplies a rotatable **full 3D model** and front / side / top
+**blueprint traces** for each of the 30 example chassis — the only allowed model sources — and
+`DEPLOY IN PILOT` bakes an example's complete shape + signature composition into this procedural
+pilot. The CET in-game layer is now **patch 2.31 aware** (CET 1.37.1 + RED4ext, optional Phantom
+Liberty record gating). Neither change adds an in-game mesh, rig, animation, seat or mount. See
+`docs/FULL_MODELS.md` and `docs/INGAME_PILOT.md`.

@@ -7,6 +7,7 @@
   MF.refresh();
   if (MF.state.tab === "combat") MF.combat.onEnter();
   if (MF.state.tab === "pilot" && MF.pilot) MF.pilot.onEnter();
+  if (MF.state.tab === "models" && MF.models) MF.models.onEnter();
   MF.toast("FORGE 77 online · INTERNAL SYSTEMS LAB is the emphasis — author a subsystem, then build your frame.", "ok");
 
   let lastTick = 0, resizeTimer = null;

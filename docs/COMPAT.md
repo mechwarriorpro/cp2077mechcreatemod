@@ -50,3 +50,42 @@ does not ship, modify or redistribute anyone else's files. The **separate** CET-
 (`docs/INGAME_PILOT.md`) spawns/moves vanilla game entity records, but it still ships no custom
 meshes, rigs, animations, VO, vehicle seat or mount system. A production-grade custom mech needs
 those plus ArchiveXL/TweakXL/Codeware/redscript work and possibly private base-mod APIs.
+
+
+## Game-patch matrix (0.1.6-test) — target is 2.31
+
+CET builds are locked to exactly one Cyberpunk 2077 patch; `compat.json → ingamePilot.gamePatches`
+is the source of truth used by the browser console, generated CET `init.lua`, checklist and Lua
+snippet.
+
+
+| GAME PATCH | CET build | RED4ext | AutoDrive | Crystal Coat |
+|---|---|---|---|---|
+| 2.3 | 1.36.0 (`Patch 2.3`) | 1.28.0 | vanilla Auto Drive introduced (tracked pin / `V`) | native 2.2+ |
+| **2.31 — target** | **1.37.1** (or 1.37.0 `Patch 2.31`) | **1.29.0 / 1.30.0** | **vanilla Auto Drive UPGRADED in patch 2.31** | native 2.2+ |
+| 2.5 | 1.38.0 / 1.38.1 | 1.31.0 | vanilla | native 2.2+ |
+
+> ⚠️ **Do not install CET 1.38.x on patch 2.31.** CET 1.38.0 supports game version 2.5 and
+> explicitly drops support for older game patches; the earlier `0.1.5-test` wording "CET 1.38+ for
+> 2.5" was wrong for a 2.31 install. CET's own 1.37.1 README says **install RED4ext first**.
+> CET exposes `GetVersion()` (its build tag), not a reliable Lua game-version API, so the patch is
+> selected manually in the overlay and matched against `compat.json → ingamePilot.gamePatches`.
+> No Redscript / TweakXL / ArchiveXL / Codeware is needed for this CET-only path.
+
+**AutoDrive on 2.31:** CD Projekt Red's official patch 2.31 notes list an **AutoDrive upgrade**
+(alongside Photo Mode, vignette, RT/path-tracing and stability changes). FORGE 77 does **not** call
+the vanilla AutoDrive system — `MF.compat.autodrive.steer()` is a self-contained waypoint solver and
+`T` in PILOT TEST / the CET `autodrive` binding only drives our own transform. Therefore the 2.31
+AutoDrive upgrade **does not change our compat notes** beyond recording that the vanilla feature was
+upgraded; no compatibility claim with the upgraded vanilla system is made. Crystal Coat is native
+since 2.2 and remains a procedural equivalent on all three patches.
+
+**Conflicting third-party data:** `2077mods.com/compatibility` lists CET 1.38.1 as working on 2.31.
+Official CET release notes for 1.38.0 say earlier game patches are no longer supported. We follow
+the official CET / Nexus archive evidence and flag the conflict rather than asserting either way.
+
+## Full models / traces (examples only)
+
+`models.json` is the closed library of 30 example-derived full models + front / side / top traces.
+Only these examples are allowed; no imported, ripped, extracted or third-party geometry. See
+`docs/FULL_MODELS.md`.

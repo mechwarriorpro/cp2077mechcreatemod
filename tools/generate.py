@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 SRC = TOOLS / "src"
 DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.json",
-              "components.json", "teardowns.json", "compat.json")
+              "components.json", "teardowns.json", "compat.json", "models.json")
 LUA_OUT = ROOT / "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua"
 
 # A stable stamp: derived from the data, not the wall clock, so --check is deterministic.
@@ -46,7 +46,7 @@ def data_bundle() -> dict:
         "build": BUILD_DATE,
         "generator": "tools/generate.py",
         "disclaimer": "Browser + CET prototype. No ripped assets, no base-mod files.",
-        "tabs": ["HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST", "PROCEDURAL PILOT", "DOSSIER", "SETTINGS"],
+        "tabs": ["HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST", "PROCEDURAL PILOT", "MODEL LIBRARY", "DOSSIER", "SETTINGS"],
     }
     return d
 
@@ -171,14 +171,21 @@ def lua_data(d: dict) -> dict:
             "coatings": d["compat"]["coatings"],
             "ingamePilot": {
                 "since": d["compat"]["ingamePilot"]["since"],
+                "targetPatch": d["compat"]["ingamePilot"]["targetPatch"],
+                "gamePatches": d["compat"]["ingamePilot"]["gamePatches"],
+                "defaultHasPL": d["compat"]["ingamePilot"]["defaultHasPL"],
+                "hostileRecord": d["compat"]["ingamePilot"]["hostileRecord"],
+                "plHostileRecord": d["compat"]["ingamePilot"]["plHostileRecord"],
                 "requirements": d["compat"]["ingamePilot"]["requirements"],
                 "sources": d["compat"]["ingamePilot"]["sources"],
                 "coreRecords": [
-                    {"id": x["id"], "name": x["name"], "role": x["role"]}
+                    {"id": x["id"], "name": x["name"], "role": x["role"],
+                     "requiresPL": x.get("requiresPL", False)}
                     for x in d["compat"]["ingamePilot"]["coreRecords"]
                 ],
                 "partRecords": [
-                    {"id": x["id"], "slot": x["slot"], "name": x["name"]}
+                    {"id": x["id"], "slot": x["slot"], "name": x["name"],
+                     "requiresPL": x.get("requiresPL", False)}
                     for x in d["compat"]["ingamePilot"]["partRecords"]
                 ],
                 "entityTemplates": d["compat"]["ingamePilot"]["entityTemplates"],
@@ -187,6 +194,13 @@ def lua_data(d: dict) -> dict:
                 "cameraModes": d["compat"]["ingamePilot"]["cameraModes"],
                 "disclaimer": d["compat"]["ingamePilot"]["disclaimer"],
             },
+        },
+        "models": {
+            "onlyExamplesAllowed": d["models"]["policy"]["onlyExamplesAllowed"],
+            "allowedCount": d["models"]["policy"]["allowedCount"],
+            "allowedSourceIds": d["models"]["policy"]["allowedSourceIds"],
+            "rejectGenericHulls": d["models"]["policy"]["rejectGenericHulls"],
+            "customDesignsMustUseExampleParts": d["models"]["policy"]["customDesignsMustUseExampleParts"],
         },
     }
 
@@ -251,6 +265,16 @@ def build_roster(d: dict) -> str:
               "Controls are `%s`. See `docs/INGAME_PILOT.md`." % (
                   len(ig["partRecords"]), len(ig["entityTemplates"]),
                   ", ".join(c["key"] for c in ig["controls"])), ""]
+    md = d["models"]
+    lines += ["", "## Full models / traces (examples only)", "",
+              "`models.json` is the closed full-model library: **%d example chassis, and only these are "
+              "allowed**. Each entry carries its own complete procedural model (full 20-parameter shape "
+              "vector + signature-part composition) plus front / side / top blueprint traces with internal "
+              "mounting bays. No imported, extracted or third-party geometry. "
+              "Policy: `onlyExamplesAllowed=%s`, `rejectGenericHulls=%s`. "
+              "See `docs/FULL_MODELS.md`." % (
+                  md["policy"]["allowedCount"], str(md["policy"]["onlyExamplesAllowed"]).lower(),
+                  str(md["policy"]["rejectGenericHulls"]).lower()), ""]
     lines += ["", "## Shape parameters (source material for the modeling table)", "",
               "Every chassis carries a 20-parameter shape vector plus a `sig` signature-part composition that can be loaded into MECH FORGE:",
               "", "`" + ", ".join(c["shapeKeys"]) + "`", "",

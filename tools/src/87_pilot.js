@@ -431,6 +431,8 @@ MF.pilot = {
         const out = $("ingame-parts-v"); if (out) out.textContent = MF.state.ingameParts;
       } else if (id === "ingame-camera") MF.state.ingameCamera = v;
       else if (id === "ingame-cockpit") MF.state.ingameCockpit = !!e.target.checked;
+      else if (id === "ingame-patch") MF.state.ingamePatch = v;
+      else if (id === "ingame-pl") MF.state.ingameHasPL = !!e.target.checked;
       else return;
       MF.save(); return;
     }
@@ -467,6 +469,7 @@ MF.pilot = {
     else if (a === "ingame-lua") MF.copyText(MF.ingame.luaSnippet());
     else if (a === "ingame-records") MF.copyText(MF.ingame.recordsText());
     else if (a === "ingame-checklist") MF.modal("IN-GAME PILOT · DEPLOY CHECKLIST", MF.ingame.checklistHTML());
+    else if (a === "ingame-matrix") MF.modal("CET / RED4EXT PATCH MATRIX", MF.ingame.patchMatrixHTML());
     else if (a === "pilot-export") MF.copyText(JSON.stringify({ seed: this.seed, coat: this.coat(), autopilot: this.autopilot, shape: MF.state.shape }, null, 2), "pilot state JSON");
     else if (a === "coat-apply") {
       const c = MF.compat.decodeCoat(($("coat-code") || {}).value || "");

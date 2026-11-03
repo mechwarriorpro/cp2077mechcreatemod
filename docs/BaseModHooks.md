@@ -1,7 +1,7 @@
 # BaseModHooks.md — optional CET integration (never required)
 
 Target: **Titanfall BT-7274 v1.2.0 (Quest and Companion)**, Nexus 35041, by whatmynickname & sdh0,
-for **CP2077 2.5 + Phantom Liberty** (updated 27 Oct 2026). Requirements of the base mod:
+for **CP2077 2.5 + Phantom Liberty** (updated 27 Oct 2026). **This project targets patch 2.31** with CET 1.37.1 + RED4ext 1.29/1.30; the line above describes the external base mod only. Requirements of the base mod:
 ArchiveXL, TweakXL, RED4ext, redscript, Codeware, AudioXL 0.9.x, CET, Vehicle Turret Core;
 AMM / Mod Settings optional.
 

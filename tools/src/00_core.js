@@ -59,6 +59,11 @@ function defaults() {
     ingameParts: Math.min(DATA.compat.ingamePilot.physics.maxParts, DATA.compat.ingamePilot.partRecords.length),
     ingameCamera: "CHASE",
     ingameCockpit: true,
+    ingamePatch: DATA.compat.ingamePilot.targetPatch,
+    ingameHasPL: DATA.compat.ingamePilot.defaultHasPL,
+    modelsSelected: DATA.models.models[0].id,
+    modelsView: "front",
+    modelsYaw: 0.42,
     reactor: clone(presetById("vanguard_link_shard").params),
     reactorPresetId: "vanguard_link_shard",
     biome: "badlands",
@@ -105,6 +110,11 @@ function loadState() {
   if (!Number.isFinite(out.ingameParts)) out.ingameParts = d.ingameParts;
   if (!out.ingameCamera) out.ingameCamera = d.ingameCamera;
   if (typeof out.ingameCockpit !== "boolean") out.ingameCockpit = d.ingameCockpit;
+  if (!out.ingamePatch) out.ingamePatch = d.ingamePatch;
+  if (typeof out.ingameHasPL !== "boolean") out.ingameHasPL = d.ingameHasPL;
+  if (!out.modelsSelected) out.modelsSelected = d.modelsSelected;
+  if (!out.modelsView) out.modelsView = d.modelsView;
+  if (!Number.isFinite(out.modelsYaw)) out.modelsYaw = d.modelsYaw;
   if (!out.tdLayers) out.tdLayers = d.tdLayers;
   if (!out.tdFit) out.tdFit = d.tdFit;
   if (!out.tdFit.routes) out.tdFit.routes = {};
@@ -382,6 +392,7 @@ MF.setTab = function (name) {
   MF.refresh();
   if (name === "combat" && MF.combat && MF.combat.onEnter) MF.combat.onEnter();
   if (name === "pilot" && MF.pilot && MF.pilot.onEnter) MF.pilot.onEnter();
+  if (name === "models" && MF.models && MF.models.onEnter) MF.models.onEnter();
 };
 MF.renderStatus = function () {
   const d = MF.activeDesign();

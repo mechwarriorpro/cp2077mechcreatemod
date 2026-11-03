@@ -18,6 +18,16 @@
   pcall-wrapped, user-triggered and never required. No ripped franchise assets.
   No redscript / TweakXL / ArchiveXL files in the installable path: those are
   .example templates only, because a syntax error in r6/scripts breaks the game.
+
+  PATCH 2.31: this build targets CP2077 patch 2.31 and needs CET 1.37.1 (or
+  1.37.0) + a 2.31-compatible RED4ext. CET 1.38.x supports patch 2.5 and drops
+  older game patches. GetVersion() returns the CET build tag, so the IN-GAME
+  PILOT tab selects the patch manually and warns on a mismatch. Phantom Liberty
+  is optional; PL-only records are skipped unless explicitly enabled.
+
+  FULL MODELS / TRACES: models.json supplies 30 example-only full models and
+  front / side / top traces to the browser MODEL LIBRARY tab. Those 30 examples
+  are the ONLY allowed model sources; no imported or extracted geometry.
 ]]
 
 local MF = {}
@@ -2177,103 +2187,185 @@ return {
     },
     ["ingamePilot"] = {
       ["since"] = "0.1.5-test",
+      ["targetPatch"] = "2.31",
+      ["gamePatches"] = {
+        ["2.3"] = {
+          ["label"] = "2.3",
+          ["cet"] = "1.36.0",
+          ["cetTagged"] = "1.36.0",
+          ["red4ext"] = "1.28.0",
+          ["released"] = "2025-07-17",
+          ["autoDrive"] = "Vanilla Auto Drive introduced (V key / tracked map pin)",
+          ["crystalCoat"] = "Native CrystalCoat (2.2+)",
+          ["note"] = "CET 1.36.0 is the build tagged 'Patch 2.3'."
+        },
+        ["2.31"] = {
+          ["label"] = "2.31",
+          ["cet"] = "1.37.1",
+          ["cetTagged"] = "1.37.0",
+          ["red4ext"] = "1.29.0 / 1.30.0",
+          ["released"] = "2025-09-11",
+          ["autoDrive"] = "Vanilla Auto Drive UPGRADED in patch 2.31; V key / tracked pin",
+          ["crystalCoat"] = "Native CrystalCoat (2.2+)",
+          ["note"] = "CET 1.37.0 is the build tagged 'Patch 2.31' (2025-09-11); CET 1.37.1 (2025-09-28) adds scripting / NewProxy crash fixes and is the recommended 2.31 build. CET 1.38.0+ explicitly DROPS support for game patches before 2.5 \u{2014} DO NOT install 1.38.x on 2.31."
+        },
+        ["2.5"] = {
+          ["label"] = "2.5",
+          ["cet"] = "1.38.1",
+          ["cetTagged"] = "1.38.0",
+          ["red4ext"] = "1.31.0",
+          ["released"] = "2026-10-22",
+          ["autoDrive"] = "Vanilla Auto Drive (2.3+)",
+          ["crystalCoat"] = "Native CrystalCoat (2.2+)",
+          ["note"] = "CET 1.38.0 is tagged for 2.5 (game version 3.0.88.46235); 1.38.1 updates RED4ext.SDK / RTTIHelper."
+        }
+      },
+      ["defaultHasPL"] = false,
+      ["hostileRecord"] = "Character.militech_base_android",
+      ["plHostileRecord"] = "Character.kurtz_base_drone_wyvern",
       ["requirements"] = {
-        "PC Cyberpunk 2077 2.5 / Phantom Liberty with Cyber Engine Tweaks (CET 1.38+ for patch 2.5)",
+        "PC Cyberpunk 2077 patch 2.31 with Cyber Engine Tweaks 1.37.1 (the 2.31 build) \u{2014} CET 1.38.x does NOT support 2.31",
+        "RED4ext 1.29.0 / 1.30.0 (a 2.31-compatible build); CET's README lists it as a prerequisite",
         "A loaded save in the open world \u{2014} not the main menu, not paused",
         "CET Bindings: assign the MECHFALL IN-GAME PILOT keys under the CET overlay Bindings tab",
-        "No Redscript, TweakXL, ArchiveXL or Codeware needed for this CET-only path"
+        "No Redscript, TweakXL, ArchiveXL or Codeware needed for this CET-only path",
+        "Phantom Liberty is OPTIONAL: PL-only records are skipped unless 'PHANTOM LIBERTY' is enabled"
       },
       ["sources"] = {
         "wiki.redmodding.org/cyber-engine-tweaks/patch-notes \u{2014} exEntitySpawner.SpawnRecord / Spawn / Despawn, Game.FindEntityByID",
         "wiki.redmodding.org/cyber-engine-tweaks/cet-functions/hotkeys/registerinput \u{2014} continuous input with onUpdate",
         "wiki.redmodding.org/cyber-engine-tweaks/functions/special-types \u{2014} ToVector4 / ToEulerAngles / TeleportationFacility:Teleport",
         "github.com/justarandomguyintheinternet/CP77_entSpawner \u{2014} entity:GetWorldTransform(), transform:SetPosition / SetOrientationEuler, entity:SetWorldTransform(transform)",
-        "Nexus 34927 / 35346 and the Controllable Mechs project \u{2014} Character.q003_militech_mech is the in-game Militech Minotaur"
+        "Nexus 34927 / 35346 and the Controllable Mechs project \u{2014} Character.q003_militech_mech is the in-game Militech Minotaur",
+        "github.com/maximegmd/CyberEngineTweaks releases v1.37.0 'Patch 2.31' (2025-09-11) and v1.37.1 (2025-09-28)",
+        "github.com/maximegmd/CyberEngineTweaks v1.37.1 source \u{2014} SpawnRecord in src/reverse/RTTIExtender.cpp, registerInput in src/scripting/ScriptContext.cpp, global GetVersion() returning CET_GIT_TAG in src/scripting/Scripting.cpp",
+        "cyberpunk.net/en/news/51794/patch-2-31 \u{2014} official patch 2.31 notes (AutoDrive upgrade, 2025-09-11)",
+        "modsafe.app / 2077mods.com framework compatibility matrix \u{2014} CET 1.37.x + RED4ext 1.29/1.30 for patch 2.31"
       },
       ["coreRecords"] = {
         {
           ["id"] = "Character.q003_militech_mech",
           ["name"] = "MILITECH MINOTAUR (VANILLA)",
-          ["role"] = "biped"
+          ["role"] = "biped",
+          ["requiresPL"] = false
         },
         {
           ["id"] = "Character.q113_top_atrium_arasaka_mech",
           ["name"] = "ARASAKA ATRIUM MECH",
-          ["role"] = "heavy"
+          ["role"] = "heavy",
+          ["requiresPL"] = false
         },
         {
           ["id"] = "Character.q115_lobby_arasaka_mech",
           ["name"] = "ARASAKA LOBBY MECH",
-          ["role"] = "heavy"
+          ["role"] = "heavy",
+          ["requiresPL"] = false
         },
         {
           ["id"] = "Character.q302_spidertank_kurt_soldier_melee_heavy",
           ["name"] = "SPIDER TANK",
-          ["role"] = "spider"
+          ["role"] = "spider",
+          ["requiresPL"] = true
         },
         {
           ["id"] = "Character.q306_orbital_air_robot_guard",
           ["name"] = "ORBITAL AIR ROBOT GUARD",
-          ["role"] = "flyer"
+          ["role"] = "flyer",
+          ["requiresPL"] = true
         }
       },
       ["partRecords"] = {
         {
           ["id"] = "Character.kangtao_drone_octant_medium",
           ["slot"] = "sigBackL",
-          ["name"] = "OCTANT GUNSHIP POD"
+          ["name"] = "OCTANT GUNSHIP POD",
+          ["requiresPL"] = true
         },
         {
           ["id"] = "Character.kurtz_base_drone_wyvern",
           ["slot"] = "sigHead",
-          ["name"] = "WYVERN SENSOR DRONE"
+          ["name"] = "WYVERN SENSOR DRONE",
+          ["requiresPL"] = true
         },
         {
           ["id"] = "Character.q003_spiderbot_case",
           ["slot"] = "sigLegL",
-          ["name"] = "SPIDERBOT LEG POD"
+          ["name"] = "SPIDERBOT LEG POD",
+          ["requiresPL"] = false
         },
         {
           ["id"] = "Character.militech_base_android",
           ["slot"] = "sigArmL",
-          ["name"] = "MILITECH ACTUATOR ARM"
+          ["name"] = "MILITECH ACTUATOR ARM",
+          ["requiresPL"] = false
         },
         {
           ["id"] = "Character.ncpd_base_android",
           ["slot"] = "sigArmR",
-          ["name"] = "NCPD ACTUATOR ARM"
+          ["name"] = "NCPD ACTUATOR ARM",
+          ["requiresPL"] = false
         },
         {
           ["id"] = "AttachableObject.q304_tank_turret",
           ["slot"] = "sigExtra",
-          ["name"] = "TANK TURRET HARDPOINT"
+          ["name"] = "TANK TURRET HARDPOINT",
+          ["requiresPL"] = true
         },
         {
           ["id"] = "AttachableObject.vehicle_hmg_turret",
           ["slot"] = "sigExtra2",
-          ["name"] = "HMG HARDPOINT"
+          ["name"] = "HMG HARDPOINT",
+          ["requiresPL"] = false
         },
         {
           ["id"] = "Character.q301_skybridge_drone",
           ["slot"] = "sigExtra3",
-          ["name"] = "SKYBRIDGE DRONE"
+          ["name"] = "SKYBRIDGE DRONE",
+          ["requiresPL"] = true
+        },
+        {
+          ["id"] = "Character.security_base_android",
+          ["slot"] = "sigShoulderL",
+          ["name"] = "SECURITY ANDROID PAULDRON",
+          ["requiresPL"] = false
+        },
+        {
+          ["id"] = "Character.scavenger_base_android",
+          ["slot"] = "sigShoulderR",
+          ["name"] = "SCAVENGER ANDROID PAULDRON",
+          ["requiresPL"] = false
+        },
+        {
+          ["id"] = "AttachableObject.q005_delamain_cab_turret",
+          ["slot"] = "sigBackR",
+          ["name"] = "DELAMAIN CAB TURRET",
+          ["requiresPL"] = false
+        },
+        {
+          ["id"] = "AttachableObject.drone_camera",
+          ["slot"] = "sigLegR",
+          ["name"] = "DRONE CAMERA POD",
+          ["requiresPL"] = false
         }
       },
       ["entityTemplates"] = {
         {
           ["path"] = "base\\gameplay\\devices\\disposal\\disaposal_device_crate_one_side.ent",
           ["slot"] = "torso",
-          ["name"] = "CRATE HULL (record fallback)"
+          ["name"] = "CRATE HULL (record fallback)",
+          ["requiresPL"] = false
         },
         {
           ["path"] = "base\\gameplay\\devices\\masters\\fuse_box\\generator.ent",
           ["slot"] = "reactor",
-          ["name"] = "GENERATOR CORE (record fallback)"
+          ["name"] = "GENERATOR CORE (record fallback)",
+          ["requiresPL"] = false
         },
         {
           ["path"] = "base\\gameplay\\devices\\masters\\electric_box\\electric_box.ent",
           ["slot"] = "bus",
-          ["name"] = "BUS MODULE (record fallback)"
+          ["name"] = "BUS MODULE (record fallback)",
+          ["requiresPL"] = false
         }
       },
       ["controls"] = {
@@ -2379,8 +2471,46 @@ return {
         "CHASE",
         "ORBIT"
       },
-      ["disclaimer"] = "This is a CET-only SCRIPTED pilot: it references vanilla game records by TweakDB id, moves existing entities and locks V to a cockpit / chase / orbit transform. It does NOT add a new custom mesh, skeleton, rig, animation set, VO, physics collider, vehicle seat or mount system. Spawned NPCs may use their normal game AI and can be hostile; deploy in a safe open-world area and press EMERGENCY UNDEPLOY (F7) to despawn everything. It cannot be verified inside the game from this repository. A production-grade in-game mech still needs custom .ent/.mesh/.rig/.anims resources, ArchiveXL/TweakXL/Codeware/redscript work and private base-mod APIs. No base-mod files or ripped franchise assets are bundled, edited or redistributed."
+      ["disclaimer"] = "This is a CET-only SCRIPTED pilot: it references vanilla game records by TweakDB id, moves existing entities and locks V to a cockpit / chase / orbit transform. It does NOT add a new custom mesh, skeleton, rig, animation set, VO, physics collider, vehicle seat or mount system. Spawned NPCs may use their normal game AI and can be hostile; deploy in a safe open-world area and press EMERGENCY UNDEPLOY (F7) to despawn everything. It cannot be verified inside the game from this repository. A production-grade in-game mech still needs custom .ent/.mesh/.rig/.anims resources, ArchiveXL/TweakXL/Codeware/redscript work and private base-mod APIs. No base-mod files or ripped franchise assets are bundled, edited or redistributed. CET builds are patch-locked: on game patch 2.31 use CET 1.37.1 (or 1.37.0), NOT 1.38.x, which drops pre-2.5 support."
     }
+  },
+  ["models"] = {
+    ["onlyExamplesAllowed"] = true,
+    ["allowedCount"] = 30,
+    ["allowedSourceIds"] = {
+      "bt7274",
+      "ion",
+      "tone",
+      "northstar",
+      "ronin",
+      "scorch",
+      "legion",
+      "monarch",
+      "ikaruga",
+      "toybox",
+      "kaldatoah",
+      "tyrantor",
+      "tzendolg",
+      "falcon",
+      "tricera",
+      "narukami",
+      "panther",
+      "welkin",
+      "stego",
+      "raven_rj",
+      "tetrapod_ac",
+      "balteus",
+      "ibis",
+      "atlas",
+      "timber_wolf",
+      "jenner",
+      "marauder",
+      "behemoth",
+      "oni",
+      "maxtac_ram"
+    },
+    ["rejectGenericHulls"] = true,
+    ["customDesignsMustUseExampleParts"] = true
   }
 }
 
@@ -2880,7 +3010,8 @@ MF.ingame = {
   telemetry = nil, heat = 0.34, kills = 0, venting = 0,
   cameraMode = "CHASE", coreIndex = 1, partCount = 6,
   cockpitLock = true, autopilot = false, showThreats = true,
-  waypoint = { x = 40, y = 10 }, lastError = nil, logLines = {}
+  waypoint = { x = 40, y = 10 }, lastError = nil, logLines = {},
+  patch = "2.31", patchKeys = {}, hasPL = false, cetVersion = "unknown", expectedCet = "unknown"
 }
 local IG = MF.ingame
 local IGC = (MF_DATA.compat or {}).ingamePilot or {}
@@ -2893,7 +3024,9 @@ IG.cfg = {
   requirements = IGC.requirements or {},
   sources = IGC.sources or {},
   disclaimer = IGC.disclaimer or "",
-  hostileRecord = "Character.kurtz_base_drone_wyvern"
+  patches = IGC.gamePatches or {},
+  hostileRecord = IGC.hostileRecord or "Character.militech_base_android",
+  plHostileRecord = IGC.plHostileRecord or "Character.kurtz_base_drone_wyvern"
 }
 local function pnum(k, d)
   local v = tonumber((IGC.physics or {})[k])
@@ -2923,6 +3056,58 @@ local function iglog(msg)
   log("[INGAME] " .. tostring(msg))
 end
 IG.log = iglog
+
+IG.patch = IGC.targetPatch or "2.31"
+IG.hasPL = IGC.defaultHasPL == true
+for k, _ in pairs(IG.cfg.patches) do table.insert(IG.patchKeys, k) end
+table.sort(IG.patchKeys)
+if #IG.patchKeys == 0 then IG.patchKeys = { "2.3", "2.31", "2.5" } end
+
+-- Patch-aware helpers --------------------------------------------------------
+function IG.patchInfo()
+  return IG.cfg.patches[IG.patch] or {}
+end
+function IG.setPatch(p)
+  if not IG.cfg.patches[p] then return IG.patch end
+  IG.patch = p
+  local info = IG.patchInfo()
+  iglog("GAME PATCH " .. p .. " · CET " .. tostring(info.cet) .. " · RED4ext " .. tostring(info.red4ext))
+  IG.detect()
+  return IG.patch
+end
+function IG.setHasPL(on)
+  IG.hasPL = on and true or false
+  iglog("PHANTOM LIBERTY " .. (IG.hasPL and "INSTALLED — PL-only records enabled" or
+    "NOT INSTALLED — PL-only records skipped"))
+  return IG.hasPL
+end
+function IG.records()
+  local out = {}
+  for _, r in ipairs(IG.cfg.partRecords) do
+    if not r.requiresPL or IG.hasPL then table.insert(out, r) end
+  end
+  return out
+end
+function IG.hostileRec()
+  return IG.hasPL and IG.cfg.plHostileRecord or IG.cfg.hostileRecord
+end
+-- CET exposes GetVersion() returning its build tag (e.g. "v1.37.1").
+function IG.detect()
+  local v = "unknown"
+  pcall(function() if type(GetVersion) == "function" then v = tostring(GetVersion()) end end)
+  IG.cetVersion = v
+  local info = IG.patchInfo()
+  IG.expectedCet = info.cet or "unknown"
+  local num = string.match(v, "(%d+%.%d+%.?%d*)") or ""
+  local expected = string.match(IG.expectedCet, "(%d+%.%d+%.?%d*)") or ""
+  if num ~= "" and expected ~= "" and num ~= expected then
+    iglog("CET VERSION MISMATCH — running " .. v .. " but game patch " .. IG.patch ..
+      " needs CET " .. IG.expectedCet .. " (" .. tostring(info.note) .. ")")
+  else
+    iglog("CET " .. v .. " · patch " .. IG.patch .. " expects CET " .. IG.expectedCet)
+  end
+  return v
+end
 
 -- Special type constructors, with ToVector4 / ToEulerAngles fallbacks. -------
 local function vec(x, y, z)
@@ -2974,6 +3159,7 @@ end
 
 -- Probe: report exactly which CET APIs this game build exposes. ---------------
 function IG.probe()
+  IG.detect()
   local a = {}
   a.game = type(Game) == "table"
   a.player = false
@@ -3132,14 +3318,16 @@ function IG.deploy()
       (IG.usedTemplates and " (.ent template fallback)" or " (vanilla record)")
     iglog(IG.status .. " · record " .. tostring(IG.coreRecord))
   end
-  local n = math.min(IG.partCount, IG.ph.maxParts, #IG.cfg.partRecords)
+  local recs = IG.records()
+  local n = math.min(IG.partCount, IG.ph.maxParts, #recs)
   for i = 1, n do
-    local pr = IG.cfg.partRecords[i]
+    local pr = recs[i]
     local off = rotated(partOffset(i, n), IG.yaw)
     local id = spawnRecord(pr.id, IG.pos.x + off.x, IG.pos.y + off.y, IG.pos.z + off.z, d)
     table.insert(IG.parts, { id = id, entity = nil, off = partOffset(i, n), rec = pr.id, slot = pr.slot, name = pr.name })
   end
-  iglog(tostring(n) .. " in-game signature part records queued (" .. tostring(#IG.cfg.partRecords) .. " configured)")
+  iglog(tostring(n) .. " in-game signature part records queued (" .. tostring(#recs) ..
+    " allowed for patch " .. IG.patch .. (IG.hasPL and " + PL" or " / no PL") .. ")")
   pcall(function() IG.telemetry = MF.compute(MF.activeDesignId) end)
   if IG.cockpitLock then iglog("Cockpit lock ENGAGED — " .. IG.cameraMode .. " camera, F7 emergency undeploy") end
   return true
@@ -3166,7 +3354,7 @@ function IG.spawnHostile()
   local a = IG.gait * 0.37 + #IG.hostiles * 2.1
   local x = IG.pos.x + math.cos(a) * IG.ph.threatDistance
   local y = IG.pos.y + math.sin(a) * IG.ph.threatDistance
-  local id = spawnRecord(IG.cfg.hostileRecord, x, y, IG.pos.z + 1, yawDeg(IG.yaw) + 180)
+  local id = spawnRecord(IG.hostileRec(), x, y, IG.pos.z + 1, yawDeg(IG.yaw) + 180)
   if not id then return false end
   table.insert(IG.hostiles, { id = id, entity = nil, x = x, y = y })
   iglog("RCS / EMISSION LOCK — in-game drone acquired you (" .. tostring(#IG.hostiles) .. " active)")
@@ -3369,7 +3557,13 @@ local function drawIngame(t)
   ImGui.Text("IN-GAME PILOT · CET SPAWN / COCKPIT LOCK / VANILLA RECORDS")
   ImGui.Separator()
   ImGui.Text("STATUS " .. IG.statusText())
+  ImGui.Text("GAME PATCH " .. IG.patch .. " · CET " .. IG.cetVersion ..
+    " · EXPECTS CET " .. IG.expectedCet .. " · RED4ext " .. tostring(IG.patchInfo().red4ext))
+  if string.match(IG.cetVersion, "1%.38") then
+    ImGui.TextColored(1, 0.35, 0.35, 1, "WARNING · CET 1.38.x drops pre-2.5 game support — use CET 1.37.1 on patch 2.31")
+  end
   ImGui.Text("SPAWNER " .. IG.spawner)
+  ImGui.Text("PHANTOM LIBERTY " .. (IG.hasPL and "INSTALLED" or "NOT INSTALLED (PL records skipped)"))
   ImGui.Text("CORE RECORD " .. tostring(IG.coreRecord) .. " · " .. tostring(IG.coreName))
   if IG.usedTemplates then ImGui.TextColored(1, 0.75, 0.3, 1, ".ent template fallback active (record rejected)") end
   if IG.phantom then ImGui.TextColored(1, 0.4, 0.4, 1, "PHANTOM MODE · no visible chassis, cockpit flight only") end
@@ -3381,6 +3575,19 @@ local function drawIngame(t)
   if ImGui.Button("EMERGENCY RESET (F7)") then IG.undeploy() end
   ImGui.SameLine()
   if ImGui.Button("PROBE APIs") then IG.probe(); iglog("API probe: " .. IG.spawner) end
+  ImGui.SameLine()
+  if ImGui.Button("DETECT CET VERSION") then IG.detect() end
+  ImGui.Separator()
+  local pnames = {}
+  for i, k in ipairs(IG.patchKeys) do
+    pnames[i] = k .. " → CET " .. tostring((IG.cfg.patches[k] or {}).cet or "?")
+  end
+  local pidx = 1
+  for i, k in ipairs(IG.patchKeys) do if k == IG.patch then pidx = i end end
+  local pi, pch = ImGui.Combo("GAME PATCH##ig", pidx - 1, pnames, #pnames)
+  if pch then IG.setPatch(IG.patchKeys[pi + 1]) end
+  local plv, plc = ImGui.Checkbox("PHANTOM LIBERTY INSTALLED##ig", IG.hasPL)
+  if plc then IG.setHasPL(plv) end
   ImGui.Separator()
   local names = {}
   for i, r in ipairs(IG.cfg.coreRecords) do names[i] = r.name .. " [" .. r.role .. "]" end
@@ -3391,7 +3598,7 @@ local function drawIngame(t)
     if r then IG.coreRecord, IG.coreName = r.id, r.name; iglog("Core chassis selected: " .. r.name) end
   end
   local pn = { IG.partCount }
-  local nv, pc = ImGui.SliderInt("SIGNATURE PARTS##ig", pn[1], 0, math.min(IG.ph.maxParts, #IG.cfg.partRecords))
+  local nv, pc = ImGui.SliderInt("SIGNATURE PARTS##ig", pn[1], 0, math.min(IG.ph.maxParts, #IG.records()))
   if pc then IG.partCount = nv end
   local cv, cch = ImGui.Checkbox("COCKPIT LOCK (teleport V)##ig", IG.cockpitLock)
   if cch then IG.cockpitLock = cv end
@@ -3675,7 +3882,11 @@ local function drawCompat()
   ImGui.Separator()
   ImGui.Text("AutoDrive: " .. tostring(MF.compat.autodriveName or "not detected — procedural autopilot"))
   ImGui.Text("Crystal Coat: " .. tostring(MF.compat.crystalCoatName or "not detected — procedural coat"))
-  ImGui.Text("Vanilla Auto Drive is CP2077 2.3 (V key); CrystalCoat is 2.2+ (hold Y).")
+  ImGui.Text("Vanilla Auto Drive: CP2077 2.3 (V key), UPGRADED in patch 2.31; CrystalCoat 2.2+ (hold Y).")
+  ImGui.Text("Our autopilot is self-contained and never calls vanilla AutoDrive.")
+  ImGui.Text("MODEL LIBRARY: " .. tostring((MF_DATA.models or {}).allowedCount or 30) ..
+    " example-only full models / traces · onlyExamplesAllowed=" ..
+    tostring((MF_DATA.models or {}).onlyExamplesAllowed))
   local v, ch = ImGui.Checkbox("AUTODRIVE LINK (state only)", MF.compat.autopilot)
   if ch then MF.compat.autopilot = v end
   if ImGui.Button("PROBE GetMod") then MF.compatProbe() end
@@ -3720,6 +3931,12 @@ registerForEvent("onInit", function()
   log("MECHFALL // FORGE 77 loaded · " .. tostring(#(MF_DATA.roster or {})) .. " prefabs, " ..
     tostring(#MF.subsystems) .. " subsystem templates")
   log("Open the overlay with the CET hotkey binding: MECHFALL // FORGE 77")
+  log("Target CP2077 patch " .. tostring((MF_DATA.compat or {}).ingamePilot and
+    MF_DATA.compat.ingamePilot.targetPatch or "2.31") ..
+    " · needs CET 1.37.1 + RED4ext 1.29/1.30 (NOT CET 1.38.x) · Phantom Liberty optional")
+  log("FULL MODELS: " .. tostring((MF_DATA.models or {}).allowedCount or 30) ..
+    " example-only full models / traces · onlyExamplesAllowed=" ..
+    tostring((MF_DATA.models or {}).onlyExamplesAllowed))
   pcall(MF.compatProbe)
   pcall(function()
     MF.ingame.probe()
