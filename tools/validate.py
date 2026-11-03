@@ -591,7 +591,8 @@ def main() -> int:
               "docs/BaseModHooks.md", "docs/AssetManifest.md",
               "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
               "docs/FULL_MODELS.md", "docs/WEAPON_FORGE.md", "docs/DAMAGE_MODEL.md",
-              "docs/ORIGINAL_MESH_PIPELINE.md",
+              "docs/ORIGINAL_MESH_PIPELINE.md", "docs/ONLINE_AUTHORING.md",
+              "docs/authoring_brief.json", "tools/authoring_brief.py",
               "models.json", "weapons.json", "damage.json",
               "tools/validate_integration.py", "tools/parity_test.js", "tools/export_meshes.py",
               "assets/original_meshes/manifest.json", "assets/original_meshes/README.md",
@@ -638,6 +639,30 @@ def main() -> int:
         for token in ("NOT INSTALLED", "NOT COMPILED", "NOT IN-GAME VERIFIED", "NO RIPPED"):
             if token not in ptxt:
                 err(f"docs/ORIGINAL_MESH_PIPELINE.md must state {token}")
+
+    # ------------------------------- online authoring handoff (0.1.9-test addendum)
+    brief = subprocess.run([sys.executable, str(ROOT / "tools/authoring_brief.py"), "--check"],
+                           capture_output=True, text=True)
+    if brief.returncode != 0:
+        for line in (brief.stderr.strip() or brief.stdout.strip()).splitlines():
+            err("authoring brief: " + line.strip())
+    else:
+        print("  " + brief.stdout.strip())
+    brief_path = ROOT / "docs/authoring_brief.json"
+    if brief_path.exists():
+        bd = json.loads(brief_path.read_text(encoding="utf-8"))
+        if len(bd.get("inputs", [])) != 30:
+            err("authoring brief must list all 30 original example meshes")
+        if bd.get("constraints", {}).get("noRippedAssets") is not True:
+            err("authoring brief must declare noRippedAssets")
+        if "NOT IN-GAME VERIFIED" not in bd.get("meta", {}).get("status", ""):
+            err("authoring brief must state NOT IN-GAME VERIFIED")
+    od = ROOT / "docs/ONLINE_AUTHORING.md"
+    if od.exists():
+        otxt = od.read_text(encoding="utf-8").upper()
+        for token in ("NOT INSTALLED", "NOT COMPILED", "NOT IN-GAME VERIFIED", "2.31", "1.37.1"):
+            if token not in otxt:
+                err(f"docs/ONLINE_AUTHORING.md must state {token}")
 
     # generated Lua must use the JSON reactor model, not stale hardcoded values
     lua_path = ROOT / "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua"

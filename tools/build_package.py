@@ -25,6 +25,7 @@ FILES = [
     "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
     "docs/FULL_MODELS.md", "docs/WEAPON_FORGE.md", "docs/DAMAGE_MODEL.md",
     "docs/ORIGINAL_MESH_PIPELINE.md", "tools/export_meshes.py",
+    "docs/ONLINE_AUTHORING.md", "docs/authoring_brief.json", "tools/authoring_brief.py",
     "models.json", "weapons.json", "damage.json",
     "docs/integration/redscript_hook.reds.example",
     "docs/integration/tweakxl.yaml.example",

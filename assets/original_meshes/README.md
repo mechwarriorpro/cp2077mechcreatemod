@@ -23,4 +23,8 @@ resources still have to be authored on a machine with WolvenKit + Cyberpunk 2077
 patch 2.31. See `docs/ORIGINAL_MESH_PIPELINE.md` and
 `docs/integration/archivexl.archive.example.md`.
 
+**Next step (NOT done here):** `docs/ONLINE_AUTHORING.md` and
+`docs/authoring_brief.json` list online AI models / LLM agents that can author
+rigs, animations, VO, seats and mounts on a machine with WolvenKit + the game.
+
 Regenerate: `python3 tools/export_meshes.py` · Verify: `python3 tools/export_meshes.py --check`

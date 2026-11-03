@@ -112,3 +112,18 @@ specs; **they are documentation, not compiled resources**.
 The exports are **original geometry you own**, produced from your own 30 allowed
 examples. They are the legitimate first half of the resource pipeline; the
 second half needs WolvenKit + the game, which this environment does not have.
+
+
+---
+
+## 6. Online authoring (researched 2026-11-03)
+
+`docs/ONLINE_AUTHORING.md` surveys the online AI models / LLM agents that can
+author rigs, animations, VO, seats and mounts on a machine with WolvenKit +
+Cyberpunk 2077 2.31, and `docs/authoring_brief.json` is a machine-readable job
+spec (30 GLB paths + SHA256, `dmgId` submesh names, required outputs, toolchain
+URLs, 2.31 matrix, constraints, ready-to-paste prompt) to hand to one of them.
+Regenerate with `python3 tools/authoring_brief.py`, verify with `--check`.
+
+**No online service was called here.** These are research + a handoff spec:
+NOT INSTALLED · NOT COMPILED · NOT IN-GAME VERIFIED.

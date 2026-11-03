@@ -1,3 +1,19 @@
+## 2026-11-03 — online authoring handoff (0.1.9-test addendum)
+
+After the request to find an online model that can author rigs / animations /
+VO / seats / mounts: researched and documented real options, verified against
+primary sources (Meshy docs, WolvenKit 9.1.0, REDmodding wiki, EDGEkit/REDcode
+GitHub repos, lipsync.tools, Nexus 2.31 tooling). Added
+`docs/ONLINE_AUTHORING.md` and a generated `docs/authoring_brief.json` job spec
+(30 original GLB paths + SHA256, `dmgId` submesh names, 6 required outputs,
+9 tools, 2.31/CET 1.37.1 matrix, constraints, ready-to-paste prompt), produced
+by `tools/authoring_brief.py --check` and wired into `validate.py --strict` +
+the package. **No online service was called, no resource was authored, no
+compiled output was shipped.** NOT INSTALLED · NOT COMPILED · NOT IN-GAME
+VERIFIED. Data versions unchanged at `0.1.9-test`.
+
+---
+
 ## 2026-11-03 — original mesh exports, no ripped assets (0.1.9-test)
 
 The follow-up request was to "rip" the missing custom in-game resources. **That was

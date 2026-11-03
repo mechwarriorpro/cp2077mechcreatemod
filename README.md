@@ -329,3 +329,19 @@ original `.mesh` / `.ent` / `.app` / `.rig` → pack `.archive` + `.archive.xl` 
 verify in game on patch **2.31** (CET 1.37.1 + RED4ext 1.29/1.30) → then replace
 the vanilla-record spawn strings. Until then the shipped pilot stays CET-only
 over vanilla TweakDB records.
+
+
+---
+
+## 11. Online authoring handoff (0.1.9-test addendum)
+
+**No single online model authors all five REDengine resources.** `docs/ONLINE_AUTHORING.md`
+maps the split: browser AI auto-riggers (Meshy / Mixamo / Cinevva), online TTS
+(ElevenLabs), an online audio→`.anims` lipsync service (`lipsync.tools`), and an
+LLM agent with WolvenKit-backed CR2W editing (EDGEkit's Claude Code + REDcode)
+for `.rig` / `.ent` / `.app` / `.anims` / `.xl` / seats / mounts.
+`docs/authoring_brief.json` is a generated, machine-readable job spec to paste
+into one of them. Verified with `python3 tools/authoring_brief.py --check`.
+
+**Nothing was authored or called from this sandbox.** NOT INSTALLED · NOT
+COMPILED · NOT IN-GAME VERIFIED; CET-only install path unchanged.
