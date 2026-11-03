@@ -28,6 +28,11 @@
   FULL MODELS / TRACES: models.json supplies 30 example-only full models and
   front / side / top traces to the browser MODEL LIBRARY tab. Those 30 examples
   are the ONLY allowed model sources; no imported or extracted geometry.
+
+  0.1.7-test: reactor balance is more forgiving (outputScale 56 + module bulk
+  discount). weapons.json defines 8 custom weapon / shield categories. damage.json
+  makes every part destructible: cockpit > 70% OR torso > 90% aggregate damage
+  causes FULL DESTRUCTION + pilot emergency eject (X / mechfall_ig_eject).
 ]]
 
 local MF = {}

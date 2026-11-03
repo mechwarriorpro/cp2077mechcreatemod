@@ -181,7 +181,7 @@ for i,c in enumerate(roster):
 doc = {
   'meta': {
     'name': 'MECHFALL // FORGE 77 — full model / trace library',
-    'version': '0.1.6-test',
+    'version': '0.1.7-test',
     'note': 'The ONLY allowed full models and traces are the 30 example chassis below. Each is a complete procedural model and a front/side/top blueprint trace derived exclusively from that example\'s own shape vector + signature-part composition in chassis.json. No ripped, imported, extracted, traced-from-screenshot or base-mod geometry is used.'
   },
   'policy': {

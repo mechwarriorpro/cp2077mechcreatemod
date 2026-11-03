@@ -86,3 +86,18 @@ in `chassis.json`. There is no asset import, no mesh download, no screenshot tra
 from game archives and no base-mod or third-party geometry. Generic untyped hulls and numeric-only
 silhouettes are rejected. This is procedural engineering data, not a derivative of any mod's assets;
 see `docs/FULL_MODELS.md` and `docs/AssetManifest.md`.
+
+
+---
+
+## 0.1.7-test additions
+
+Reactor / energy design is **more forgiving** (outputScale 56, derate 0.26, `moduleDrawScale`
+0.72, `bulkModuleDiscount` 0.42, relaxed brownout / thermal / mass thresholds) so a maximum
+module loadout stays powered. **WEAPON FORGE** adds eight player-authored weapon / shield
+categories (energy, ballistic, missile, melee, energy missiles, energy melee, energy shielding,
+ballistic shielding). **DAMAGE CONTROL** makes every individual part destructible with a pilot
+emergency eject (`X`); cockpit > 70% or aggregate torso > 90% damage triggers FULL DESTRUCTION.
+See `docs/WEAPON_FORGE.md`, `docs/DAMAGE_MODEL.md` and `README.md` section 8. No imported assets
+or in-game meshes are added; the 2.31 CET matrix and the 30-example-only model policy are
+unchanged.

@@ -226,7 +226,12 @@ const checks = [
   ['return tostring(#MF.ingame.records()) .. "|" .. tostring(MF.ingame.hasPL) .. "|" .. tostring(MF.ingame.hostileRec())', 'PL records skipped by default'],
   ['MF.ingame.setHasPL(true); local n=#MF.ingame.records(); local h=MF.ingame.hostileRec(); MF.ingame.setHasPL(false); return tostring(n).."|"..tostring(h)', 'PL enabled adds signature records'],
   ['MF.ingame.setPatch("2.5"); local p=MF.ingame.patch; MF.ingame.setPatch("2.31"); return tostring(p).."|"..tostring(MF.ingame.patch)', 'game patch switching'],
-  ['return tostring(MF.data.models.onlyExamplesAllowed) .. "|" .. tostring(MF.data.models.allowedCount) .. "|" .. tostring(#MF.data.models.allowedSourceIds)', 'example-only full model policy in CET data']
+  ['return tostring(MF.data.models.onlyExamplesAllowed) .. "|" .. tostring(MF.data.models.allowedCount) .. "|" .. tostring(#MF.data.models.allowedSourceIds)', 'example-only full model policy in CET data'],
+  ['return tostring(MF.data.weapons.loadoutLimit) .. "|" .. tostring(MF.data.damage.ejectKey) .. "|" .. tostring(MF.data.damage.cockpitDestruction) .. "|" .. tostring(MF.data.damage.torsoDestruction)', 'CET weapon loadout + destruction thresholds'],
+  ['local a,b,c,d = MF.ingame.dmgStats(); return tostring(#MF.ingame.dmgParts) .. "|" .. tostring(c) .. "|" .. tostring(d)', 'CET per-part damage model is populated'],
+  ['local st=MF.ingame; st.repairParts(); for i=1,#st.dmgParts do if st.dmgParts[i].section == "cockpit" then st.hitPart(i,0.80) end end; return tostring(st.dmgDestroyed) .. "|" .. tostring(st.dmgEjected) .. "|" .. st.dmgReason', 'CET cockpit >70% triggers FULL DESTRUCTION + pilot eject'],
+  ['local st=MF.ingame; st.repairParts(); for i=1,#st.dmgParts do if st.dmgParts[i].section == "torso" then st.hitPart(i,0.95) end end; return tostring(st.dmgDestroyed) .. "|" .. st.dmgReason', 'CET torso >90% triggers FULL DESTRUCTION'],
+  ['local st=MF.ingame; st.repairParts(); st.ejectPilot(true); return tostring(st.dmgEjected) .. "|" .. tostring(st.dmgDestroyed) .. "|" .. tostring(st.cockpitLock)', 'CET manual emergency eject releases cockpit lock']
 ];
 for (const [code, label] of checks) {
   const s1 = lauxlib.luaL_loadstring(L, enc(code));

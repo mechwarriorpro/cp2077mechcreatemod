@@ -23,7 +23,8 @@ FILES = [
     "docs/REACTOR_MODEL.md", "docs/TEARDOWN_SCHEMA.md", "docs/SUBSYSTEM_MODEL.md",
     "docs/BaseModHooks.md", "docs/AssetManifest.md",
     "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
-    "docs/FULL_MODELS.md", "models.json",
+    "docs/FULL_MODELS.md", "docs/WEAPON_FORGE.md", "docs/DAMAGE_MODEL.md",
+    "models.json", "weapons.json", "damage.json",
     "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua",
     "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/README.md",
 ]

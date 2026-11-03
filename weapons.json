@@ -1,0 +1,450 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "name": "MECHFALL // FORGE 77 — custom weapon design library",
+    "version": "0.1.7-test"
+  },
+  "note": "Player-authored weapons in eight categories. Every value is a simulation parameter, not an imported asset. Energy / ballistic / hybrid families share one editable parameter set so a player can design any combination. All weapons feed the six first-class attributes through MF.weapons.six() and MF.sim.compute().",
+  "loadoutLimit": 8,
+  "parameters": [
+    {
+      "key": "power",
+      "label": "Bus draw",
+      "unit": "kW",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "key": "mass",
+      "label": "Dry mass",
+      "unit": "kg",
+      "min": 0,
+      "max": 900,
+      "step": 10,
+      "default": 120
+    },
+    {
+      "key": "heat",
+      "label": "Heat per volley",
+      "unit": "kW",
+      "min": 0,
+      "max": 90,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "key": "damage",
+      "label": "Damage / defence",
+      "unit": "pts",
+      "min": 0,
+      "max": 400,
+      "step": 5,
+      "default": 60
+    },
+    {
+      "key": "range",
+      "label": "Effective range",
+      "unit": "m",
+      "min": 5,
+      "max": 1500,
+      "step": 5,
+      "default": 300
+    },
+    {
+      "key": "rate",
+      "label": "Rate of fire",
+      "unit": "/min",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 40
+    },
+    {
+      "key": "rcs",
+      "label": "Signature contribution",
+      "unit": "m2",
+      "min": -8,
+      "max": 14,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "key": "ecm",
+      "label": "ECM / jamming",
+      "unit": "str",
+      "min": -25,
+      "max": 50,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "key": "capacity",
+      "label": "Ammo / charge",
+      "unit": "shots",
+      "min": 0,
+      "max": 300,
+      "step": 1,
+      "default": 60
+    },
+    {
+      "key": "armor",
+      "label": "Shield / plate rating",
+      "unit": "pts",
+      "min": 0,
+      "max": 500,
+      "step": 5,
+      "default": 0
+    }
+  ],
+  "categories": {
+    "energy_weapon": {
+      "label": "ENERGY WEAPON",
+      "family": "energy",
+      "role": "weapon",
+      "description": "Laser / particle cannon: high bus draw, high heat, no ammunition.",
+      "defaults": {
+        "power": 18,
+        "mass": 180,
+        "heat": 22,
+        "damage": 85,
+        "range": 650,
+        "rate": 45,
+        "rcs": 1.4,
+        "ecm": 4,
+        "capacity": 0,
+        "armor": 0
+      },
+      "traits": [
+        "continuous beam",
+        "capacitor-fed",
+        "no ballistics"
+      ]
+    },
+    "ballistic_weapon": {
+      "label": "BALLISTIC WEAPON",
+      "family": "ballistic",
+      "role": "weapon",
+      "description": "Autocannon / railgun: kinetic damage, ammunition, low emissions.",
+      "defaults": {
+        "power": 5,
+        "mass": 320,
+        "heat": 7,
+        "damage": 110,
+        "range": 900,
+        "rate": 90,
+        "rcs": 0.3,
+        "ecm": -2,
+        "capacity": 180,
+        "armor": 0
+      },
+      "traits": [
+        "kinetic slug",
+        "ammo limited",
+        "low heat"
+      ]
+    },
+    "missile_weapon": {
+      "label": "MISSILE WEAPON",
+      "family": "ballistic",
+      "role": "weapon",
+      "description": "Tube / swarm launcher: lock-on salvos, large signature.",
+      "defaults": {
+        "power": 7,
+        "mass": 260,
+        "heat": 9,
+        "damage": 160,
+        "range": 1200,
+        "rate": 8,
+        "rcs": 3.2,
+        "ecm": 6,
+        "capacity": 24,
+        "armor": 0
+      },
+      "traits": [
+        "lock-on",
+        "splash",
+        "ECM vulnerable"
+      ]
+    },
+    "melee_weapon": {
+      "label": "MELEE WEAPON",
+      "family": "ballistic",
+      "role": "weapon",
+      "description": "Titan-grade blade / pile driver: zero power, huge mass, short range.",
+      "defaults": {
+        "power": 1,
+        "mass": 420,
+        "heat": 2,
+        "damage": 210,
+        "range": 12,
+        "rate": 30,
+        "rcs": -0.4,
+        "ecm": 0,
+        "capacity": 0,
+        "armor": 0
+      },
+      "traits": [
+        "close quarters",
+        "no emissions",
+        "servo load"
+      ]
+    },
+    "energy_missile": {
+      "label": "ENERGY MISSILE",
+      "family": "hybrid",
+      "role": "weapon",
+      "description": "Plasma-warhead guided munition: energy charge + ballistic delivery.",
+      "defaults": {
+        "power": 14,
+        "mass": 210,
+        "heat": 17,
+        "damage": 190,
+        "range": 1050,
+        "rate": 10,
+        "rcs": 2.2,
+        "ecm": 8,
+        "capacity": 12,
+        "armor": 0
+      },
+      "traits": [
+        "charged warhead",
+        "guided",
+        "heat spike"
+      ]
+    },
+    "energy_melee": {
+      "label": "ENERGY MELEE",
+      "family": "hybrid",
+      "role": "weapon",
+      "description": "Charged blade / plasma fist: capacitor-fed close combat.",
+      "defaults": {
+        "power": 12,
+        "mass": 300,
+        "heat": 13,
+        "damage": 240,
+        "range": 9,
+        "rate": 35,
+        "rcs": 0.9,
+        "ecm": 2,
+        "capacity": 0,
+        "armor": 0
+      },
+      "traits": [
+        "charged edge",
+        "capacitor drain",
+        "short range"
+      ]
+    },
+    "energy_shield": {
+      "label": "ENERGY SHIELDING",
+      "family": "energy",
+      "role": "defence",
+      "description": "Deflector barrier: regenerating HP, heavy continuous bus draw.",
+      "defaults": {
+        "power": 22,
+        "mass": 150,
+        "heat": 16,
+        "damage": 15,
+        "range": 0,
+        "rate": 1,
+        "rcs": 2.6,
+        "ecm": 10,
+        "capacity": 0,
+        "armor": 300
+      },
+      "traits": [
+        "regenerating",
+        "emissive",
+        "ECM active"
+      ]
+    },
+    "ballistic_shield": {
+      "label": "BALLISTIC SHIELDING",
+      "family": "ballistic",
+      "role": "defence",
+      "description": "Reactive plate / ablative armour: passive HP, no power draw.",
+      "defaults": {
+        "power": 0,
+        "mass": 480,
+        "heat": 0,
+        "damage": 0,
+        "range": 0,
+        "rate": 1,
+        "rcs": -0.8,
+        "ecm": 0,
+        "capacity": 0,
+        "armor": 420
+      },
+      "traits": [
+        "passive",
+        "ablative",
+        "mass penalty"
+      ]
+    }
+  },
+  "templates": [
+    {
+      "id": "tpl_energy_weapon",
+      "name": "ENERGY WEAPON · BASELINE",
+      "category": "energy_weapon",
+      "params": {
+        "power": 18,
+        "mass": 180,
+        "heat": 22,
+        "damage": 85,
+        "range": 650,
+        "rate": 45,
+        "rcs": 1.4,
+        "ecm": 4,
+        "capacity": 0,
+        "armor": 0
+      },
+      "origin": "template",
+      "note": "Laser / particle cannon: high bus draw, high heat, no ammunition."
+    },
+    {
+      "id": "tpl_ballistic_weapon",
+      "name": "BALLISTIC WEAPON · BASELINE",
+      "category": "ballistic_weapon",
+      "params": {
+        "power": 5,
+        "mass": 320,
+        "heat": 7,
+        "damage": 110,
+        "range": 900,
+        "rate": 90,
+        "rcs": 0.3,
+        "ecm": -2,
+        "capacity": 180,
+        "armor": 0
+      },
+      "origin": "template",
+      "note": "Autocannon / railgun: kinetic damage, ammunition, low emissions."
+    },
+    {
+      "id": "tpl_missile_weapon",
+      "name": "MISSILE WEAPON · BASELINE",
+      "category": "missile_weapon",
+      "params": {
+        "power": 7,
+        "mass": 260,
+        "heat": 9,
+        "damage": 160,
+        "range": 1200,
+        "rate": 8,
+        "rcs": 3.2,
+        "ecm": 6,
+        "capacity": 24,
+        "armor": 0
+      },
+      "origin": "template",
+      "note": "Tube / swarm launcher: lock-on salvos, large signature."
+    },
+    {
+      "id": "tpl_melee_weapon",
+      "name": "MELEE WEAPON · BASELINE",
+      "category": "melee_weapon",
+      "params": {
+        "power": 1,
+        "mass": 420,
+        "heat": 2,
+        "damage": 210,
+        "range": 12,
+        "rate": 30,
+        "rcs": -0.4,
+        "ecm": 0,
+        "capacity": 0,
+        "armor": 0
+      },
+      "origin": "template",
+      "note": "Titan-grade blade / pile driver: zero power, huge mass, short range."
+    },
+    {
+      "id": "tpl_energy_missile",
+      "name": "ENERGY MISSILE · BASELINE",
+      "category": "energy_missile",
+      "params": {
+        "power": 14,
+        "mass": 210,
+        "heat": 17,
+        "damage": 190,
+        "range": 1050,
+        "rate": 10,
+        "rcs": 2.2,
+        "ecm": 8,
+        "capacity": 12,
+        "armor": 0
+      },
+      "origin": "template",
+      "note": "Plasma-warhead guided munition: energy charge + ballistic delivery."
+    },
+    {
+      "id": "tpl_energy_melee",
+      "name": "ENERGY MELEE · BASELINE",
+      "category": "energy_melee",
+      "params": {
+        "power": 12,
+        "mass": 300,
+        "heat": 13,
+        "damage": 240,
+        "range": 9,
+        "rate": 35,
+        "rcs": 0.9,
+        "ecm": 2,
+        "capacity": 0,
+        "armor": 0
+      },
+      "origin": "template",
+      "note": "Charged blade / plasma fist: capacitor-fed close combat."
+    },
+    {
+      "id": "tpl_energy_shield",
+      "name": "ENERGY SHIELDING · BASELINE",
+      "category": "energy_shield",
+      "params": {
+        "power": 22,
+        "mass": 150,
+        "heat": 16,
+        "damage": 15,
+        "range": 0,
+        "rate": 1,
+        "rcs": 2.6,
+        "ecm": 10,
+        "capacity": 0,
+        "armor": 300
+      },
+      "origin": "template",
+      "note": "Deflector barrier: regenerating HP, heavy continuous bus draw."
+    },
+    {
+      "id": "tpl_ballistic_shield",
+      "name": "BALLISTIC SHIELDING · BASELINE",
+      "category": "ballistic_shield",
+      "params": {
+        "power": 0,
+        "mass": 480,
+        "heat": 0,
+        "damage": 0,
+        "range": 0,
+        "rate": 1,
+        "rcs": -0.8,
+        "ecm": 0,
+        "capacity": 0,
+        "armor": 420
+      },
+      "origin": "template",
+      "note": "Reactive plate / ablative armour: passive HP, no power draw."
+    }
+  ],
+  "consequences": {
+    "power": "bus draw is discounted with the module bulk discount; a deficit causes BROWNOUT",
+    "heat": "heat per volley * rate/60 feeds netHeat; saturation derates weapon damage",
+    "rcs": "active emissions and large radiators raise detectRange",
+    "ecm": "jamming breaks in-world locks but paints the mech as a target",
+    "armor": "shield / plate rating adds destructible HP to the shield parts in MF.damage",
+    "capacity": "0 = infinite energy charge; ballistic / missile weapons consume shots"
+  },
+  "disclaimer": "Procedural weapon parameters only. No meshes, projectiles, sounds, rigs, textures or base-mod / third-party assets are shipped."
+}

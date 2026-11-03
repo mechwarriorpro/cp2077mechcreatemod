@@ -69,15 +69,15 @@ setTimeout(() => {
     const MF = w.MF;
     must(!!MF, 'MF global exists');
     const h = MF.health();
-    must(h.tabs.length === 10, 'all 10 tabs registered: ' + h.tabs.join(','));
-    must(h.data.length === 9, 'data bundle has 9 sections');
+    must(h.tabs.length === 12, 'all 12 tabs registered: ' + h.tabs.join(','));
+    must(h.data.length === 11, 'data bundle has 11 sections');
     must(Number.isFinite(h.powerMargin) && Number.isFinite(h.totalMass) && Number.isFinite(h.rcsFront), 'simulation produces finite telemetry');
     must(h.powerMargin > 0, 'baseline build has positive power margin (got ' + h.powerMargin.toFixed(1) + ')');
     must(h.validation.indexOf('BROWNOUT') < 0, 'baseline build is not in BROWNOUT');
     console.log('  health', JSON.stringify(h));
 
     // Tab sweep
-    ['hangar','teardown','reactor','systems','forge','combat','pilot','models','dossier','settings'].forEach(tab => {
+    ['hangar','teardown','reactor','systems','forge','combat','pilot','models','weapons','damage','dossier','settings'].forEach(tab => {
       MF.setTab(tab);
       const sec = w.document.getElementById('tab-' + tab);
       must(sec && sec.innerHTML.length > 100, 'tab ' + tab + ' renders');
@@ -191,6 +191,60 @@ setTimeout(() => {
     MF.setTab('systems');
 
     // INTERNAL SYSTEMS: blank-slate authoring
+    // FORGIVING ENERGY / REACTOR BALANCE
+    const baseTele = MF.sim.compute(MF.activeDesign());
+    must(baseTele.powerMargin > 20, 'forgiving reactor gives a large positive power margin (got ' +
+      Math.round(baseTele.powerMargin) + ' kW)');
+    must(baseTele.moduleScale < 1, 'module bus draw is discounted');
+    must(baseTele.powerUsedRaw > baseTele.powerUsed, 'bulk module discount reduces total module cost');
+    must(MF.DATA.simulation.validationThresholds.brownoutMargin < 0,
+      'brownout threshold forgiving (small deficit allowed)');
+    must(MF.DATA.simulation.validationThresholds.hardpointLimit >= 20,
+      'max modules / hardpoint limit raised');
+
+    // CUSTOM WEAPON DESIGN (8 categories)
+    MF.setTab('weapons');
+    must(MF.state.tab === 'weapons', 'WEAPON FORGE tab opens');
+    const wcats = Object.keys(MF.DATA.weapons.categories);
+    must(wcats.length === 8, 'all 8 custom weapon categories are defined');
+    must(['energy_weapon','ballistic_weapon','missile_weapon','melee_weapon','energy_missile',
+      'energy_melee','energy_shield','ballistic_shield'].every((k) => wcats.indexOf(k) >= 0),
+      'energy / ballistic / missile / melee / energy missile / energy melee / energy shield / ballistic shield');
+    must(!!w.document.getElementById('weapon-category') && !!w.document.getElementById('weapon-name'),
+      'WEAPON FORGE exposes category + name authoring');
+    const preWeapon = MF.sim.compute(MF.activeDesign());
+    const cw = MF.weapons.save('TEST PARTICLE LANCE', 'energy_weapon',
+      { power: 30, mass: 200, heat: 20, damage: 100, rate: 60, rcs: 1, ecm: 2, capacity: 0, armor: 0, range: 600 });
+    MF.weapons.toggle(cw.id);
+    const postWeapon = MF.sim.compute(MF.activeDesign());
+    must(MF.weapons.loadout().length === 1, 'custom weapon equips into the loadout');
+    must(postWeapon.powerUsed > preWeapon.powerUsed, 'equipped weapon feeds the power budget');
+    must(postWeapon.totalMass > preWeapon.totalMass, 'equipped weapon feeds total mass');
+    must(postWeapon.heatGen > preWeapon.heatGen, 'equipped weapon feeds heat');
+    must(MF.weapons.dps(cw) > 0 && MF.weapons.sixTotal().powerDraw > 0,
+      'weapon DPS and six-attribute totals compute');
+
+    // PER-PART DESTRUCTION + EMERGENCY EJECT
+    MF.setTab('damage');
+    const ds = MF.damage.ensure(true);
+    must(ds.parts.length >= 30, 'every individual chassis part is destructible (' + ds.parts.length + ' parts)');
+    must(MF.DATA.damage.thresholds.cockpitDestruction === 0.70 &&
+      MF.DATA.damage.thresholds.torsoDestruction === 0.90, '70% cockpit / 90% torso thresholds');
+    const ck = ds.parts.filter((x) => x.section === 'cockpit');
+    ck.forEach((x) => MF.damage.hitPct(ds, x.id, 0.80));
+    must(ds.destroyed === true, '>70% cockpit damage triggers FULL DESTRUCTION');
+    must(ds.ejected === true, 'pilot emergency eject on full destruction');
+    must(ds.parts.every((x) => x.destroyed), 'full destruction destroys every part');
+    must(/COCKPIT/.test(ds.reason), 'destruction reason cites the cockpit threshold');
+    MF.damage.repair(ds);
+    must(!ds.destroyed && ds.parts.every((x) => !x.destroyed), 'REPAIR ALL restores every part');
+    ds.parts.filter((x) => x.section === 'torso').forEach((x) => MF.damage.hitPct(ds, x.id, 0.95));
+    must(ds.destroyed === true && /TORSO/.test(ds.reason), '>90% torso damage triggers FULL DESTRUCTION');
+    MF.damage.repair(ds);
+    MF.damage.eject(ds, true);
+    must(ds.ejected === true && !ds.destroyed, 'manual pilot emergency eject');
+    MF.damage.repair(ds);
+
     MF.setTab('systems');
     click('[data-act="sys-new"]');
     must(w.document.getElementById('mf-modal').classList.contains('on'), 'category chooser modal opens');

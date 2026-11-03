@@ -119,7 +119,7 @@ in-game.
    `cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/`
    into `Cyberpunk 2077/bin/x64/plugins/cyber_engine_tweaks/mods/`.
 3. **Load a save in the open world.** The pilot refuses to deploy in the main menu or while paused.
-4. Open CET → **Bindings** and assign the 12 `MECHFALL IN-GAME` entries. Suggested keys:
+4. Open CET → **Bindings** and assign the 13 `MECHFALL IN-GAME` entries. Suggested keys:
 
    | Key | Action | Key | Action |
    |---|---|---|---|
@@ -128,6 +128,7 @@ in-game.
    | `Shift` | sprint / dash | `Space` | jump jets |
    | `V` | vent heat | `LMB` | fire / break lock |
    | `C` | cycle camera | `T` | autodrive |
+   | `X` | **EMERGENCY EJECT** | | |
 
    `registerInput` bindings are separate from the game's own bindings; while cockpit lock is on V's
    native movement is overridden by the throttled teleport. Bind these only while testing and
@@ -209,3 +210,18 @@ python3 tools/build_package.py
 `onUpdate` frames with continuous input, exercises jump/vent/fire/camera/autodrive, spawns and
 breaks an RCS/ECM lock, and verifies that undeploy despawns everything. That proves the Lua is
 syntactically valid and internally consistent — **it does not prove in-game behaviour**.
+
+
+## 9. Per-part destruction & emergency eject (0.1.7-test)
+
+The IN-GAME PILOT tab now has a **PER-PART DESTRUCTION** section: 28 named destructible parts
+from `damage.json → cetPartNames`, live cockpit / torso damage bars, HIT / KILL buttons per part,
+**EMERGENCY EJECT (X)**, **FULL DESTRUCTION** and **REPAIR ALL**. Hostile fire ticks 6% damage to
+a living part every 2 s while a lock is active.
+
+> **Cockpit damage > 70% OR aggregate torso-section damage > 90% => FULL DESTRUCTION** — every
+> part destroyed, pilot ejected, cockpit lock released, ORBIT camera, all spawned entities
+> despawned, run over. Manual `X` eject is always available (`mechfall_ig_eject`, the 13th CET
+> binding). See `docs/DAMAGE_MODEL.md`.
+
+Damage is simulation state over vanilla record references; no game assets are edited.

@@ -61,3 +61,18 @@ custom mech asset; verified only by Lua/JS tests, not in-game.
 **No** `.mesh`, `.ent`, `.archive`, texture, image, screenshot, rig, animation, VO, base-mod file or
 third-party model is included or generated. The **only** allowed full-model / trace sources are the
 30 example chassis. See `docs/FULL_MODELS.md`.
+
+
+---
+
+## 0.1.7-test additions
+
+Reactor / energy design is **more forgiving** (outputScale 56, derate 0.26, `moduleDrawScale`
+0.72, `bulkModuleDiscount` 0.42, relaxed brownout / thermal / mass thresholds) so a maximum
+module loadout stays powered. **WEAPON FORGE** adds eight player-authored weapon / shield
+categories (energy, ballistic, missile, melee, energy missiles, energy melee, energy shielding,
+ballistic shielding). **DAMAGE CONTROL** makes every individual part destructible with a pilot
+emergency eject (`X`); cockpit > 70% or aggregate torso > 90% damage triggers FULL DESTRUCTION.
+See `docs/WEAPON_FORGE.md`, `docs/DAMAGE_MODEL.md` and `README.md` section 8. No imported assets
+or in-game meshes are added; the 2.31 CET matrix and the 30-example-only model policy are
+unchanged.

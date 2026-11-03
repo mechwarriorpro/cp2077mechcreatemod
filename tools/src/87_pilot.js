@@ -45,6 +45,7 @@ MF.pilot = {
     this.bullets = [];
     this.effects = [];
     this.wave = 0; this.kills = 0; this.xp = 0; this.salvage = 0;
+    MF.damage.ensure(true);
     this.player = { x: 0, z: 0, yaw: 0, pitch: 0.06, vx: 0, vz: 0, lift: 0, vy: 0,
       hp: 100, maxHp: 100, temp: 0.34, core: 0, fireCd: 0, dashCd: 0, missileCd: 0,
       ventCd: 0, shield: 0, charging: false, gait: 0 };
@@ -179,6 +180,7 @@ MF.pilot = {
         if (dx * dx + dz * dz < 4) {
           b.life = 0;
           p.hp -= p.shield > 0 ? b.damage * 0.25 : b.damage;
+          MF.damage.incoming(MF.damage.ensure(), 0, Math.min(0.18, b.damage / 300));
           this.shake = 0.25;
         }
       }
@@ -190,6 +192,7 @@ MF.pilot = {
       if (!alive.length) { MF.state.xp += this.xp; MF.state.salvage += this.salvage; this.spawnWave(); }
     }
     if (p.hp <= 0) {
+      MF.damage.eject(MF.damage.ensure(), true);
       this.clog("PROTOCOL 3 · EJECT — structure lost, pilot recovered");
       p.hp = p.maxHp; p.temp = 0.34; p.x = 0; p.z = 0; p.vx = 0; p.vz = 0;
       this.hostiles.forEach((e) => { e.x += 30; e.z += 30; });
@@ -317,7 +320,7 @@ MF.pilot = {
   panels() {
     const hud = $("pilot-hud"), coatEl = $("pilot-coat"), comp = $("pilot-compat"), ingameEl = $("pilot-ingame");
     if (hud) hud.innerHTML = '<div id="pilot-hud-live"></div>' +
-      '<div class="mf-hr"></div><div class="mf-row">' +
+      '<div class="mf-hr"></div><div id="pilot-damage"></div><div class="mf-hr"></div><div class="mf-row">' +
       '<button class="mf-btn small" data-act="pilot-seed">NEW TERRAIN SEED</button>' +
       '<button class="mf-btn small" data-act="pilot-lua">GENERATE CET LUA</button>' +
       '<button class="mf-btn small" data-act="pilot-export">EXPORT STATE JSON</button></div>' +
@@ -376,6 +379,7 @@ MF.pilot = {
     if (!force && this.t - this.hudAt < 0.2) return;
     this.hudAt = this.t;
     const p = this.player, t = this.telemetry(), el = $("pilot-hud-live");
+    const dg = $("pilot-damage"); if (dg) dg.innerHTML = MF.damage.hudHTML(MF.damage.ensure());
     if (el && p) el.innerHTML =
       MF.ui.barRow("STRUCTURE", p.hp, p.maxHp, fmt(p.hp, 0) + "%", "green") +
       MF.ui.barRow("POWER MARGIN", 50 + t.powerMargin, 100, fmt(t.powerMargin, 1) + " kW",
@@ -470,6 +474,7 @@ MF.pilot = {
     else if (a === "ingame-records") MF.copyText(MF.ingame.recordsText());
     else if (a === "ingame-checklist") MF.modal("IN-GAME PILOT · DEPLOY CHECKLIST", MF.ingame.checklistHTML());
     else if (a === "ingame-matrix") MF.modal("CET / RED4EXT PATCH MATRIX", MF.ingame.patchMatrixHTML());
+    else if (a === "ingame-damage") MF.modal("PER-PART DESTRUCTION / EMERGENCY EJECT", MF.ingame.damageHTML());
     else if (a === "pilot-export") MF.copyText(JSON.stringify({ seed: this.seed, coat: this.coat(), autopilot: this.autopilot, shape: MF.state.shape }, null, 2), "pilot state JSON");
     else if (a === "coat-apply") {
       const c = MF.compat.decodeCoat(($("coat-code") || {}).value || "");

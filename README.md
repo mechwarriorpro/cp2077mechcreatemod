@@ -235,3 +235,47 @@ are **not** in-game meshes, rigs, animations, textures or extracted game geometr
 `RCS EXPOSURE`, `ECM SELF-DETECTION`, `MANA STARVATION`, `LATTICE OVERFLOW`,
 `CRYSTAL RESONANCE`, `CONTAINMENT FAILURE`, `HARDPOINT OVERFLOW`. TEST MODE allows deployment
 anyway, with penalties.
+
+---
+
+## 8. 0.1.7-test — forgiving energy, custom weapons, per-part destruction
+
+### `0.1.7-test` — forgiving energy & reactor balance
+
+Reactor design is deliberately more forgiving so a player can fit the maximum number of modules
+and still have power to spare:
+
+| Change | Before | Now |
+|---|---|---|
+| `reactors.model.outputScale` | 34 | **56** (much more energy output) |
+| `reactors.model.derateFactor` | 0.45 | **0.26** |
+| `reactors.model.heatLoadFactor` | 1.0 | **0.80** |
+| `reactorParasiticScale` | — | **0.62** (parasitic draw cut) |
+| `moduleDrawScale` | — | **0.72** (every module costs less bus power) |
+| `bulkModuleDiscount` | — | **0.42** (each extra module is cheaper; max loadout ~58% of raw draw) |
+| payload per hardpoint | 18 kg | **12 kg** |
+| `brownoutMargin` | 0 kW | **-12 kW** (small deficit tolerated) |
+| `hardpointLimit` / max modules | 12 | **20 / 24** |
+| thermal / mass / stress / resonance / containment thresholds | tight | relaxed |
+
+`powerUsed = reactor.parasiticDraw + Σ(module.powerDraw * moduleDrawScale * bulk)`, where
+`bulk = 1 - bulkModuleDiscount * clamp((nModules - 1) / 19, 0, 1)`. The doubling rule
+`2^sizeExponent` / `2^instabilitySizeExponent` is unchanged, so the reactor physics still holds;
+only the economics are kinder. Weapons equipped in WEAPON FORGE use the same discount.
+
+### `0.1.7-test` — WEAPON FORGE
+
+The **WEAPON FORGE** tab authors **custom weapons** in eight categories: energy weapons, ballistic
+weapons, missile weapons, melee weapons, **energy missiles**, **energy melee**, **energy
+shielding** and **ballistic shielding**. Ten editable parameters feed live power / mass / heat /
+RCS / ECM through `MF.sim.compute()`. Up to 8 designs can be equipped. See `docs/WEAPON_FORGE.md`.
+
+### `0.1.7-test` — DAMAGE CONTROL
+
+The **DAMAGE CONTROL** tab makes **every individual part destructible** (one HP record per physical chassis
+part, plus equipped weapon / shield parts). **Cockpit damage > 70% OR aggregate torso-section
+damage > 90% triggers FULL DESTRUCTION and an automatic pilot emergency eject.** Manual eject is
+`X` (also a CET binding). Live in COMBAT TEST, PILOT TEST and the CET IN-GAME PILOT. See
+`docs/DAMAGE_MODEL.md`.
+
+`tools/build_models.py` still regenerates the 30 example-only full models / traces unchanged; the 2.31 CET patch matrix and the example-only model policy remain in force. All four data sources (`models.json`, `weapons.json`, `damage.json`, `compat.json`) are at `0.1.7-test`.

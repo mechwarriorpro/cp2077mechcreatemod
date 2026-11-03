@@ -51,7 +51,8 @@ MF.sim.reactor = function (params, ctx) {
   const resonance = m.resonanceFactor * Math.pow(S, m.iSize * 0.6) * (F / m.F_ref);
   const crystalSignature = m.signatureFactor * Math.pow(S, m.iSize * 0.75) * (1 - eta * 0.45) + resonance * 0.35;
   const heat = grossOutput * (1 - eta) * 0.12 + heatLoad * 8 + instability * 5.0;
-  const parasiticDraw = 3.5 + grossOutput * 0.045 + W * 1.6 + C * 2;
+  const parasiticDraw = (3.5 + grossOutput * 0.045 + W * 1.6 + C * 2) *
+    MF.coeff("reactorParasiticScale");
   const manaStarvation = clamp(1 - (pool + rawHarvest) / Math.max(F, 0.01), 0, 1);
   return {
     params: p, biomeMultiplier: biome, rawHarvest, growthPool: pool, throughput, grossMana, grossOutput,
@@ -261,13 +262,29 @@ MF.sim.compute = function (design, ctx) {
   if (!parts.some((p) => p.category === "mana_reactor")) {
     parts.push(MF.sim.derive({ id: "reactor", name: "Mana reactor", category: "mana_reactor", params: reactorParams }, subCtx));
   }
+  /* Equipped custom weapons (WEAPON FORGE) feed the same six-attribute pipeline. */
+  if (active && MF.weapons) {
+    MF.weapons.loadout().forEach((w) => {
+      parts.push({ id: w.id, name: w.name, category: "weapon",
+        six: MF.weapons.six(w), derived: {} });
+    });
+  }
   const find = (cat) => parts.find((p) => p.category === cat) || { six: {}, derived: {} };
   const bus = find("power_bus"), thermal = find("thermal_loop"), structure = find("mass_structure");
   const sig = find("signature_rcs"), ew = find("ecm_ew"), sensors = find("sensors_os"), act = find("actuators");
 
   /* POWER */
-  let powerUsed = 0;
-  parts.forEach((p) => { powerUsed += p.six.powerDraw; });
+  /* More forgiving power: every module's bus draw is scaled down, and a bulk
+     discount makes each additional module cheaper as the loadout fills. */
+  const nModules = parts.filter((p) => p.category !== "mana_reactor").length;
+  const bulk = 1 - MF.coeff("bulkModuleDiscount") * clamp((nModules - 1) / 19, 0, 1);
+  const moduleScale = MF.coeff("moduleDrawScale") * bulk;
+  let powerUsedRaw = 0, powerUsed = 0;
+  parts.forEach((p) => {
+    const d = Number(p.six.powerDraw) || 0;
+    powerUsedRaw += d;
+    powerUsed += p.category === "mana_reactor" ? d : d * moduleScale;
+  });
   const transmissionLoss = bus.derived.transmissionLoss ?? 0.08;
   const powerUsedEff = powerUsed * (1 + transmissionLoss);
   const powerMargin = reactorModel.netOutput - powerUsedEff;
@@ -279,7 +296,7 @@ MF.sim.compute = function (design, ctx) {
     MF.sim.shapeVolume(shape) * MF.coeff("shapeMassFactor");
   let partMass = 0;
   parts.forEach((p) => { if (p.category !== "mass_structure") partMass += p.six.mass; });
-  const payload = (d.hardpoints || structure.derived.hardpoints || 4) * 18;
+  const payload = (d.hardpoints || structure.derived.hardpoints || 4) * 12;
   const totalMass = frameMass + structure.six.mass + partMass + payload;
   const structuralStress = structure.derived.structuralStress ?? 0.3;
   const comOffset = (structure.derived.comOffset ?? 0) + (shape.weaponX - shape.torsoW) * 0.015;
@@ -347,7 +364,8 @@ MF.sim.compute = function (design, ctx) {
 
   const t = {
     design: d, shape, parts, reactor: reactorModel,
-    powerUsed, powerUsedEff, transmissionLoss, powerMargin, brownoutThreshold, surgeTolerance,
+    powerUsed, powerUsedRaw, moduleScale, nModules, powerUsedEff, transmissionLoss,
+    powerMargin, brownoutThreshold, surgeTolerance,
     frameMass, partMass, payload, totalMass, structuralStress, comOffset, inertia, speed, dashCost,
     heatGen, heatDiss, netHeat, thermalMass, temperature, overheatTime, ventThreshold,
     shapeFactor, materialFactor, crystalSignature: reactorModel.crystalSignature,
@@ -403,7 +421,11 @@ MF.sim.equations = function (t) {
     detectRange: fmt(MF.coeff("detectionK"), 0) + " × " + fmt(t.rcsFront, 2) + "^" + fmt(MF.coeff("detectionExponent"), 2) + " × " + fmt(MF.coeff("enemySensorFactor"), 2) + " = " + fmt(t.detectRange, 0) + " m",
     jamStrength: fmt(t.jamStrength, 2) + " str at " + fmt(MF.coeff("combatDistanceRef"), 0) + " m",
     lockBreak: fmt(t.lockBreak, 2) + " (jam " + fmt(t.jamStrength, 1) + " vs lock quality 8)",
-    selfEmissions: fmt(t.selfEmissions, 1) + " (LPI ×0.25 / EMCON ×0.05)"
+    selfEmissions: fmt(t.selfEmissions, 1) + " (LPI ×0.25 / EMCON ×0.05)",
+    moduleScale: fmt(MF.coeff("moduleDrawScale"), 2) + " × bulk = " + fmt(t.moduleScale, 3) +
+      " (" + t.nModules + " modules, bulk discount " + fmt(MF.coeff("bulkModuleDiscount"), 2) + ")",
+    powerUsedForgiving: fmt(t.powerUsedRaw, 1) + " kW raw → " + fmt(t.powerUsed, 1) +
+      " kW after module discount"
   };
   try {
     const d = MF.activeDesign();

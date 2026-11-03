@@ -160,23 +160,45 @@
       "max": 1000,
       "step": 25,
       "value": 300
+    },
+    "moduleDrawScale": {
+      "label": "Module bus draw scale (k mod)",
+      "min": 0.3,
+      "max": 1.5,
+      "step": 0.01,
+      "value": 0.72
+    },
+    "bulkModuleDiscount": {
+      "label": "Bulk module discount at max loadout",
+      "min": 0.0,
+      "max": 0.7,
+      "step": 0.01,
+      "value": 0.42
+    },
+    "reactorParasiticScale": {
+      "label": "Reactor parasitic draw scale",
+      "min": 0.2,
+      "max": 1.5,
+      "step": 0.01,
+      "value": 0.62
     }
   },
   "validationThresholds": {
-    "brownoutMargin": 0.0,
-    "surgeMargin": 25.0,
-    "thermalSaturation": 0.72,
-    "meltdownTemperature": 1.0,
-    "overMassRatio": 1.35,
-    "comOffsetLimit": 0.34,
-    "stressLimit": 0.78,
-    "rcsExposure": 14.0,
-    "selfDetection": 22.0,
-    "manaStarvation": 0.22,
-    "latticeOverflow": 0.72,
-    "resonance": 0.55,
-    "containmentFailure": 0.95,
-    "hardpointLimit": 12
+    "brownoutMargin": -12.0,
+    "surgeMargin": 40.0,
+    "thermalSaturation": 0.84,
+    "meltdownTemperature": 1.15,
+    "overMassRatio": 1.6,
+    "comOffsetLimit": 0.44,
+    "stressLimit": 0.9,
+    "rcsExposure": 18.0,
+    "selfDetection": 28.0,
+    "manaStarvation": 0.34,
+    "latticeOverflow": 0.86,
+    "resonance": 0.68,
+    "containmentFailure": 0.99,
+    "hardpointLimit": 20,
+    "maxModules": 24
   },
   "validationStates": [
     {
@@ -352,6 +374,16 @@
       "label": "Coolant loop balance",
       "formula": "effectiveDiss_i = diss_i * (coolantPct/100) * (1 - k * distance_i) ; margin_i = effectiveDiss_i - heatGen_i",
       "note": "A negative node margin is a HOT SPOT."
+    },
+    {
+      "id": "moduleScale",
+      "label": "Module bus draw scale",
+      "formula": "moduleScale = moduleDrawScale * (1 - bulkModuleDiscount * clamp((nModules - 1)/19, 0, 1))"
+    },
+    {
+      "id": "powerUsedForgiving",
+      "label": "Forgiving power budget",
+      "formula": "powerUsed = reactor.parasiticDraw + Σ(module.powerDraw * moduleScale)"
     }
   ],
   "tradeoffs": [
@@ -394,6 +426,19 @@
     {
       "left": "Fit / transfer routing",
       "effect": "Longer bus + coolant runs ↑ transfer loss and heat; clustering hot parts near radiators ↓ loop loss but ↑ local RCS"
+    },
+    {
+      "left": "Higher reactor output",
+      "effect": "↑ power margin, ↓ brownout risk, ↑ heat to dissipate"
+    },
+    {
+      "left": "Bulk module discount",
+      "effect": "each extra module costs less bus power at full loadout"
+    },
+    {
+      "left": "Maximum modules",
+      "effect": "still costs mass / heat / RCS, but no longer forces BROWNOUT"
     }
-  ]
+  ],
+  "note": " 0.1.7-test balance pass: reactor net output is much higher, module bus draw is scaled down and further discounted in bulk as the loadout fills, parasitic draw is reduced, and validation thresholds are relaxed. This is deliberately forgiving so players can fit the maximum number of modules and still have positive power margin."
 }

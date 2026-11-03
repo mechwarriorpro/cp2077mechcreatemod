@@ -28,6 +28,11 @@
   FULL MODELS / TRACES: models.json supplies 30 example-only full models and
   front / side / top traces to the browser MODEL LIBRARY tab. Those 30 examples
   are the ONLY allowed model sources; no imported or extracted geometry.
+
+  0.1.7-test: reactor balance is more forgiving (outputScale 56 + module bulk
+  discount). weapons.json defines 8 custom weapon / shield categories. damage.json
+  makes every part destructible: cockpit > 70% OR torso > 90% aggregate damage
+  causes FULL DESTRUCTION + pilot emergency eject (X / mechfall_ig_eject).
 ]]
 
 local MF = {}
@@ -2032,7 +2037,10 @@ return {
     ["thermalMassFactor"] = 6,
     ["emissionRcsFactor"] = 0.12,
     ["enemySensorFactor"] = 1,
-    ["combatDistanceRef"] = 300
+    ["combatDistanceRef"] = 300,
+    ["moduleDrawScale"] = 0.72,
+    ["bulkModuleDiscount"] = 0.42,
+    ["reactorParasiticScale"] = 0.62
   },
   ["biomes"] = {
     ["night_city"] = 0.6,
@@ -2229,7 +2237,8 @@ return {
         "A loaded save in the open world \u{2014} not the main menu, not paused",
         "CET Bindings: assign the MECHFALL IN-GAME PILOT keys under the CET overlay Bindings tab",
         "No Redscript, TweakXL, ArchiveXL or Codeware needed for this CET-only path",
-        "Phantom Liberty is OPTIONAL: PL-only records are skipped unless 'PHANTOM LIBERTY' is enabled"
+        "Phantom Liberty is OPTIONAL: PL-only records are skipped unless 'PHANTOM LIBERTY' is enabled",
+        "Optional X binding = EMERGENCY EJECT (also a button in the IN-GAME PILOT tab)"
       },
       ["sources"] = {
         "wiki.redmodding.org/cyber-engine-tweaks/patch-notes \u{2014} exEntitySpawner.SpawnRecord / Spawn / Despawn, Game.FindEntityByID",
@@ -2440,6 +2449,12 @@ return {
           ["label"] = "MECHFALL IN-GAME \u{b7} EMERGENCY UNDEPLOY",
           ["action"] = "reset",
           ["key"] = "F7"
+        },
+        {
+          ["slug"] = "mechfall_ig_eject",
+          ["label"] = "MECHFALL IN-GAME \u{b7} EMERGENCY EJECT",
+          ["action"] = "eject",
+          ["key"] = "X"
         }
       },
       ["physics"] = {
@@ -2471,7 +2486,185 @@ return {
         "CHASE",
         "ORBIT"
       },
-      ["disclaimer"] = "This is a CET-only SCRIPTED pilot: it references vanilla game records by TweakDB id, moves existing entities and locks V to a cockpit / chase / orbit transform. It does NOT add a new custom mesh, skeleton, rig, animation set, VO, physics collider, vehicle seat or mount system. Spawned NPCs may use their normal game AI and can be hostile; deploy in a safe open-world area and press EMERGENCY UNDEPLOY (F7) to despawn everything. It cannot be verified inside the game from this repository. A production-grade in-game mech still needs custom .ent/.mesh/.rig/.anims resources, ArchiveXL/TweakXL/Codeware/redscript work and private base-mod APIs. No base-mod files or ripped franchise assets are bundled, edited or redistributed. CET builds are patch-locked: on game patch 2.31 use CET 1.37.1 (or 1.37.0), NOT 1.38.x, which drops pre-2.5 support."
+      ["disclaimer"] = "This is a CET-only SCRIPTED pilot: it references vanilla game records by TweakDB id, moves existing entities and locks V to a cockpit / chase / orbit transform. It does NOT add a new custom mesh, skeleton, rig, animation set, VO, physics collider, vehicle seat or mount system. Spawned NPCs may use their normal game AI and can be hostile; deploy in a safe open-world area and press EMERGENCY UNDEPLOY (F7) to despawn everything. It cannot be verified inside the game from this repository. A production-grade in-game mech still needs custom .ent/.mesh/.rig/.anims resources, ArchiveXL/TweakXL/Codeware/redscript work and private base-mod APIs. No base-mod files or ripped franchise assets are bundled, edited or redistributed. CET builds are patch-locked: on game patch 2.31 use CET 1.37.1 (or 1.37.0), NOT 1.38.x, which drops pre-2.5 support. Per-part destruction is simulated over vanilla record references; no game assets are edited."
+    }
+  },
+  ["weapons"] = {
+    ["loadoutLimit"] = 8,
+    ["categories"] = {
+      ["energy_weapon"] = {
+        ["label"] = "ENERGY WEAPON",
+        ["family"] = "energy",
+        ["role"] = "weapon"
+      },
+      ["ballistic_weapon"] = {
+        ["label"] = "BALLISTIC WEAPON",
+        ["family"] = "ballistic",
+        ["role"] = "weapon"
+      },
+      ["missile_weapon"] = {
+        ["label"] = "MISSILE WEAPON",
+        ["family"] = "ballistic",
+        ["role"] = "weapon"
+      },
+      ["melee_weapon"] = {
+        ["label"] = "MELEE WEAPON",
+        ["family"] = "ballistic",
+        ["role"] = "weapon"
+      },
+      ["energy_missile"] = {
+        ["label"] = "ENERGY MISSILE",
+        ["family"] = "hybrid",
+        ["role"] = "weapon"
+      },
+      ["energy_melee"] = {
+        ["label"] = "ENERGY MELEE",
+        ["family"] = "hybrid",
+        ["role"] = "weapon"
+      },
+      ["energy_shield"] = {
+        ["label"] = "ENERGY SHIELDING",
+        ["family"] = "energy",
+        ["role"] = "defence"
+      },
+      ["ballistic_shield"] = {
+        ["label"] = "BALLISTIC SHIELDING",
+        ["family"] = "ballistic",
+        ["role"] = "defence"
+      }
+    },
+    ["templateCount"] = 8
+  },
+  ["damage"] = {
+    ["thresholds"] = {
+      ["cockpitDestruction"] = 0.7,
+      ["torsoDestruction"] = 0.9,
+      ["note"] = "Fractions of cumulative damage, not remaining integrity. > means strictly greater than."
+    },
+    ["cockpitDestruction"] = 0.7,
+    ["torsoDestruction"] = 0.9,
+    ["ejectKey"] = "X",
+    ["cetPartNames"] = {
+      {
+        "COCKPIT CANOPY",
+        "cockpit"
+      },
+      {
+        "SENSOR MAST",
+        "cockpit"
+      },
+      {
+        "PILOT SEAT",
+        "cockpit"
+      },
+      {
+        "TORSO HULL",
+        "torso"
+      },
+      {
+        "REACTOR CORE",
+        "torso"
+      },
+      {
+        "POWER BUS SPINE",
+        "torso"
+      },
+      {
+        "CAPACITOR BANK",
+        "torso"
+      },
+      {
+        "COOLANT MANIFOLD",
+        "torso"
+      },
+      {
+        "EW BACKPACK",
+        "torso"
+      },
+      {
+        "SHOULDER L",
+        "torso"
+      },
+      {
+        "SHOULDER R",
+        "torso"
+      },
+      {
+        "HIP ASSEMBLY",
+        "torso"
+      },
+      {
+        "ARM L",
+        "limb"
+      },
+      {
+        "ARM R",
+        "limb"
+      },
+      {
+        "LEG L",
+        "limb"
+      },
+      {
+        "LEG R",
+        "limb"
+      },
+      {
+        "FOOT L",
+        "limb"
+      },
+      {
+        "FOOT R",
+        "limb"
+      },
+      {
+        "ECM SUITE",
+        "system"
+      },
+      {
+        "RADIATOR L",
+        "system"
+      },
+      {
+        "RADIATOR R",
+        "system"
+      },
+      {
+        "THRUSTER L",
+        "system"
+      },
+      {
+        "THRUSTER R",
+        "system"
+      },
+      {
+        "JUMP JET",
+        "system"
+      },
+      {
+        "WEAPON MOUNT A",
+        "weapon"
+      },
+      {
+        "WEAPON MOUNT B",
+        "weapon"
+      },
+      {
+        "ENERGY SHIELD EMITTER",
+        "shield"
+      },
+      {
+        "BALLISTIC PLATE",
+        "shield"
+      }
+    },
+    ["baseHp"] = {
+      ["cockpit"] = 100,
+      ["torso"] = 180,
+      ["limb"] = 95,
+      ["system"] = 70,
+      ["weapon"] = 80,
+      ["shield"] = 140
     }
   },
   ["models"] = {
@@ -3109,6 +3302,99 @@ function IG.detect()
   return v
 end
 
+-- Per-part destruction / pilot emergency eject --------------------------------
+IG.dmgCfg = MF_DATA.damage or {}
+IG.dmgParts = {}
+IG.dmgEjected = false
+IG.dmgDestroyed = false
+IG.dmgReason = ""
+IG.lastPartHit = 0
+
+function IG.buildParts()
+  IG.dmgParts = {}
+  local names = IG.dmgCfg.cetPartNames or {}
+  local hp = IG.dmgCfg.baseHp or {}
+  for i, e in ipairs(names) do
+    local nm, sec = e[1], e[2]
+    local maxHp = hp[sec] or 80
+    table.insert(IG.dmgParts, { id = i, name = nm, section = sec,
+      hp = maxHp, maxHp = maxHp, destroyed = false })
+  end
+  IG.dmgEjected = false; IG.dmgDestroyed = false; IG.dmgReason = ""
+  iglog("DAMAGE MODEL online — " .. tostring(#IG.dmgParts) .. " individually destructible parts")
+end
+function IG.partDamage(section)
+  local sum, max = 0, 0
+  for _, q in ipairs(IG.dmgParts) do
+    if q.section == section then sum = sum + q.hp; max = max + q.maxHp end
+  end
+  if max <= 0 then return 0 end
+  return 1 - sum / max
+end
+function IG.dmgStats()
+  local th = IG.dmgCfg.thresholds or {}
+  return IG.partDamage("cockpit"), IG.partDamage("torso"),
+    th.cockpitDestruction or IG.dmgCfg.cockpitDestruction or 0.70,
+    th.torsoDestruction or IG.dmgCfg.torsoDestruction or 0.90
+end
+function IG.hitPart(i, pct)
+  local q = IG.dmgParts[i]
+  if not q or IG.dmgDestroyed then return false end
+  q.hp = math.max(0, q.hp - q.maxHp * (tonumber(pct) or 0.10))
+  if q.hp <= 0 then
+    q.destroyed = true
+    iglog("PART DESTROYED — " .. q.name .. " (" .. string.upper(q.section) .. ")")
+  else
+    iglog("HIT — " .. q.name .. " · " .. tostring(math.floor(q.hp / q.maxHp * 100)) .. "% integrity")
+  end
+  IG.checkDestruction()
+  return true
+end
+function IG.destroyPart(i)
+  local q = IG.dmgParts[i]
+  if not q or IG.dmgDestroyed then return false end
+  q.hp = 0; q.destroyed = true
+  iglog("PART DESTROYED — " .. q.name)
+  IG.checkDestruction()
+  return true
+end
+function IG.checkDestruction()
+  if IG.dmgDestroyed then return true end
+  local c, o, cl, ol = IG.dmgStats()
+  if c > cl then
+    IG.fullDestruction("COCKPIT > " .. tostring(math.floor(cl * 100)) .. "% DAMAGE")
+    return true
+  end
+  if o > ol then
+    IG.fullDestruction("TORSO SECTIONS > " .. tostring(math.floor(ol * 100)) .. "% AGGREGATE DAMAGE")
+    return true
+  end
+  return false
+end
+function IG.fullDestruction(reason)
+  for _, q in ipairs(IG.dmgParts) do q.hp = 0; q.destroyed = true end
+  IG.dmgDestroyed = true; IG.dmgEjected = true
+  IG.dmgReason = reason or "FULL DESTRUCTION"
+  IG.cockpitLock = false; IG.cameraMode = "ORBIT"
+  iglog("FULL DESTRUCTION — " .. IG.dmgReason)
+  iglog("PILOT EMERGENCY EJECT — cockpit lock released, all entities despawned")
+  IG.undeploy()
+  return true
+end
+function IG.ejectPilot(manual)
+  if IG.dmgDestroyed then return true end
+  IG.dmgEjected = true; IG.cockpitLock = false; IG.cameraMode = "ORBIT"
+  iglog((manual and "MANUAL EMERGENCY EJECT (X)" or "AUTOMATIC EMERGENCY EJECT") ..
+    " — pilot clear, cockpit lock released")
+  return true
+end
+function IG.repairParts()
+  IG.buildParts()
+  iglog("ALL PARTS REPAIRED — mech operational")
+  return true
+end
+IG.buildParts()
+
 -- Special type constructors, with ToVector4 / ToEulerAngles fallbacks. -------
 local function vec(x, y, z)
   if type(Vector4) == "table" and type(Vector4.new) == "function" then
@@ -3412,6 +3698,7 @@ function IG.input(action, pressed)
   if not pressed then return end
   if action == "deploy" then if IG.active then IG.undeploy() else IG.deploy() end
   elseif action == "reset" then IG.undeploy()
+  elseif action == "eject" then IG.ejectPilot(true)
   elseif action == "jump" then IG.jump()
   elseif action == "vent" then IG.vent()
   elseif action == "fire" then IG.fire()
@@ -3442,6 +3729,15 @@ function IG.update(delta)
   if dt <= 0 then return end
   IG.clock = IG.clock + dt
   IG.lastTelemetry = IG.lastTelemetry + dt
+  -- Hostile fire damages individual parts; destruction thresholds are checked per hit.
+  if #IG.hostiles > 0 and IG.clock - IG.lastPartHit >= 2.0 then
+    IG.lastPartHit = IG.clock
+    local alive = {}
+    for _, q in ipairs(IG.dmgParts) do if not q.destroyed then table.insert(alive, q) end end
+    if #alive > 0 then
+      IG.hitPart(alive[(math.floor(IG.clock * 3) % #alive) + 1].id, 0.06)
+    end
+  end
   IG.venting = math.max(0, IG.venting - dt)
 
   if IG.lastTelemetry >= 1 / math.max(0.2, IG.ph.telemetryHz) then
@@ -3627,6 +3923,35 @@ local function drawIngame(t)
   ImGui.Text("Speed " .. f(t.speed, 2) .. " m/s · brownout/thermal derate " ..
     ((t.powerMargin < 0 or t.temperature > 0.72) and "ACTIVE" or "nominal") ..
     " · hostile locks " .. tostring(#(IG.hostiles or {})) .. " · kills " .. tostring(IG.kills))
+  ImGui.Separator()
+  ImGui.Text("PER-PART DESTRUCTION · PILOT EMERGENCY EJECT")
+  local dc, do_, dcl, dol = IG.dmgStats()
+  bar("COCKPIT DAMAGE", dc * 100, 100, "% / LIMIT " .. tostring(math.floor(dcl * 100)) .. "%")
+  bar("TORSO DAMAGE", do_ * 100, 100, "% / LIMIT " .. tostring(math.floor(dol * 100)) .. "%")
+  ImGui.Text("STATUS " .. (IG.dmgDestroyed and ("DESTROYED — " .. IG.dmgReason) or
+    (IG.dmgEjected and "PILOT EJECTED" or "OPERATIONAL")) ..
+    " · " .. tostring(#IG.dmgParts) .. " destructible parts")
+  if ImGui.Button("HIT PART 10%") then
+    local alive = {}
+    for _, q in ipairs(IG.dmgParts) do if not q.destroyed then table.insert(alive, q) end end
+    if #alive > 0 then IG.hitPart(alive[(math.floor(os.clock() * 10) % #alive) + 1].id, 0.10) end
+  end
+  ImGui.SameLine()
+  if ImGui.Button("EMERGENCY EJECT (X)") then IG.ejectPilot(true) end
+  ImGui.SameLine()
+  if ImGui.Button("FULL DESTRUCTION") then IG.fullDestruction("MANUAL FULL DESTRUCTION") end
+  ImGui.SameLine()
+  if ImGui.Button("REPAIR ALL") then IG.repairParts() end
+  ImGui.BeginChild("mf_ingame_parts", -1, 150)
+  for _, q in ipairs(IG.dmgParts) do
+    ImGui.Text((q.destroyed and "[DEAD] " or "") .. q.name .. " · " .. string.upper(q.section))
+    ImGui.ProgressBar(q.hp / math.max(1, q.maxHp), -1, 10)
+    ImGui.SameLine()
+    if ImGui.Button("HIT##" .. tostring(q.id)) then IG.hitPart(q.id, 0.10) end
+    ImGui.SameLine()
+    if ImGui.Button("KILL##" .. tostring(q.id)) then IG.destroyPart(q.id) end
+  end
+  ImGui.EndChild()
   ImGui.Separator()
   ImGui.Text("CET BINDINGS (assign these in the CET overlay Bindings tab)")
   for _, c in ipairs(IG.cfg.controls) do ImGui.Text("  " .. tostring(c.key) .. "  " .. tostring(c.label)) end

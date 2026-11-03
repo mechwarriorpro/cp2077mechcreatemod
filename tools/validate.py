@@ -17,7 +17,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.json",
-              "components.json", "teardowns.json", "compat.json", "models.json")
+              "components.json", "teardowns.json", "compat.json", "models.json",
+              "weapons.json", "damage.json")
 SIX = ("powerDraw", "mass", "heatGen", "heatDiss", "rcs", "ecm")
 SHAPE_KEYS = ("torsoW", "torsoH", "torsoD", "headScale", "shoulderW", "shoulderH", "upperArm",
               "foreArm", "upperLeg", "lowerLeg", "hipW", "footL", "weaponX", "weaponY",
@@ -32,7 +33,7 @@ ANCHORS = {"torso", "head", "sensor", "backpack", "reactor", "bus", "capacitor",
            "sigExtra2", "sigExtra3",
            "ventL", "ventR", "jointL", "jointR", "kneeL", "kneeR"}
 TABS = ("HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST",
-        "PILOT TEST", "MODEL LIBRARY", "DOSSIER", "SETTINGS")
+        "PILOT TEST", "MODEL LIBRARY", "WEAPON FORGE", "DAMAGE CONTROL", "DOSSIER", "SETTINGS")
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -326,6 +327,63 @@ def main() -> int:
         err("example full models must have distinct front outlines (no shared generic hull)")
     if mdl.get("meta", {}).get("version") != d["compat"]["meta"]["version"]:
         err("models.meta.version must match compat.meta.version")
+    # ------------------------------------------- forgiving energy / reactor balance
+    sim = d["simulation"]
+    th = sim.get("validationThresholds", {})
+    if d["reactors"]["model"].get("outputScale", 0) < 50:
+        err("reactors.model.outputScale must be raised for the forgiving energy balance")
+    if d["reactors"]["model"].get("derateFactor", 1) > 0.3:
+        err("reactors.model.derateFactor must be relaxed")
+    for k in ("moduleDrawScale", "bulkModuleDiscount", "reactorParasiticScale"):
+        if k not in sim.get("coefficients", {}):
+            err(f"simulation.coefficients missing forgiving balance coefficient {k}")
+    if th.get("brownoutMargin", 0) >= 0:
+        err("brownoutMargin must be negative (forgiving power deficit tolerance)")
+    if th.get("hardpointLimit", 0) < 20:
+        err("hardpointLimit / max modules must be raised to at least 20")
+
+    # ------------------------------------------- custom weapon design (8 categories)
+    wp = d["weapons"]
+    cats = wp.get("categories", {})
+    required = {"energy_weapon", "ballistic_weapon", "missile_weapon", "melee_weapon",
+                "energy_missile", "energy_melee", "energy_shield", "ballistic_shield"}
+    if set(cats) != required:
+        err("weapons.json must define exactly the 8 requested weapon / shield categories")
+    pkeys = {q["key"] for q in wp.get("parameters", [])}
+    for cid, cat in cats.items():
+        if set(cat.get("defaults", {})) != pkeys:
+            err(f"weapons category {cid} has wrong parameter set")
+        for q in wp.get("parameters", []):
+            v = cat["defaults"].get(q["key"])
+            if not isinstance(v, (int, float)) or isinstance(v, bool):
+                err(f"weapons category {cid}.{q['key']} must be numeric")
+    if len(wp.get("templates", [])) < 8:
+        err("weapons.json must ship a baseline template for each category")
+    if wp.get("loadoutLimit", 0) < 8:
+        err("weapons.loadoutLimit must allow at least 8 designed weapons")
+
+    # ------------------------------------------- per-part destruction + eject
+    dm = d["damage"]
+    dth = dm.get("thresholds", {})
+    if dth.get("cockpitDestruction") != 0.70:
+        err("damage.thresholds.cockpitDestruction must be 0.70")
+    if dth.get("torsoDestruction") != 0.90:
+        err("damage.thresholds.torsoDestruction must be 0.90")
+    if not dm.get("eject", {}).get("key"):
+        err("damage.eject.key must define the emergency eject binding")
+    for k in ("cockpit", "torso", "limb", "system", "weapon", "shield"):
+        if not dm.get("baseHp", {}).get(k):
+            err(f"damage.baseHp missing section {k}")
+    names = dm.get("cetPartNames", [])
+    if len(names) < 20:
+        err("damage.cetPartNames must list at least 20 individually destructible parts")
+    if {x[1] for x in names} - {"cockpit", "torso", "limb", "system", "weapon", "shield"}:
+        err("damage.cetPartNames has an unknown section")
+    if not any(x[1] == "cockpit" for x in names) or not any(x[1] == "torso" for x in names):
+        err("damage.cetPartNames must include cockpit and torso sections")
+    if wp.get("meta", {}).get("version") != d["compat"]["meta"]["version"] or \
+       dm.get("meta", {}).get("version") != d["compat"]["meta"]["version"]:
+        err("weapons.json and damage.json versions must match compat.meta.version")
     if not (ROOT / "tools/lua_ingame.part").exists():
         err("tools/lua_ingame.part (CET in-game pilot module) missing")
 
@@ -425,7 +483,12 @@ def main() -> int:
                       "MF.models.drawTrace", "models.json", "onlyExamplesAllowed",
                       "onlyExamplesAllowed", "EXAMPLE-ONLY FULL MODEL POLICY",
                       "GAME PATCH (CET BUILDS ARE PATCH-LOCKED)", "CET 1.37.1",
-                      "PHANTOM LIBERTY INSTALLED?", "PATCH MATRIX"):
+                      "PHANTOM LIBERTY INSTALLED?", "PATCH MATRIX",
+                      "WEAPON FORGE", "CUSTOM WEAPON DESIGN", "MF.weapons.six",
+                      "energy_shield", "ballistic_shield", "energy_missile", "energy_melee",
+                      "DAMAGE CONTROL", "PER-PART DESTRUCTION", "PILOT EMERGENCY EJECT",
+                      "MF.damage.hitPct", "FULL DESTRUCTION",
+                      "moduleDrawScale", "bulkModuleDiscount", "cockpitDestruction"):
             if token not in text:
                 err(f"test_build.html missing expected content {token!r}")
         if "MF.draw.matrix" in text or "NO FRANCHISE GEOMETRY" in text:
@@ -453,7 +516,10 @@ def main() -> int:
                       "Game.GetTeleportationFacility", "WorldTransform.new", "Character.q003_militech_mech",
                       "function IG.detect", "function IG.setPatch", "function IG.setHasPL",
                       "function IG.records", "function IG.hostileRec", "GetVersion",
-                      "CET VERSION MISMATCH", "onlyExamplesAllowed"):
+                      "CET VERSION MISMATCH", "onlyExamplesAllowed",
+                      "function IG.checkDestruction", "function IG.fullDestruction",
+                      "function IG.ejectPilot", "function IG.buildParts", "mf_ingame_parts",
+                      "PILOT EMERGENCY EJECT", "weapons", "damage"):
             if token not in code:
                 err(f"CET init.lua missing in-game pilot API {token!r}")
         if "Game.AddToInventory" in code and "pcall(function()" not in code:
@@ -478,7 +544,8 @@ def main() -> int:
     for f in ("docs/REACTOR_MODEL.md", "docs/TEARDOWN_SCHEMA.md", "docs/SUBSYSTEM_MODEL.md",
               "docs/BaseModHooks.md", "docs/AssetManifest.md",
               "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
-              "docs/FULL_MODELS.md", "models.json"):
+              "docs/FULL_MODELS.md", "docs/WEAPON_FORGE.md", "docs/DAMAGE_MODEL.md",
+              "models.json", "weapons.json", "damage.json"):
         if not (ROOT / f).exists():
             err(f"missing doc {f}")
     examples = list((ROOT / "docs/integration").glob("*.example*"))

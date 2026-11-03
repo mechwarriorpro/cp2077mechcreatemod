@@ -46,3 +46,13 @@ not call it. `compat.json → ingamePilot.gamePatches` is the source of truth.
 chassis' full models and front / side / top traces — **the only allowed model sources**. No imported
 or extracted geometry. See `docs/FULL_MODELS.md`. This CET installable path still references vanilla
 game records only.
+
+
+**PER-PART DESTRUCTION (0.1.7-test):** every spawned part plus the cockpit and torso sections has
+individual HP. **Cockpit > 70% OR torso > 90% aggregate damage = FULL DESTRUCTION + automatic
+pilot emergency eject.** `X` / `mechfall_ig_eject` is the manual eject binding (13 CET bindings
+total). HIT / KILL / REPAIR / FULL DESTRUCTION controls are in the IN-GAME PILOT tab.
+Browser-side **WEAPON FORGE** authors 8 custom weapon / shield categories whose live power, mass,
+heat, RCS and ECM consequences are mirrored in this overlay. Energy balance is more forgiving
+(`outputScale 56`, module bulk discount, relaxed brownout). See `docs/WEAPON_FORGE.md` and
+`docs/DAMAGE_MODEL.md`.

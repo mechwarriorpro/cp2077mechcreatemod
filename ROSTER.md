@@ -71,12 +71,38 @@ The CET-only `IN-GAME PILOT` tab spawns and moves entities that already exist in
 | spider | `Character.q302_spidertank_kurt_soldier_melee_heavy` | SPIDER TANK |
 | flyer | `Character.q306_orbital_air_robot_guard` | ORBITAL AIR ROBOT GUARD |
 
-Signature-part anchors are populated from in-game drone / android / spiderbot / turret records; 12 part records and 3 `.ent` fallback templates are configured. Controls are `F6, W, S, A, D, SHIFT, SPACE, V, LMB, C, T, F7`. See `docs/INGAME_PILOT.md`.
+Signature-part anchors are populated from in-game drone / android / spiderbot / turret records; 12 part records and 3 `.ent` fallback templates are configured. Controls are `F6, W, S, A, D, SHIFT, SPACE, V, LMB, C, T, F7, X`. See `docs/INGAME_PILOT.md`.
 
 
 ## Full models / traces (examples only)
 
 `models.json` is the closed full-model library: **30 example chassis, and only these are allowed**. Each entry carries its own complete procedural model (full 20-parameter shape vector + signature-part composition) plus front / side / top blueprint traces with internal mounting bays. No imported, extracted or third-party geometry. Policy: `onlyExamplesAllowed=true`, `rejectGenericHulls=true`. See `docs/FULL_MODELS.md`.
+
+
+## Custom weapon / shield categories (0.1.7-test)
+
+`weapons.json` — 10 editable parameters, 8 equippable designs, all feeding the six first-class attributes through `MF.sim.compute()`. No imported assets.
+
+| Category | Family | Role |
+|---|---|---|
+| `energy_weapon` | energy | weapon |
+| `ballistic_weapon` | ballistic | weapon |
+| `missile_weapon` | ballistic | weapon |
+| `melee_weapon` | ballistic | weapon |
+| `energy_missile` | hybrid | weapon |
+| `energy_melee` | hybrid | weapon |
+| `energy_shield` | energy | defence |
+| `ballistic_shield` | ballistic | defence |
+
+## Per-part destruction (0.1.7-test)
+
+`damage.json` — every `MF.shapeParts()` box plus each equipped weapon / shield gets its own HP.
+
+| Rule | Threshold |
+|---|---|
+| Cockpit damage triggers FULL DESTRUCTION + pilot eject | > 70% |
+| Aggregate torso-section damage triggers FULL DESTRUCTION + pilot eject | > 90% |
+| Manual emergency eject | `X` / `mechfall_ig_eject` |
 
 
 ## Shape parameters (source material for the modeling table)

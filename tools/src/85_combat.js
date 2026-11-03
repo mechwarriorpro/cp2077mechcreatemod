@@ -45,6 +45,7 @@ MF.combat = {
     this.shake = 0; this.glitch = 0; this.xp = 0; this.salvage = 0;
     this.mouse = { x: w / 2, y: h / 4, down: false, moved: false };
     const log = $("combat-log"); if (log) log.innerHTML = "";
+    MF.damage.ensure(true);
     this.clog("COMBAT TEST STARTED · " + MF.activeDesign().name + " deployed");
     this.nextWave();
     MF.toast("Combat test started — WASD + mouse, LMB fire, Q/E/R abilities", "ok");
@@ -246,6 +247,7 @@ MF.combat = {
           if (p.vortex && Math.random() < 0.85) { this.burst(b.x, b.y, "#4dd0e1", 5); return false; }
           if (this.invuln <= 0) {
             p.hp -= b.dmg; this.shake = 0.28; this.burst(b.x, b.y, "#ff5f56", 8);
+            MF.damage.incoming(MF.damage.ensure(), 0, Math.min(0.22, b.dmg / 350));
           }
           return false;
         }
@@ -278,7 +280,10 @@ MF.combat = {
           }
         }
       } else { e.x += Math.cos(this.t + e.y) * 6 * dt; }
-      if (dist < 24 && this.invuln <= 0) { p.hp -= dt * 8; }
+      if (dist < 24 && this.invuln <= 0) {
+        p.hp -= dt * 8;
+        MF.damage.incoming(MF.damage.ensure(), 0, Math.min(0.02, dt * 0.006));
+      }
       return true;
     });
 
@@ -304,6 +309,7 @@ MF.combat = {
       if (this.ejectCooldown <= 0) {
         this.ejectCooldown = 20; p.hp = 34; p.temp = 0.4; this.invuln = 2.5;
         this.burst(p.x, p.y, "#ffb347", 45);
+        MF.damage.eject(MF.damage.ensure(), true);
         this.clog("PROTOCOL 3 · AUTO-EJECT · 20 s test cooldown");
         MF.toast("Protocol 3: auto-eject", "err");
       } else {
@@ -415,6 +421,7 @@ MF.combat = {
     set("combat-wave", this.wave); set("combat-xp", MF.state.xp + this.xp);
     set("combat-salvage", MF.state.salvage + this.salvage);
     set("combat-design", MF.activeDesign().name);
+    const dg = $("combat-damage"); if (dg) dg.innerHTML = MF.damage.hudHTML(MF.damage.ensure());
     if (!p) return;
     bar("hud-hp", p.hp); set("hud-hp-v", fmt(p.hp, 0) + "%");
     const pw = clamp(50 + t.powerMargin, 0, 100);

@@ -28,7 +28,8 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 SRC = TOOLS / "src"
 DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.json",
-              "components.json", "teardowns.json", "compat.json", "models.json")
+              "components.json", "teardowns.json", "compat.json", "models.json",
+              "weapons.json", "damage.json")
 LUA_OUT = ROOT / "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua"
 
 # A stable stamp: derived from the data, not the wall clock, so --check is deterministic.
@@ -46,7 +47,7 @@ def data_bundle() -> dict:
         "build": BUILD_DATE,
         "generator": "tools/generate.py",
         "disclaimer": "Browser + CET prototype. No ripped assets, no base-mod files.",
-        "tabs": ["HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST", "PROCEDURAL PILOT", "MODEL LIBRARY", "DOSSIER", "SETTINGS"],
+        "tabs": ["HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST", "PROCEDURAL PILOT", "MODEL LIBRARY", "WEAPON FORGE", "DAMAGE CONTROL", "DOSSIER", "SETTINGS"],
     }
     return d
 
@@ -195,6 +196,20 @@ def lua_data(d: dict) -> dict:
                 "disclaimer": d["compat"]["ingamePilot"]["disclaimer"],
             },
         },
+        "weapons": {
+            "loadoutLimit": d["weapons"]["loadoutLimit"],
+            "categories": {k: {"label": v["label"], "family": v["family"], "role": v["role"]}
+                           for k, v in d["weapons"]["categories"].items()},
+            "templateCount": len(d["weapons"]["templates"]),
+        },
+        "damage": {
+            "thresholds": d["damage"]["thresholds"],
+            "cockpitDestruction": d["damage"]["thresholds"]["cockpitDestruction"],
+            "torsoDestruction": d["damage"]["thresholds"]["torsoDestruction"],
+            "ejectKey": d["damage"]["eject"]["key"],
+            "cetPartNames": d["damage"]["cetPartNames"],
+            "baseHp": d["damage"]["baseHp"],
+        },
         "models": {
             "onlyExamplesAllowed": d["models"]["policy"]["onlyExamplesAllowed"],
             "allowedCount": d["models"]["policy"]["allowedCount"],
@@ -275,6 +290,23 @@ def build_roster(d: dict) -> str:
               "See `docs/FULL_MODELS.md`." % (
                   md["policy"]["allowedCount"], str(md["policy"]["onlyExamplesAllowed"]).lower(),
                   str(md["policy"]["rejectGenericHulls"]).lower()), ""]
+    wp = d["weapons"]
+    lines += ["", "## Custom weapon / shield categories (0.1.7-test)", "",
+              "`weapons.json` — 10 editable parameters, %d equippable designs, all feeding the six "
+              "first-class attributes through `MF.sim.compute()`. No imported assets." % wp["loadoutLimit"], "",
+              "| Category | Family | Role |", "|---|---|---|"]
+    for cid, wcat in wp["categories"].items():
+        lines.append("| `%s` | %s | %s |" % (cid, wcat["family"], wcat["role"]))
+    dm = d["damage"]
+    lines += ["", "## Per-part destruction (0.1.7-test)", "",
+              "`damage.json` — every `MF.shapeParts()` box plus each equipped weapon / shield gets its own HP.",
+              "",
+              "| Rule | Threshold |", "|---|---|",
+              "| Cockpit damage triggers FULL DESTRUCTION + pilot eject | > %.0f%% |" %
+                  (dm["thresholds"]["cockpitDestruction"] * 100),
+              "| Aggregate torso-section damage triggers FULL DESTRUCTION + pilot eject | > %.0f%% |" %
+                  (dm["thresholds"]["torsoDestruction"] * 100),
+              "| Manual emergency eject | `%s` / `mechfall_ig_eject` |" % dm["eject"]["key"], ""]
     lines += ["", "## Shape parameters (source material for the modeling table)", "",
               "Every chassis carries a 20-parameter shape vector plus a `sig` signature-part composition that can be loaded into MECH FORGE:",
               "", "`" + ", ".join(c["shapeKeys"]) + "`", "",

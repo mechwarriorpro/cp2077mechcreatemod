@@ -90,3 +90,18 @@ EXPONENTS**; nothing is hard-coded in the UI.
 (`netOutput`, `instability×20`, `temperature×20`, `heat`), the crystal-size-vs-power-vs-stability
 curve, live equation substitution and warnings. `SAVE AS SUBSYSTEM` makes the current tuning a
 reusable component; `SEND TO FORGE` applies it to the active design.
+
+
+---
+
+## 0.1.7-test additions
+
+Reactor / energy design is **more forgiving** (outputScale 56, derate 0.26, `moduleDrawScale`
+0.72, `bulkModuleDiscount` 0.42, relaxed brownout / thermal / mass thresholds) so a maximum
+module loadout stays powered. **WEAPON FORGE** adds eight player-authored weapon / shield
+categories (energy, ballistic, missile, melee, energy missiles, energy melee, energy shielding,
+ballistic shielding). **DAMAGE CONTROL** makes every individual part destructible with a pilot
+emergency eject (`X`); cockpit > 70% or aggregate torso > 90% damage triggers FULL DESTRUCTION.
+See `docs/WEAPON_FORGE.md`, `docs/DAMAGE_MODEL.md` and `README.md` section 8. No imported assets
+or in-game meshes are added; the 2.31 CET matrix and the 30-example-only model policy are
+unchanged.

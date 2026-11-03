@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "name": "MECHFALL // FORGE 77 — per-part destruction model",
+    "version": "0.1.7-test"
+  },
+  "note": "Every individual part of a chassis is destructible. The cockpit and torso sections have explicit destruction thresholds: >70% cockpit damage OR >90% aggregate torso-section damage triggers FULL DESTRUCTION and an automatic pilot emergency eject. Thresholds are configurable here and enforced identically in the browser prototype and the CET in-game pilot.",
+  "thresholds": {
+    "cockpitDestruction": 0.7,
+    "torsoDestruction": 0.9,
+    "note": "Fractions of cumulative damage, not remaining integrity. > means strictly greater than."
+  },
+  "sections": {
+    "cockpit": "Canopy / sensor / pilot seat",
+    "torso": "Central hull, reactor, bus, capacitors, coolant, backpack, hips, shoulders",
+    "limb": "Arms, legs, feet, actuators",
+    "system": "ECM, vents, radiators, thrusters, jump jets",
+    "weapon": "Designed weapon mounts and shield emitters",
+    "shield": "Energy / ballistic shielding plates"
+  },
+  "baseHp": {
+    "cockpit": 100,
+    "torso": 180,
+    "limb": 95,
+    "system": 70,
+    "weapon": 80,
+    "shield": 140
+  },
+  "torsoAnchors": [
+    "torso",
+    "bus",
+    "reactor",
+    "capacitor",
+    "coolant",
+    "backpack",
+    "hip",
+    "shoulderL",
+    "shoulderR"
+  ],
+  "cockpitAnchors": [
+    "head",
+    "sensor"
+  ],
+  "eject": {
+    "key": "X",
+    "label": "EMERGENCY EJECT",
+    "note": "Manual eject is always available; automatic eject fires the instant either destruction threshold is exceeded. (X is used; E remains VORTEX SHIELD in COMBAT / PILOT TEST.)",
+    "pilotSafe": true,
+    "cameraMode": "ORBIT",
+    "releasesCockpitLock": true
+  },
+  "fullDestruction": {
+    "marksEveryPartDestroyed": true,
+    "despawnsEntities": true,
+    "endsRun": true,
+    "reasons": [
+      "COCKPIT > 70% DAMAGE",
+      "TORSO SECTIONS > 90% AGGREGATE DAMAGE"
+    ]
+  },
+  "consequences": {
+    "partDestroyed": "that part stops contributing its mass / heat / signature to the render and its function is lost",
+    "cockpitCritical": "canopy breach: HUD flicker, reduced sensor range, brownout risk",
+    "torsoCritical": "reactor / bus exposure: forced vent, loss of power transfer, structural stress",
+    "destroyed": "full destruction, pilot ejected, all spawned entities despawned, run ends"
+  },
+  "cetPartNames": [
+    [
+      "COCKPIT CANOPY",
+      "cockpit"
+    ],
+    [
+      "SENSOR MAST",
+      "cockpit"
+    ],
+    [
+      "PILOT SEAT",
+      "cockpit"
+    ],
+    [
+      "TORSO HULL",
+      "torso"
+    ],
+    [
+      "REACTOR CORE",
+      "torso"
+    ],
+    [
+      "POWER BUS SPINE",
+      "torso"
+    ],
+    [
+      "CAPACITOR BANK",
+      "torso"
+    ],
+    [
+      "COOLANT MANIFOLD",
+      "torso"
+    ],
+    [
+      "EW BACKPACK",
+      "torso"
+    ],
+    [
+      "SHOULDER L",
+      "torso"
+    ],
+    [
+      "SHOULDER R",
+      "torso"
+    ],
+    [
+      "HIP ASSEMBLY",
+      "torso"
+    ],
+    [
+      "ARM L",
+      "limb"
+    ],
+    [
+      "ARM R",
+      "limb"
+    ],
+    [
+      "LEG L",
+      "limb"
+    ],
+    [
+      "LEG R",
+      "limb"
+    ],
+    [
+      "FOOT L",
+      "limb"
+    ],
+    [
+      "FOOT R",
+      "limb"
+    ],
+    [
+      "ECM SUITE",
+      "system"
+    ],
+    [
+      "RADIATOR L",
+      "system"
+    ],
+    [
+      "RADIATOR R",
+      "system"
+    ],
+    [
+      "THRUSTER L",
+      "system"
+    ],
+    [
+      "THRUSTER R",
+      "system"
+    ],
+    [
+      "JUMP JET",
+      "system"
+    ],
+    [
+      "WEAPON MOUNT A",
+      "weapon"
+    ],
+    [
+      "WEAPON MOUNT B",
+      "weapon"
+    ],
+    [
+      "ENERGY SHIELD EMITTER",
+      "shield"
+    ],
+    [
+      "BALLISTIC PLATE",
+      "shield"
+    ]
+  ],
+  "disclaimer": "Damage is a simulation of engineering consequences over vanilla game records / procedural meshes. It does not edit game assets, add custom rigs or claim in-game verification."
+}

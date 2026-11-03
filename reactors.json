@@ -89,10 +89,10 @@
     "instabilitySizeExponent": 1.6,
     "instabilityFlowExponent": 1.2,
     "gradeBonus": 0.08,
-    "derateFactor": 0.45,
+    "derateFactor": 0.26,
     "S_ref": 1.0,
     "F_ref": 4.0,
-    "heatLoadFactor": 1.0,
+    "heatLoadFactor": 0.8,
     "signatureFactor": 2.6,
     "resonanceFactor": 0.9,
     "equations": [
@@ -106,8 +106,8 @@
       "netOutput    = grossOutput * (1 - min(instability,1)*derateFactor)",
       "meltdown     = instability > 1.0"
     ],
-    "note": "outputScale converts mana throughput to kW so the reactor can feed kW-scale subsystem draws. heatLoad is the size-independent flow/regulator duty, so doubling S gives 2^sizeExponent ~1.8x GROSS power and 2^instabilitySizeExponent ~3x instability exactly; netOutput after the derate is lower. All exponents live here and in simulation.json.",
-    "outputScale": 34.0
+    "note": "outputScale converts mana throughput to kW so the reactor can feed kW-scale subsystem draws. heatLoad is the size-independent flow/regulator duty, so doubling S gives 2^sizeExponent ~1.8x GROSS power and 2^instabilitySizeExponent ~3x instability exactly; netOutput after the derate is lower. All exponents live here and in simulation.json. 0.1.7-test: outputScale raised 34->56, derateFactor lowered 0.45->0.26 and heatLoadFactor lowered 1.0->0.8 so reactor design is more forgiving and supplies substantially more energy. The doubling rule (2^sizeExponent / 2^instabilitySizeExponent) is unchanged.",
+    "outputScale": 56.0
   },
   "biomes": {
     "night_city": {

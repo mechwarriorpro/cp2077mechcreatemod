@@ -2,6 +2,8 @@
 
 (function boot() {
   MF.syncReactorSubsystem();
+  /* Rebuild per-part damage after ALL modules (incl. MF.weapons) are loaded. */
+  if (MF.damage && MF.damage.ensure) MF.damage.ensure(true);
   if (!MF.tabs[MF.state.tab]) MF.state.tab = "systems";
   // Render every tab lazily on first visit; the initial tab is rendered now.
   MF.refresh();

@@ -145,3 +145,49 @@ there is no reliable Lua game-version API, so the patch is selected manually in 
 matched against the matrix. Phantom Liberty is optional and record-level `requiresPL` flags gate
 PL-only spawns. The 2.31 AutoDrive upgrade is recorded but not integrated (our autopilot is
 self-contained). No runtime game-version detection, no in-game verification claim.
+
+## Forgiving energy / module economics (R16)
+
+### `0.1.7-test` — forgiving energy & reactor balance
+
+Reactor design is deliberately more forgiving so a player can fit the maximum number of modules
+and still have power to spare:
+
+| Change | Before | Now |
+|---|---|---|
+| `reactors.model.outputScale` | 34 | **56** (much more energy output) |
+| `reactors.model.derateFactor` | 0.45 | **0.26** |
+| `reactors.model.heatLoadFactor` | 1.0 | **0.80** |
+| `reactorParasiticScale` | — | **0.62** (parasitic draw cut) |
+| `moduleDrawScale` | — | **0.72** (every module costs less bus power) |
+| `bulkModuleDiscount` | — | **0.42** (each extra module is cheaper; max loadout ~58% of raw draw) |
+| payload per hardpoint | 18 kg | **12 kg** |
+| `brownoutMargin` | 0 kW | **-12 kW** (small deficit tolerated) |
+| `hardpointLimit` / max modules | 12 | **20 / 24** |
+| thermal / mass / stress / resonance / containment thresholds | tight | relaxed |
+
+`powerUsed = reactor.parasiticDraw + Σ(module.powerDraw * moduleDrawScale * bulk)`, where
+`bulk = 1 - bulkModuleDiscount * clamp((nModules - 1) / 19, 0, 1)`. The doubling rule
+`2^sizeExponent` / `2^instabilitySizeExponent` is unchanged, so the reactor physics still holds;
+only the economics are kinder. Weapons equipped in WEAPON FORGE use the same discount.
+
+## Custom weapon design (R17)
+
+### `0.1.7-test` — WEAPON FORGE
+
+The **WEAPON FORGE** tab authors **custom weapons** in eight categories: energy weapons, ballistic
+weapons, missile weapons, melee weapons, **energy missiles**, **energy melee**, **energy
+shielding** and **ballistic shielding**. Ten editable parameters feed live power / mass / heat /
+RCS / ECM through `MF.sim.compute()`. Up to 8 designs can be equipped. See `docs/WEAPON_FORGE.md`.
+
+### `0.1.7-test` — DAMAGE CONTROL
+
+The **DAMAGE CONTROL** tab makes **every individual part destructible** (one HP record per physical chassis
+part, plus equipped weapon / shield parts). **Cockpit damage > 70% OR aggregate torso-section
+damage > 90% triggers FULL DESTRUCTION and an automatic pilot emergency eject.** Manual eject is
+`X` (also a CET binding). Live in COMBAT TEST, PILOT TEST and the CET IN-GAME PILOT. See
+`docs/DAMAGE_MODEL.md`.
+
+## Per-part destruction & pilot eject (R18)
+
+`damage.json` + `tools/src/28_damage.js` give every `MF.shapeParts()` box (and every equipped weapon / shield) its own HP. `MF.damage.evaluate()` fires `destroy()` when `cockpitDamage > 0.70 || torsoDamage > 0.90`; `destroy()` marks all parts destroyed, ejects the pilot, releases the cockpit lock, ends the run and despawns CET entities. Manual eject is `X`. Mirrored in `IG.checkDestruction()` / `IG.fullDestruction()` inside the CET Lua. No game assets are edited. See `docs/DAMAGE_MODEL.md`.

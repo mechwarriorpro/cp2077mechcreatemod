@@ -64,6 +64,7 @@ function defaults() {
     modelsSelected: DATA.models.models[0].id,
     modelsView: "front",
     modelsYaw: 0.42,
+    customWeapons: [], loadout: [],
     reactor: clone(presetById("vanguard_link_shard").params),
     reactorPresetId: "vanguard_link_shard",
     biome: "badlands",
@@ -115,6 +116,8 @@ function loadState() {
   if (!out.modelsSelected) out.modelsSelected = d.modelsSelected;
   if (!out.modelsView) out.modelsView = d.modelsView;
   if (!Number.isFinite(out.modelsYaw)) out.modelsYaw = d.modelsYaw;
+  if (!Array.isArray(out.customWeapons)) out.customWeapons = [];
+  if (!Array.isArray(out.loadout)) out.loadout = [];
   if (!out.tdLayers) out.tdLayers = d.tdLayers;
   if (!out.tdFit) out.tdFit = d.tdFit;
   if (!out.tdFit.routes) out.tdFit.routes = {};
@@ -436,6 +439,8 @@ MF.handleRange = function (el) {
     MF.state.coefficients[key] = v; MF.save();
   } else if (scope === "rcoeff") {
     MF.state.reactorCoeffs[key] = v; MF.save();
+  } else if (scope === "weapon") {
+    if (MF.weapons) MF.weapons.draftGet().params[key] = v;
   } else if (scope === "teardown") {
     if (MF.teardown) MF.teardown.step = v;
   } else if (scope === "fit") {

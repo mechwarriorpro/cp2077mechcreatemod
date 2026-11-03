@@ -23,7 +23,8 @@ MF.ingame = {
   },
 
   panelHTML() {
-    const g = this.cfg(), c = this.config(), p = g.physics, pi = this.patchInfo();
+    const g = this.cfg(), c = this.config(), p = g.physics, pi = this.patchInfo(),
+      dm = DATA.damage;
     return '<div class="mf-note">The <b>CET-only IN-GAME PILOT</b> spawns mechs that already exist in '
       + 'Cyberpunk 2077 by TweakDB record id (vanilla <b>Militech Minotaur</b> core + drone / android / '
       + 'turret signature parts), moves them every frame and locks V into a cockpit transform. '
@@ -37,6 +38,10 @@ MF.ingame = {
       + '<span class="k">GAME PATCH</span><span>' + esc(c.patch) + ' → <b>CET ' + esc(pi.cet) + '</b> · RED4ext ' + esc(pi.red4ext) + '</span>'
       + '<span class="k">PATCH NOTE</span><span>' + esc(pi.note) + '</span>'
       + '<span class="k">CONSEQUENCES</span><span>brownout · heat derate · RCS / ECM in-world locks</span>'
+      + '<span class="k">DESTRUCTION</span><span>' + dm.cetPartNames.length +
+        ' individually destructible parts · cockpit > ' + fmt(dm.thresholds.cockpitDestruction * 100, 0) +
+        '% OR torso > ' + fmt(dm.thresholds.torsoDestruction * 100, 0) +
+        '% = FULL DESTRUCTION + pilot eject (' + esc(dm.eject.key) + ')</span>'
       + '</div>'
       + '<label class="mf-field">GAME PATCH (CET BUILDS ARE PATCH-LOCKED)</label>'
       + MF.ui.select("ingame-patch", this.patchKeys(), c.patch,
@@ -57,7 +62,8 @@ MF.ingame = {
       + '<div class="mf-row"><button class="mf-btn small" data-act="ingame-checklist">DEPLOY CHECKLIST</button>'
       + '<button class="mf-btn small" data-act="ingame-lua">GENERATE IN-GAME CET LUA</button>'
       + '<button class="mf-btn small" data-act="ingame-records">COPY RECORD IDS</button>'
-      + '<button class="mf-btn small" data-act="ingame-matrix">PATCH MATRIX</button></div>'
+      + '<button class="mf-btn small" data-act="ingame-matrix">PATCH MATRIX</button>'
+      + '<button class="mf-btn small" data-act="ingame-damage">DESTRUCTION RULES</button></div>'
       + '<div class="mf-note"><b>Patch 2.31 users: install CET 1.37.1 — NOT CET 1.38.x</b> '+
         '(1.38.x drops pre-2.5 game versions). CET 1.37.1 requires a 2.31-compatible RED4ext build. '+
         'Use the PATCH MATRIX button for the full CET / RED4EXT / AutoDrive / Crystal Coat table.</div>'
@@ -132,6 +138,22 @@ MF.ingame = {
       + '</ol>'
       + '<div class="mf-hr"></div><div class="mf-note">' + esc(g.disclaimer) + '</div>'
       + '<div class="mf-note">Requirements: ' + esc(g.requirements.join(" · ")) + '</div>';
+  },
+
+  damageHTML() {
+    const dm = DATA.damage;
+    return '<div class="mf-note">Every spawned signature part plus the core cockpit and torso sections ' +
+      'has its own HP and can be destroyed individually. <b>Full destruction</b> fires automatically ' +
+      'when <b>cockpit damage &gt; ' + fmt(dm.thresholds.cockpitDestruction * 100, 0) + '%</b> ' +
+      '<b>OR</b> <b>aggregate torso-section damage &gt; ' +
+      fmt(dm.thresholds.torsoDestruction * 100, 0) + '%</b>: every part is destroyed, the pilot is ' +
+      'ejected, the cockpit lock is released and all entities are despawned. Manual <b>' +
+      esc(dm.eject.key) + '</b> / EMERGENCY EJECT is always available.</div>' +
+      '<div class="mf-kv"><span class="k">PARTS</span><span>' + dm.cetPartNames.length +
+      '</span><span class="k">SECTIONS</span><span>' + Object.keys(dm.sections).join(' · ') +
+      '</span><span class="k">EJECT</span><span>' + esc(dm.eject.key) + ' · ' +
+      esc(dm.eject.label) + '</span></div>' +
+      '<div class="mf-note">' + esc(dm.disclaimer) + '</div>';
   },
 
   patchMatrixHTML() {

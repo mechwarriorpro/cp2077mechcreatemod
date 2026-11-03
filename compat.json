@@ -1,7 +1,7 @@
 {
   "meta": {
     "name": "FORGE 77 optional compatibility layer",
-    "version": "0.1.6-test",
+    "version": "0.1.7-test",
     "note": "Procedural browser-side equivalents plus pcall-wrapped CET bridges, and a CET-only IN-GAME PILOT that references vanilla Cyberpunk 2077 entity records by TweakDB id. No third-party or base-mod files are bundled, edited or redistributed. Detection never makes the prototype depend on another mod, and every game call is optional."
   },
   "autodrive": {
@@ -209,7 +209,7 @@
   },
   "disclaimer": "Compatibility means: the prototype uses the same public concepts, key names and share-code format, and CET optionally detects the other mods with pcall-wrapped GetMod calls. It does NOT ship, patch, require or claim to control those mods. The CET-only IN-GAME PILOT spawns and moves vanilla game entities by reference, but it does not add custom meshes, rigs, animations, VO, vehicle seats or mount systems; those still need ArchiveXL/TweakXL/Codeware/redscript work and private base-mod APIs. Nothing here is verified inside the game from this repository. No base-mod files or ripped franchise assets are bundled. On Cyberpunk 2077 patch 2.31 the required CET build is 1.37.1, not 1.38.x.",
   "ingamePilot": {
-    "note": "A CET-only attempt at a genuinely IN-GAME pilotable mech, with no shipped assets. It references entity records that already exist in Cyberpunk 2077 (the vanilla Militech Minotaur and Arasaka mech character records, plus drones / androids / spiderbots / turrets as signature parts). exEntitySpawner.SpawnRecord spawns them; WorldTransform + entEntity:SetWorldTransform move them each frame; registerInput + onUpdate read continuous controls; and Game.GetTeleportationFacility():Teleport locks V into a cockpit/chase/orbit transform. Every game call is pcall-wrapped and optional. If a record or API is missing the overlay reports it and drops to PHANTOM (cockpit-only) mode rather than breaking the game. No game files, meshes, rigs, textures, animations or base-mod files are bundled, edited or redistributed. Runtime patch detection uses CET's global GetVersion() (returns the CET build tag); the selected game patch is matched against a CET/RED4ext compatibility matrix. PL-only records are skipped unless Phantom Liberty is enabled.",
+    "note": "A CET-only attempt at a genuinely IN-GAME pilotable mech, with no shipped assets. It references entity records that already exist in Cyberpunk 2077 (the vanilla Militech Minotaur and Arasaka mech character records, plus drones / androids / spiderbots / turrets as signature parts). exEntitySpawner.SpawnRecord spawns them; WorldTransform + entEntity:SetWorldTransform move them each frame; registerInput + onUpdate read continuous controls; and Game.GetTeleportationFacility():Teleport locks V into a cockpit/chase/orbit transform. Every game call is pcall-wrapped and optional. If a record or API is missing the overlay reports it and drops to PHANTOM (cockpit-only) mode rather than breaking the game. No game files, meshes, rigs, textures, animations or base-mod files are bundled, edited or redistributed. Runtime patch detection uses CET's global GetVersion() (returns the CET build tag); the selected game patch is matched against a CET/RED4ext compatibility matrix. PL-only records are skipped unless Phantom Liberty is enabled. Every individual part is destructible with a pilot emergency eject (X); full destruction fires when cockpit damage exceeds 70% or aggregate torso-section damage exceeds 90%.",
     "since": "0.1.5-test",
     "requirements": [
       "PC Cyberpunk 2077 patch 2.31 with Cyber Engine Tweaks 1.37.1 (the 2.31 build) — CET 1.38.x does NOT support 2.31",
@@ -217,7 +217,8 @@
       "A loaded save in the open world — not the main menu, not paused",
       "CET Bindings: assign the MECHFALL IN-GAME PILOT keys under the CET overlay Bindings tab",
       "No Redscript, TweakXL, ArchiveXL or Codeware needed for this CET-only path",
-      "Phantom Liberty is OPTIONAL: PL-only records are skipped unless 'PHANTOM LIBERTY' is enabled"
+      "Phantom Liberty is OPTIONAL: PL-only records are skipped unless 'PHANTOM LIBERTY' is enabled",
+      "Optional X binding = EMERGENCY EJECT (also a button in the IN-GAME PILOT tab)"
     ],
     "sources": [
       "wiki.redmodding.org/cyber-engine-tweaks/patch-notes — exEntitySpawner.SpawnRecord / Spawn / Despawn, Game.FindEntityByID",
@@ -433,6 +434,12 @@
         "label": "MECHFALL IN-GAME · EMERGENCY UNDEPLOY",
         "action": "reset",
         "key": "F7"
+      },
+      {
+        "slug": "mechfall_ig_eject",
+        "label": "MECHFALL IN-GAME · EMERGENCY EJECT",
+        "action": "eject",
+        "key": "X"
       }
     ],
     "physics": {
@@ -464,7 +471,7 @@
       "CHASE",
       "ORBIT"
     ],
-    "disclaimer": "This is a CET-only SCRIPTED pilot: it references vanilla game records by TweakDB id, moves existing entities and locks V to a cockpit / chase / orbit transform. It does NOT add a new custom mesh, skeleton, rig, animation set, VO, physics collider, vehicle seat or mount system. Spawned NPCs may use their normal game AI and can be hostile; deploy in a safe open-world area and press EMERGENCY UNDEPLOY (F7) to despawn everything. It cannot be verified inside the game from this repository. A production-grade in-game mech still needs custom .ent/.mesh/.rig/.anims resources, ArchiveXL/TweakXL/Codeware/redscript work and private base-mod APIs. No base-mod files or ripped franchise assets are bundled, edited or redistributed. CET builds are patch-locked: on game patch 2.31 use CET 1.37.1 (or 1.37.0), NOT 1.38.x, which drops pre-2.5 support.",
+    "disclaimer": "This is a CET-only SCRIPTED pilot: it references vanilla game records by TweakDB id, moves existing entities and locks V to a cockpit / chase / orbit transform. It does NOT add a new custom mesh, skeleton, rig, animation set, VO, physics collider, vehicle seat or mount system. Spawned NPCs may use their normal game AI and can be hostile; deploy in a safe open-world area and press EMERGENCY UNDEPLOY (F7) to despawn everything. It cannot be verified inside the game from this repository. A production-grade in-game mech still needs custom .ent/.mesh/.rig/.anims resources, ArchiveXL/TweakXL/Codeware/redscript work and private base-mod APIs. No base-mod files or ripped franchise assets are bundled, edited or redistributed. CET builds are patch-locked: on game patch 2.31 use CET 1.37.1 (or 1.37.0), NOT 1.38.x, which drops pre-2.5 support. Per-part destruction is simulated over vanilla record references; no game assets are edited.",
     "targetPatch": "2.31",
     "gamePatches": {
       "2.3": {
@@ -500,6 +507,14 @@
     },
     "defaultHasPL": false,
     "hostileRecord": "Character.militech_base_android",
-    "plHostileRecord": "Character.kurtz_base_drone_wyvern"
+    "plHostileRecord": "Character.kurtz_base_drone_wyvern",
+    "damage": {
+      "source": "damage.json",
+      "cockpitDestruction": 0.7,
+      "torsoDestruction": 0.9,
+      "ejectKey": "X",
+      "perPart": true,
+      "note": "Every spawned signature part + the core cockpit/torso sections have individual HP. >70% cockpit damage OR >90% aggregate torso damage triggers FULL DESTRUCTION and automatic pilot ejection."
+    }
   }
 }
