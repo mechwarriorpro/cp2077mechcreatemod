@@ -34,6 +34,11 @@
   makes every part destructible: cockpit > 70% OR torso > 90% aggregate damage
   causes FULL DESTRUCTION + pilot emergency eject (X / mechfall_ig_eject).
 
+  0.1.9-test: tools/export_meshes.py ships 30 ORIGINAL glTF/OBJ mesh exports
+  derived only from the 30 allowed examples. NO ripped / extracted / imported
+  assets: NOT INSTALLED, NOT COMPILED, NOT IN-GAME VERIFIED. CET-only path
+  over vanilla records is unchanged. See docs/ORIGINAL_MESH_PIPELINE.md.
+
   0.1.8-test: 10 ImGui tabs. models.json ships real triangulated 3D meshes +
   independent front/side/top traces; MF_DATA.models.examples drives in-game part
   placement. Designed weapons fire in CET; shields absorb and regenerate. Reactor

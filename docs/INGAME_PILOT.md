@@ -246,3 +246,18 @@ The CET overlay now has **10 ImGui tabs**: HANGAR, INTERNAL SYSTEMS, MECH FORGE,
   telemetry agree within 3.06% worst-case across 12 values.
 * The four `docs/integration/*.example` specs are complete and validated but **still not
   installed, compiled or in-game verified**.
+
+
+---
+
+## 0.1.9-test — original mesh exports, no ripped assets
+
+`tools/export_meshes.py` exports the 30 example-only `models.json` meshes as
+**original** glTF 2.0 `.glb` + `.obj` geometry into `assets/original_meshes/`
+(892 parts / 10,704 triangles), with SHA256 provenance and a `--check` drift
+test wired into `validate.py --strict`. Box triangles are now outward-wound.
+**No ripped, extracted, imported, third-party or base-mod assets** — this sandbox
+has no game install, no archives, no WolvenKit and no asset-host route, and this
+GitHub repo is public. Exports are **NOT INSTALLED / NOT COMPILED / NOT BUILT
+INTO AN ARCHIVE / NOT IN-GAME VERIFIED**; CET-only install path over vanilla
+records is unchanged. See `docs/ORIGINAL_MESH_PIPELINE.md`.

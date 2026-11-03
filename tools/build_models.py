@@ -453,8 +453,10 @@ def build_mesh(shape, sig):
         t0 = len(tris)
         for a, bb, cc, dd in faces:
             A, B, C, Dd = I(*a), I(*bb), I(*cc), I(*dd)
-            tris.append([A, B, C, pi])
-            tris.append([A, C, Dd, pi])
+            # Wound outward from the box centre so every consumer (browser 3D,
+            # glTF/OBJ export, a future WolvenKit .mesh) sees correct normals.
+            tris.append([A, C, B, pi])
+            tris.append([A, Dd, C, pi])
         meta.append({'name': b['name'], 'section': b['section'],
                      'center': b['center'], 'half': b['half'],
                      'vertexStart': v0, 'triangleStart': t0,
@@ -494,7 +496,7 @@ for i, c in enumerate(roster):
 doc = {
     'meta': {
         'name': 'MECHFALL // FORGE 77 — full model / trace / 3D mesh library',
-        'version': '0.1.8-test',
+        'version': json.loads((root / 'compat.json').read_text())['meta']['version'],
         'note': 'The ONLY allowed full models and traces are the 30 example chassis below. Each is a complete '
                 'procedural model (20-parameter shape vector + signature-part composition), three INDEPENDENT '
                 'front / side / top blueprint traces, and a real indexed triangulated 3D part-soup mesh — derived '

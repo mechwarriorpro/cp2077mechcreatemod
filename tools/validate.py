@@ -340,6 +340,19 @@ def main() -> int:
         for v in mesh.get("vertices", [])[:5]:
             if len(v) != 3 or any(not isinstance(x, (int, float)) for x in v):
                 err(f"full model {m.get('id')} has a malformed 3D vertex")
+        # Every shipped triangle must be wound outward from its own part centre.
+        V, P, inward = mesh.get("vertices", []), mesh.get("parts", []), 0
+        for tri in mesh.get("triangles", []):
+            if len(tri) != 4 or not (0 <= tri[3] < len(P)):
+                continue
+            a, b, c = (V[i] for i in tri[:3]); ctr = P[tri[3]]["center"]
+            u = [b[k] - a[k] for k in range(3)]; v = [c[k] - a[k] for k in range(3)]
+            n = [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]]
+            mid = [(a[k]+b[k]+c[k])/3 - ctr[k] for k in range(3)]
+            if sum(n[k]*mid[k] for k in range(3)) < -1e-6:
+                inward += 1
+        if inward:
+            err(f"full model {m.get('id')} has {inward} inward-wound triangles (normals would be inside-out)")
         side_outlines.add(json.dumps(m["trace"]["side"]["outline"]))
         top_outlines.add(json.dumps(m["trace"]["top"]["outline"]))
         f = m["trace"]["front"]["outline"]
@@ -519,6 +532,7 @@ def main() -> int:
                       "MF.damage.hitPct", "FULL DESTRUCTION",
                       "moduleDrawScale", "bulkModuleDiscount", "cockpitDestruction",
                       "USE SHIPPED 3D MESH", "MF.models.meshFromData", "SHIELD POOL",
+                      "ORIGINAL GLB EXPORT", "NOT COMPILED", "tools/export_meshes.py",
                       "combatProfile", "MF.damage.absorb",
                       "independentOrthographicViews", "triangleCount"):
             if token not in text:
@@ -577,8 +591,10 @@ def main() -> int:
               "docs/BaseModHooks.md", "docs/AssetManifest.md",
               "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
               "docs/FULL_MODELS.md", "docs/WEAPON_FORGE.md", "docs/DAMAGE_MODEL.md",
+              "docs/ORIGINAL_MESH_PIPELINE.md",
               "models.json", "weapons.json", "damage.json",
-              "tools/validate_integration.py", "tools/parity_test.js",
+              "tools/validate_integration.py", "tools/parity_test.js", "tools/export_meshes.py",
+              "assets/original_meshes/manifest.json", "assets/original_meshes/README.md",
               "docs/integration/redscript_hook.reds.example",
               "docs/integration/tweakxl.yaml.example",
               "docs/integration/archivexl.archive.example.md",
@@ -597,6 +613,31 @@ def main() -> int:
             err("integration templates: " + line.strip())
     else:
         print("  " + integ.stdout.strip())
+
+    # ------------------------------------- original mesh exports (0.1.9-test)
+    exp = subprocess.run([sys.executable, str(ROOT / "tools/export_meshes.py"), "--check"],
+                         capture_output=True, text=True)
+    if exp.returncode != 0:
+        for line in (exp.stderr.strip() or exp.stdout.strip()).splitlines():
+            err("original mesh export: " + line.strip())
+    else:
+        print("  " + exp.stdout.strip())
+    man_path = ROOT / "assets/original_meshes/manifest.json"
+    if man_path.exists():
+        man = json.loads(man_path.read_text(encoding="utf-8"))
+        expected = sum(x.get("mesh", {}).get("triangleCount", 0) for x in lib)
+        if man.get("totals", {}).get("triangles") != expected:
+            err("original mesh manifest triangle total disagrees with models.json")
+        if man.get("meta", {}).get("policy", {}).get("noRippedAssets") is not True:
+            err("original mesh manifest must declare noRippedAssets")
+        if man.get("meta", {}).get("version") != d["compat"]["meta"]["version"]:
+            err("original mesh manifest version must match compat.meta.version")
+    pl = ROOT / "docs/ORIGINAL_MESH_PIPELINE.md"
+    if pl.exists():
+        ptxt = pl.read_text(encoding="utf-8").upper()
+        for token in ("NOT INSTALLED", "NOT COMPILED", "NOT IN-GAME VERIFIED", "NO RIPPED"):
+            if token not in ptxt:
+                err(f"docs/ORIGINAL_MESH_PIPELINE.md must state {token}")
 
     # generated Lua must use the JSON reactor model, not stale hardcoded values
     lua_path = ROOT / "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua"

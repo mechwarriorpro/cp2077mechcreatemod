@@ -132,3 +132,32 @@ to lock V into a cockpit transform over vanilla records — no custom rig.
    published until that is settled.
 
 **Nothing in this repository has been in-game verified.**
+
+
+---
+
+## 12. 0.1.9-test — the example meshes are now real export files
+
+`tools/export_meshes.py` exports **30 ORIGINAL glTF 2.0 binary meshes** (plus
+`.obj` + `.mtl` fallbacks, per-model `.glb.import.json` templates and a SHA256
+`manifest.json`) into `assets/original_meshes/`, from the shipped
+`models.json` geometry only. Run `python3 tools/export_meshes.py` and verify with
+`python3 tools/export_meshes.py --check`.
+
+| Export | WolvenKit destination |
+|---|---|
+| `assets/original_meshes/mechfall_<id>.glb` | `source/raw/mechs/` → import to `source/archive/base/mechfall/meshes/mechfall_<id>.mesh` |
+| `assets/original_meshes/mechfall_<id>.glb.import.json` | import-parameter **template** (documentation; not executed here) |
+| `assets/original_meshes/mechfall_<id>.obj` | Blender fallback (`mechfall.mtl`) |
+
+Each `.glb` has one named submesh per destructible part (892 parts / 10,704
+triangles total), outward-wound flat normals and per-section materials. Keep
+those submesh names as the `dmgId` bindings described in
+`docs/integration/custom_mech_entity.example.md`. See
+`docs/ORIGINAL_MESH_PIPELINE.md` for the full step-by-step.
+
+**NO RIPPED ASSETS.** There is no game installation, no `.archive`, no
+`WolvenKit` and no network route to an asset host in this sandbox, so nothing was
+extracted. These are original example-derived exports: **NOT INSTALLED**,
+**NOT BUILT** into an `.archive`, **NOT COMPILED**, **NOT IN-GAME VERIFIED**.
+The installable path remains CET-only.

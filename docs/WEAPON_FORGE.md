@@ -81,3 +81,18 @@ into `MF.compute()` so the overlay's power margin reflects equipped designs).
 Shield designs create destructible `shield` parts in `MF.damage`; `MF.damage.absorb()` drains their
 HP before hull damage, `MF.damage.tick()` regenerates energy shielding, and destroyed shield parts
 stay down until REPAIR ALL. Both COMBAT / PILOT HUDs show the live shield pool.
+
+
+---
+
+## 0.1.9-test — original mesh exports, no ripped assets
+
+`tools/export_meshes.py` exports the 30 example-only `models.json` meshes as
+**original** glTF 2.0 `.glb` + `.obj` geometry into `assets/original_meshes/`
+(892 parts / 10,704 triangles), with SHA256 provenance and a `--check` drift
+test wired into `validate.py --strict`. Box triangles are now outward-wound.
+**No ripped, extracted, imported, third-party or base-mod assets** — this sandbox
+has no game install, no archives, no WolvenKit and no asset-host route, and this
+GitHub repo is public. Exports are **NOT INSTALLED / NOT COMPILED / NOT BUILT
+INTO AN ARCHIVE / NOT IN-GAME VERIFIED**; CET-only install path over vanilla
+records is unchanged. See `docs/ORIGINAL_MESH_PIPELINE.md`.

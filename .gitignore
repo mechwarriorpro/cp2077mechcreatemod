@@ -17,3 +17,6 @@ Thumbs.db
 # NOTE: test_build.html, ROSTER.md and cet_mod/.../init.lua are GENERATED but intentionally
 # committed: they are the deliverables and must work with no build step. Re-run
 # `python3 tools/generate.py` after editing JSON / tools/src / tools/init.lua.template.
+# assets/original_meshes/ is also generated (python3 tools/export_meshes.py) but
+# intentionally committed: these ORIGINAL .glb/.obj exports are deliverables, not
+# scratch build output, and `export_meshes.py --check` guards them against drift.

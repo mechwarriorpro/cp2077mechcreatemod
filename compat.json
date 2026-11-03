@@ -1,7 +1,7 @@
 {
   "meta": {
     "name": "FORGE 77 optional compatibility layer",
-    "version": "0.1.8-test",
+    "version": "0.1.9-test",
     "note": "Procedural browser-side equivalents plus pcall-wrapped CET bridges, and a CET-only IN-GAME PILOT that references vanilla Cyberpunk 2077 entity records by TweakDB id. No third-party or base-mod files are bundled, edited or redistributed. Detection never makes the prototype depend on another mod, and every game call is optional."
   },
   "autodrive": {

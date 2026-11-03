@@ -1,0 +1,16 @@
+{
+  "$comment": "WolvenKit import-parameter TEMPLATE \u2014 documentation only, NOT executed here",
+  "source": "mechfall_toybox.glb",
+  "target": "source/archive/base/mechfall/meshes/mechfall_toybox.mesh",
+  "original": true,
+  "noRippedAssets": true,
+  "exampleSourceId": "toybox",
+  "partCount": 31,
+  "triangleCount": 372,
+  "status": "NOT COMPILED / NOT IN-GAME VERIFIED",
+  "notes": [
+    "Import on a machine with WolvenKit + Cyberpunk 2077 patch 2.31.",
+    "Keep each named submesh as its own submesh so dmgId part bindings survive.",
+    "Do NOT substitute a game-extracted or third-party .mesh here."
+  ]
+}

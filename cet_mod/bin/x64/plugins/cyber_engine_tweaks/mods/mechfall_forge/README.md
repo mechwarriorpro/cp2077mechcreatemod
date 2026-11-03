@@ -66,3 +66,12 @@ one of the 30 example-only full models whose trace anchors drive in-game part pl
 `models.json` ships real triangulated 3D meshes + independent front/side/top traces. WEAPON FORGE
 equips 8 custom weapon/shield designs whose damage, heat, missile salvos and shield HP are live.
 See `docs/FULL_MODELS.md`, `docs/WEAPON_FORGE.md`, `docs/DAMAGE_MODEL.md`.
+
+
+**0.1.9-test: ORIGINAL MESH EXPORTS, NO RIPPED ASSETS.** `assets/original_meshes/`
+holds 30 glTF 2.0 `.glb` + `.obj` exports of the example-only geometry, with a
+SHA256 manifest and a `--check` drift test. These are **NOT INSTALLED / NOT
+COMPILED / NOT BUILT INTO AN ARCHIVE / NOT IN-GAME VERIFIED**; they are the
+first half of a WolvenKit pipeline, not game resources. This mod's install path
+remains CET-only over vanilla TweakDB records. Nothing was extracted from the
+game or any third-party mod. See `docs/ORIGINAL_MESH_PIPELINE.md`.

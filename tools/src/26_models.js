@@ -201,7 +201,10 @@ MF.models = {
       this.byId(this.selected).mesh.triangleCount + ' triangles, ' +
       this.byId(this.selected).mesh.partCount + ' parts) or the equivalent procedural mesh from ' +
       '<code>MF.mesh3d.fromShape()</code>. Side / top traces are independent depth / plan measurements, ' +
-      'not affine copies. Six-attribute telemetry: power ' + fmt(t.powerMargin, 1) + ' kW · mass ' +
+      'not affine copies. ORIGINAL GLB EXPORT: <code>assets/original_meshes/mechfall_' + esc(m.id) +
+      '.glb</code> is generated from this same example-only geometry by <code>tools/export_meshes.py</code> ' +
+      '(NOT COMPILED / NOT INSTALLED / NOT IN-GAME VERIFIED — no ripped assets). ' +
+      'Six-attribute telemetry: power ' + fmt(t.powerMargin, 1) + ' kW · mass ' +
       fmt(t.totalMass, 0) + ' kg · heat ' + fmt(t.netHeat, 1) + ' kW · RCS ' + fmt(t.rcsFront, 1) +
       ' m² · ECM ' + fmt(t.jamStrength, 1) + '.</div></div>' +
       '<div class="mf-panel"><h2>FULL MODEL TRACE · <span id="models-view-label">FRONT</span></h2>' +

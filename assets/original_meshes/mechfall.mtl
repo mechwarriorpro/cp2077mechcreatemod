@@ -1,0 +1,41 @@
+# MECHFALL // FORGE 77 — original procedural materials (no ripped textures)
+newmtl mechfall_torso
+Kd 0.1300 0.5500 0.7200
+Ka 0.05 0.05 0.05
+Ks 0.25 0.25 0.25
+Ns 40.0
+illum 2
+d 1.0
+
+newmtl mechfall_cockpit
+Kd 0.9800 0.6900 0.2300
+Ka 0.05 0.05 0.05
+Ks 0.25 0.25 0.25
+Ns 40.0
+illum 2
+d 1.0
+
+newmtl mechfall_limb
+Kd 0.3800 0.6200 0.4800
+Ka 0.05 0.05 0.05
+Ks 0.25 0.25 0.25
+Ns 40.0
+illum 2
+d 1.0
+
+newmtl mechfall_weapon
+Kd 0.8200 0.2900 0.2700
+Ka 0.05 0.05 0.05
+Ks 0.25 0.25 0.25
+Ns 40.0
+illum 2
+d 1.0
+
+newmtl mechfall_system
+Kd 0.5800 0.4300 0.7800
+Ka 0.05 0.05 0.05
+Ks 0.25 0.25 0.25
+Ns 40.0
+illum 2
+d 1.0
+

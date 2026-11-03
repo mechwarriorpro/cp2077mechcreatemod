@@ -1,3 +1,45 @@
+## 2026-11-03 — original mesh exports, no ripped assets (0.1.9-test)
+
+The follow-up request was to "rip" the missing custom in-game resources. **That was
+declined and not done.** Verified blockers: zero `.archive` / `.mesh` / `.ent` /
+`.rig` files and no Cyberpunk 2077 install in the sandbox; no WolvenKit; outbound
+network restricted to GitHub/npm/PyPI (`nexusmods.com` fails TLS); and
+`mechwarriorpro/cp2077mechcreatemod` is **public** (`private: false`), so extracted
+CDPR or third-party files would be redistribution, not private use. Rigs,
+animations, VO, seats and mounts also need engine-side authoring and in-game
+verification, neither possible here.
+
+Instead, the shipped example-only geometry became **real importable ORIGINAL
+meshes**:
+
+* `tools/export_meshes.py` exports all 30 `models.json` full models to valid
+  glTF 2.0 binary `.glb` (one named submesh per destructible part, outward flat
+  normals, per-section materials, `dmgId`/`section` extras), plus `.obj`/`.mtl`
+  fallbacks, per-model `.glb.import.json` templates and a SHA256 `manifest.json`.
+  **892 parts / 10,704 triangles / 1,606,076 GLB bytes / 93 files.**
+* `--check` regenerates in memory and byte-compares every committed export, and
+  refuses any non-example `sourceId` or asset-source key (`ripped`, `extracted`,
+  `imported`, `baseMod`, `assetPath`, `archivePath`). Wired into
+  `validate.py --strict`.
+* Fixed a genuine geometry defect: the shipped `models.json` box triangles were
+  wound **inward** (all 10,704). `build_models.py` now emits outward-wound
+  triangles, so normals are correct in the browser 3D view, in the exports and in
+  any future `.mesh`. Strict validation now rejects inward-wound triangles.
+* `docs/ORIGINAL_MESH_PIPELINE.md` documents the blockers, the exports, and the
+  exact WolvenKit → `.mesh` → `.ent`/`.app`/`.rig` → `.archive.xl` steps that
+  require a machine with WolvenKit + patch 2.31.
+* `archivexl.archive.example.md` now maps each `.glb` to its WolvenKit
+  destination; `validate_integration.py` checks the exporter reference.
+* `build_package.py` now includes `assets/original_meshes/` in the test ZIP;
+  MODEL LIBRARY shows the per-example GLB path with the NOT COMPILED status.
+
+**Status unchanged: NOT INSTALLED · NOT COMPILED · NOT BUILT INTO AN ARCHIVE ·
+NOT IN-GAME VERIFIED.** CET-only install path over vanilla records; no custom
+meshes/rigs/animations/VO/seats/mounts shipped as resources. All data versions
+`0.1.9-test`.
+
+---
+
 ## 2026-11-03 — closing every remaining gap (0.1.8-test)
 
 - **Real 3D full models.** `tools/build_models.py` now generates three genuinely independent

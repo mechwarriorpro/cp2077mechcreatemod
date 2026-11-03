@@ -113,7 +113,8 @@ def main() -> int:
 
     # --------------------------------------------------------------- archive
     for token in (".archive.xl", ".ent", ".mesh", ".app", ".rig", "models.json",
-                  "WolvenKit", "onlyExamplesAllowed", "not shipped", "2.31"):
+                  "WolvenKit", "onlyExamplesAllowed", "not shipped", "2.31",
+                  "tools/export_meshes.py", "assets/original_meshes", "no ripped"):
         if token.lower() not in archive.lower():
             err(f"{ARCHIVE} missing {token}")
 
@@ -123,6 +124,16 @@ def main() -> int:
                   "ballistic_shield", "dmgId", "IG.weaponProfile", "parity_test.js"):
         if token not in entity:
             err(f"{ENTITY} missing {token}")
+
+    # ------------------------------------ exporter is original, not a ripped asset
+    exp_path = ROOT / "tools/export_meshes.py"
+    if exp_path.exists():
+        etxt = exp_path.read_text(encoding="utf-8")
+        for token in ("onlyExamplesAllowed", "noRippedAssets", "BANNED_KEYS", "--check"):
+            if token not in etxt:
+                err(f"tools/export_meshes.py missing {token}")
+        if "ripped" in etxt.lower() and "no ripped" not in etxt.lower():
+            err("tools/export_meshes.py must state it exports no ripped assets")
 
     # ------------------------------------------------------- no base-mod refs
     for name, text in ((REDS, reds), (YAML, yaml), (ARCHIVE, archive), (ENTITY, entity)):

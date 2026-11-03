@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "meta": {
     "name": "MECHFALL // FORGE 77 — custom weapon design library",
-    "version": "0.1.8-test"
+    "version": "0.1.9-test"
   },
   "note": "Player-authored weapons in eight categories. Every value is a simulation parameter, not an imported asset. Energy / ballistic / hybrid families share one editable parameter set so a player can design any combination. All weapons feed the six first-class attributes through MF.weapons.six() and MF.sim.compute().",
   "loadoutLimit": 8,

@@ -118,3 +118,18 @@ format; MODEL LIBRARY toggles between the shipped mesh and the equivalent proced
 `MF.mesh3d.fromShape()` mesh. No geometry is imported — it is derived only from the example's own
 shape vector. See `docs/integration/archivexl.archive.example.md` for how the mesh maps onto a
 future original `.mesh` resource (still NOT built / installed / in-game verified).
+
+
+---
+
+## 0.1.9-test — original mesh exports, no ripped assets
+
+`tools/export_meshes.py` exports the 30 example-only `models.json` meshes as
+**original** glTF 2.0 `.glb` + `.obj` geometry into `assets/original_meshes/`
+(892 parts / 10,704 triangles), with SHA256 provenance and a `--check` drift
+test wired into `validate.py --strict`. Box triangles are now outward-wound.
+**No ripped, extracted, imported, third-party or base-mod assets** — this sandbox
+has no game install, no archives, no WolvenKit and no asset-host route, and this
+GitHub repo is public. Exports are **NOT INSTALLED / NOT COMPILED / NOT BUILT
+INTO AN ARCHIVE / NOT IN-GAME VERIFIED**; CET-only install path over vanilla
+records is unchanged. See `docs/ORIGINAL_MESH_PIPELINE.md`.

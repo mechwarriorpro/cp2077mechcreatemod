@@ -300,3 +300,32 @@ damage > 90% triggers FULL DESTRUCTION and an automatic pilot emergency eject.**
 | `build_hooks_appendix()` was dead code | Wired into generated `ROSTER.md` (chassis + reactor identifier lists) |
 
 Run the full suite: `python3 tools/generate.py && python3 tools/validate.py --strict && cd tools && npm test` (smoke + Lua runtime + CET/browser parity). `python3 tools/validate_integration.py` checks the four complete integration specs.
+
+---
+
+## 10. 0.1.9-test — original meshes instead of ripped assets
+
+**"Rip those next" was declined.** There is no game install, no `.archive` /
+`.mesh` / `.ent` / `.rig` file, no WolvenKit and no network route to an asset
+host in this sandbox; this GitHub repo is **public** (`private: false`); and
+engine-side rigs / animations / VO / seats / mounts cannot be authored or
+verified here. No CDPR or third-party files were extracted, imported or
+fabricated. Only the 30 `chassis.json` examples remain allowed model sources.
+
+What shipped instead is the legitimate first half of that resource pipeline:
+
+| | |
+|---|---|
+| Exporter | `python3 tools/export_meshes.py` → `assets/original_meshes/` (93 files) |
+| Formats | 30 × valid glTF 2.0 `.glb`, 30 × `.obj` (+ `mechfall.mtl`), 30 × `.glb.import.json` templates, `manifest.json`, `README.md` |
+| Geometry | **892** named destructible part submeshes, **10,704** triangles, 1,606,076 GLB bytes — all derived from the 30 allowed examples |
+| Provenance | `noRippedAssets` / `noImportedAssets` in every GLB and the manifest; exporter rejects any other source |
+| Verification | `--check` byte-compares all exports; `validate.py --strict` calls it; shipped `models.json` triangles are now **outward-wound** |
+| Docs | `docs/ORIGINAL_MESH_PIPELINE.md` + updated `docs/integration/archivexl.archive.example.md` |
+
+**NOT INSTALLED · NOT COMPILED · NOT BUILT INTO AN ARCHIVE · NOT IN-GAME VERIFIED.**
+To finish the pipeline on your own machine: import a `.glb` in WolvenKit → build
+original `.mesh` / `.ent` / `.app` / `.rig` → pack `.archive` + `.archive.xl` →
+verify in game on patch **2.31** (CET 1.37.1 + RED4ext 1.29/1.30) → then replace
+the vanilla-record spawn strings. Until then the shipped pilot stays CET-only
+over vanilla TweakDB records.

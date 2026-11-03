@@ -1,0 +1,353 @@
+{
+  "meta": {
+    "name": "MECHFALL // FORGE 77 \u2014 original example mesh exports",
+    "version": "0.1.9-test",
+    "generator": "MECHFALL // FORGE 77 tools/export_meshes.py",
+    "source": "models.json (30 chassis.json roster examples only)",
+    "policy": {
+      "onlyExamplesAllowed": true,
+      "noRippedAssets": true,
+      "noImportedAssets": true,
+      "noBaseModFiles": true
+    },
+    "status": "NOT COMPILED / NOT INSTALLED / NOT IN-GAME VERIFIED"
+  },
+  "totals": {
+    "models": 30,
+    "parts": 892,
+    "triangles": 10704,
+    "glbBytes": 1606076
+  },
+  "models": [
+    {
+      "id": "bt7274",
+      "sourceId": "bt7274",
+      "glb": "mechfall_bt7274.glb",
+      "obj": "mechfall_bt7274.obj",
+      "parts": 31,
+      "vertices": 248,
+      "triangles": 372,
+      "glbBytes": 55740,
+      "sha256": "69bc013ae853ab26fc387c8e8f08a4001963ab0172398804c65dc4e6a7957f1c"
+    },
+    {
+      "id": "ion",
+      "sourceId": "ion",
+      "glb": "mechfall_ion.glb",
+      "obj": "mechfall_ion.obj",
+      "parts": 30,
+      "vertices": 240,
+      "triangles": 360,
+      "glbBytes": 53992,
+      "sha256": "1b73a085e08158876293765832dc393b70b10988490aa9c4a9e62e0992fa9697"
+    },
+    {
+      "id": "tone",
+      "sourceId": "tone",
+      "glb": "mechfall_tone.glb",
+      "obj": "mechfall_tone.obj",
+      "parts": 30,
+      "vertices": 240,
+      "triangles": 360,
+      "glbBytes": 53976,
+      "sha256": "3d44192a73381db083e3cb8c3dbe21c7ecb6ec74e831fb1968b0759fd33f2000"
+    },
+    {
+      "id": "northstar",
+      "sourceId": "northstar",
+      "glb": "mechfall_northstar.glb",
+      "obj": "mechfall_northstar.obj",
+      "parts": 25,
+      "vertices": 200,
+      "triangles": 300,
+      "glbBytes": 45288,
+      "sha256": "461100112c4b2ad0269819ca92cb274e7e71bdbcbff4de7fe09572fd1ab4fbc3"
+    },
+    {
+      "id": "ronin",
+      "sourceId": "ronin",
+      "glb": "mechfall_ronin.glb",
+      "obj": "mechfall_ronin.obj",
+      "parts": 32,
+      "vertices": 256,
+      "triangles": 384,
+      "glbBytes": 57492,
+      "sha256": "c318e3e9ce37def6aa0700f647a8f1c9905297c2485ca43e5b0ee9c0f6ae5f37"
+    },
+    {
+      "id": "scorch",
+      "sourceId": "scorch",
+      "glb": "mechfall_scorch.glb",
+      "obj": "mechfall_scorch.obj",
+      "parts": 30,
+      "vertices": 240,
+      "triangles": 360,
+      "glbBytes": 53980,
+      "sha256": "a381b7d5551ca416697e93070e5b33286f2243a38594659e8f41acbc7abf8c87"
+    },
+    {
+      "id": "legion",
+      "sourceId": "legion",
+      "glb": "mechfall_legion.glb",
+      "obj": "mechfall_legion.obj",
+      "parts": 22,
+      "vertices": 176,
+      "triangles": 264,
+      "glbBytes": 39976,
+      "sha256": "c42d9a7d8c7a91f075606e24bcf28dc4da39b94d20b61d34933f3efef56af3ee"
+    },
+    {
+      "id": "monarch",
+      "sourceId": "monarch",
+      "glb": "mechfall_monarch.glb",
+      "obj": "mechfall_monarch.obj",
+      "parts": 31,
+      "vertices": 248,
+      "triangles": 372,
+      "glbBytes": 55744,
+      "sha256": "93bffaf9a9f3fb0d789c2ba42a7ae886f7bfd43337403c9c373c344a24cdfda4"
+    },
+    {
+      "id": "ikaruga",
+      "sourceId": "ikaruga",
+      "glb": "mechfall_ikaruga.glb",
+      "obj": "mechfall_ikaruga.obj",
+      "parts": 31,
+      "vertices": 248,
+      "triangles": 372,
+      "glbBytes": 55740,
+      "sha256": "3b205545f92cc44a8a7f0ad9ce79c115eae8c908f52707915389f74818e6f87c"
+    },
+    {
+      "id": "toybox",
+      "sourceId": "toybox",
+      "glb": "mechfall_toybox.glb",
+      "obj": "mechfall_toybox.obj",
+      "parts": 31,
+      "vertices": 248,
+      "triangles": 372,
+      "glbBytes": 55748,
+      "sha256": "95b86ed1794978c95fc8ecc0dc76febd8491d5fba2bea9e8d666f994de973474"
+    },
+    {
+      "id": "kaldatoah",
+      "sourceId": "kaldatoah",
+      "glb": "mechfall_kaldatoah.glb",
+      "obj": "mechfall_kaldatoah.obj",
+      "parts": 31,
+      "vertices": 248,
+      "triangles": 372,
+      "glbBytes": 55760,
+      "sha256": "1bc93094ae527fffe2cf43fa80843d338d783ab8da286254ea3256830f299c3d"
+    },
+    {
+      "id": "tyrantor",
+      "sourceId": "tyrantor",
+      "glb": "mechfall_tyrantor.glb",
+      "obj": "mechfall_tyrantor.obj",
+      "parts": 31,
+      "vertices": 248,
+      "triangles": 372,
+      "glbBytes": 55744,
+      "sha256": "f777166b00989c4f8f3bfe4ec5f5a8fffa468f69b4f708848729adf7d6fb0de7"
+    },
+    {
+      "id": "tzendolg",
+      "sourceId": "tzendolg",
+      "glb": "mechfall_tzendolg.glb",
+      "obj": "mechfall_tzendolg.obj",
+      "parts": 34,
+      "vertices": 272,
+      "triangles": 408,
+      "glbBytes": 61016,
+      "sha256": "63462b0ab255982c9886e6af625e74201b62bf8ad287627347cb522cf24aa411"
+    },
+    {
+      "id": "falcon",
+      "sourceId": "falcon",
+      "glb": "mechfall_falcon.glb",
+      "obj": "mechfall_falcon.obj",
+      "parts": 24,
+      "vertices": 192,
+      "triangles": 288,
+      "glbBytes": 43508,
+      "sha256": "d0da306bd7944e8e87a275303e39400d23dc2cbb1ab9b437236d141f70c36a08"
+    },
+    {
+      "id": "tricera",
+      "sourceId": "tricera",
+      "glb": "mechfall_tricera.glb",
+      "obj": "mechfall_tricera.obj",
+      "parts": 26,
+      "vertices": 208,
+      "triangles": 312,
+      "glbBytes": 47020,
+      "sha256": "c6a37ba06c6f1b5e24fc21b58ac0c33287fec5581c1ef7a4b52b4a13450fa566"
+    },
+    {
+      "id": "narukami",
+      "sourceId": "narukami",
+      "glb": "mechfall_narukami.glb",
+      "obj": "mechfall_narukami.obj",
+      "parts": 31,
+      "vertices": 248,
+      "triangles": 372,
+      "glbBytes": 55768,
+      "sha256": "9974a41080b5d44bfdd3130863a43901cac652da02ee0639202968675eddab7f"
+    },
+    {
+      "id": "panther",
+      "sourceId": "panther",
+      "glb": "mechfall_panther.glb",
+      "obj": "mechfall_panther.obj",
+      "parts": 32,
+      "vertices": 256,
+      "triangles": 384,
+      "glbBytes": 57484,
+      "sha256": "7bc3a060a13ad06c9209e810336bc25391b607a5c036332e841fa090adba30c4"
+    },
+    {
+      "id": "welkin",
+      "sourceId": "welkin",
+      "glb": "mechfall_welkin.glb",
+      "obj": "mechfall_welkin.obj",
+      "parts": 30,
+      "vertices": 240,
+      "triangles": 360,
+      "glbBytes": 53996,
+      "sha256": "e5325cb8108b0ca71a26c22a521482058ff53bd4418338d5e67353dcb879948e"
+    },
+    {
+      "id": "stego",
+      "sourceId": "stego",
+      "glb": "mechfall_stego.glb",
+      "obj": "mechfall_stego.obj",
+      "parts": 26,
+      "vertices": 208,
+      "triangles": 312,
+      "glbBytes": 47020,
+      "sha256": "76d7490361da3294a6bef544169f24b46a3438e240912266bfb683b2952ba3d2"
+    },
+    {
+      "id": "raven_rj",
+      "sourceId": "raven_rj",
+      "glb": "mechfall_raven_rj.glb",
+      "obj": "mechfall_raven_rj.obj",
+      "parts": 33,
+      "vertices": 264,
+      "triangles": 396,
+      "glbBytes": 59252,
+      "sha256": "56bee23473cfe7b1584ced4942a51e2f6d9d76a6e54085dfe7f61d2dfc39f006"
+    },
+    {
+      "id": "tetrapod_ac",
+      "sourceId": "tetrapod_ac",
+      "glb": "mechfall_tetrapod_ac.glb",
+      "obj": "mechfall_tetrapod_ac.obj",
+      "parts": 34,
+      "vertices": 272,
+      "triangles": 408,
+      "glbBytes": 61036,
+      "sha256": "a139b62613639ee7e69f0aeee459606e31d2fab6f4125900aea17c156d1f3021"
+    },
+    {
+      "id": "balteus",
+      "sourceId": "balteus",
+      "glb": "mechfall_balteus.glb",
+      "obj": "mechfall_balteus.obj",
+      "parts": 30,
+      "vertices": 240,
+      "triangles": 360,
+      "glbBytes": 53996,
+      "sha256": "79e062a12b8446f40f59fda89c6c1cb66fb3ab72fe419fd57632278adfc1091b"
+    },
+    {
+      "id": "ibis",
+      "sourceId": "ibis",
+      "glb": "mechfall_ibis.glb",
+      "obj": "mechfall_ibis.obj",
+      "parts": 26,
+      "vertices": 208,
+      "triangles": 312,
+      "glbBytes": 47016,
+      "sha256": "51cfc107a758496729b200f426b62310fc54ed26c6d9efdb241a2292ddec1c51"
+    },
+    {
+      "id": "atlas",
+      "sourceId": "atlas",
+      "glb": "mechfall_atlas.glb",
+      "obj": "mechfall_atlas.obj",
+      "parts": 30,
+      "vertices": 240,
+      "triangles": 360,
+      "glbBytes": 54004,
+      "sha256": "aa309f0c962dbb26b17aeacb1aab0913e83079bde5ea638e173e4c9c7a241a0a"
+    },
+    {
+      "id": "timber_wolf",
+      "sourceId": "timber_wolf",
+      "glb": "mechfall_timber_wolf.glb",
+      "obj": "mechfall_timber_wolf.obj",
+      "parts": 30,
+      "vertices": 240,
+      "triangles": 360,
+      "glbBytes": 53996,
+      "sha256": "63bf4bc34611358672bc1b9f22da9bf6fd937a508e178beb028faa66503ecf02"
+    },
+    {
+      "id": "jenner",
+      "sourceId": "jenner",
+      "glb": "mechfall_jenner.glb",
+      "obj": "mechfall_jenner.obj",
+      "parts": 32,
+      "vertices": 256,
+      "triangles": 384,
+      "glbBytes": 57492,
+      "sha256": "8adc7c17309d492312ad33ead74a2325fdba425393b882271714dbf889f6035e"
+    },
+    {
+      "id": "marauder",
+      "sourceId": "marauder",
+      "glb": "mechfall_marauder.glb",
+      "obj": "mechfall_marauder.obj",
+      "parts": 31,
+      "vertices": 248,
+      "triangles": 372,
+      "glbBytes": 55768,
+      "sha256": "e63a91c20df578f4b78cd49db701891d7d26d1de961774afda3a3a3af2ad1380"
+    },
+    {
+      "id": "behemoth",
+      "sourceId": "behemoth",
+      "glb": "mechfall_behemoth.glb",
+      "obj": "mechfall_behemoth.obj",
+      "parts": 22,
+      "vertices": 176,
+      "triangles": 264,
+      "glbBytes": 40004,
+      "sha256": "0bac2b1cf72f9f39cf0370066cffdc17c1c71229188c242ee93bc5de43795610"
+    },
+    {
+      "id": "oni",
+      "sourceId": "oni",
+      "glb": "mechfall_oni.glb",
+      "obj": "mechfall_oni.obj",
+      "parts": 31,
+      "vertices": 248,
+      "triangles": 372,
+      "glbBytes": 55736,
+      "sha256": "0a74485b3f3bd62a05eba659f94f82001857ad7d675de600369016a0955004d8"
+    },
+    {
+      "id": "maxtac_ram",
+      "sourceId": "maxtac_ram",
+      "glb": "mechfall_maxtac_ram.glb",
+      "obj": "mechfall_maxtac_ram.obj",
+      "parts": 35,
+      "vertices": 280,
+      "triangles": 420,
+      "glbBytes": 62784,
+      "sha256": "73faa4ffa6b03466518553c53e1687fd4d100062a09fb25c35a100f84849a8ad"
+    }
+  ]
+}

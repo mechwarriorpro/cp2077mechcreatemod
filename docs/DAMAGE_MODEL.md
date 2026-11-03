@@ -89,3 +89,18 @@ PHANTOM mode; `GetVersion()` is a CET build tag, not a game-version API.
   MODEL LIBRARY. All are runtime-tested by `lua_test.js`.
 * `IG.setModel(i)` selects one of the 30 example models; `lua_data.models.examples[i].anchors`
   drive in-game part placement so the spawned chassis follows that example's silhouette.
+
+
+---
+
+## 0.1.9-test — original mesh exports, no ripped assets
+
+`tools/export_meshes.py` exports the 30 example-only `models.json` meshes as
+**original** glTF 2.0 `.glb` + `.obj` geometry into `assets/original_meshes/`
+(892 parts / 10,704 triangles), with SHA256 provenance and a `--check` drift
+test wired into `validate.py --strict`. Box triangles are now outward-wound.
+**No ripped, extracted, imported, third-party or base-mod assets** — this sandbox
+has no game install, no archives, no WolvenKit and no asset-host route, and this
+GitHub repo is public. Exports are **NOT INSTALLED / NOT COMPILED / NOT BUILT
+INTO AN ARCHIVE / NOT IN-GAME VERIFIED**; CET-only install path over vanilla
+records is unchanged. See `docs/ORIGINAL_MESH_PIPELINE.md`.
