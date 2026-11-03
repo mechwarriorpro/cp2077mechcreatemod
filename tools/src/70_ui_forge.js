@@ -13,6 +13,29 @@ const SHAPE_RANGE = {
 MF.SHAPE_RANGE = SHAPE_RANGE;
 
 MF.tabs.forge = (function () {
+  function sigHTML() {
+    const s = MF.state.shape, g = s.sig || {};
+    const slots = ["frame", "head", "shoulders", "back", "arms", "legs"];
+    let h = '<h3>SIGNATURE PARTS · MIX COMPONENTS FROM THE ORIGINAL MECHS</h3>' +
+      '<div class="mf-note">Pick a characteristic part type for each slot. Cockpit pods, cranial skulls, ' +
+      "missile racks, ether wings, reverse-joint legs, hover discs, blade arms, crests and shields — all " +
+      "drawn procedurally here as original geometry. Mix any of them; the only limits are balance and " +
+      "your imagination. Each prefab ships with its own composition.</div>" +
+      '<div class="mf-slider-grid">';
+    slots.forEach((k) => {
+      const lib = DATA.chassis.signatureParts[k];
+      h += '<label class="mf-field">' + k.toUpperCase() + "</label>" +
+        MF.ui.select("fg-sig-" + k, lib, g[k] || lib[0].id,
+          (x) => x.label + " · " + x.source, (x) => x.id);
+    });
+    h += "</div>" + '<label class="mf-field">ACCENTS (UP TO 3)</label><div class="mf-chips">' +
+      DATA.chassis.signatureParts.extras.map((x) => {
+        const on = (g.extras || []).indexOf(x.id) >= 0;
+        return '<span class="mf-chip ' + (on ? "on" : "") + '" data-act="fg-sig-extra" data-v="' +
+          esc(x.id) + '" title="' + esc(x.note) + '">' + esc(x.label) + "</span>";
+      }).join("") + "</div>";
+    return h;
+  }
   function modelHTML() {
     const s = MF.state.shape;
     const keys = Object.keys(SHAPE_RANGE);
@@ -26,6 +49,7 @@ MF.tabs.forge = (function () {
         esc({ biped: "BIPED", atlas: "ATLAS", reversejoint: "REVERSE-JOINT", knight: "KNIGHT",
               spider: "SPIDER", tetrapod: "TETRAPOD", corpo: "CORPO" }[k] || k.toUpperCase()) +
         "</span>").join("") + "</div>" +
+      '<div class="mf-hr"></div>' + sigHTML() +
       '<div class="mf-hr"></div><div class="mf-row">' +
       MF.ui.btn("RANDOMIZE", "fg-random") + MF.ui.btn("RESET", "fg-reset") +
       MF.ui.btn("BAKE SHAPE → COMBAT", "fg-bake", "primary") +
@@ -140,6 +164,15 @@ MF.tabs.forge = (function () {
       const b = e.target.closest("[data-act]"); if (!b) return;
       const a = b.dataset.act;
       if (a === "fg-mode") { MF.state.forgeMode = b.dataset.v; MF.save(); render(sec); }
+      else if (a === "fg-sig-extra") {
+        const g = MF.state.shape.sig || (MF.state.shape.sig = { extras: [] });
+        g.extras = g.extras || [];
+        const v = b.dataset.v, i = g.extras.indexOf(v);
+        if (i >= 0) g.extras.splice(i, 1);
+        else if (g.extras.length < 3) g.extras.push(v);
+        else MF.toast("Maximum 3 accents — remove one first", "err");
+        MF.save(); render(sec);
+      }
       else if (a === "fg-preset") {
         MF.state.shape = clone(DATA.chassis.presets[b.dataset.k]); MF.save(); render(sec);
         MF.toast("Loaded shape preset " + b.dataset.k, "ok");
@@ -150,6 +183,13 @@ MF.tabs.forge = (function () {
           MF.state.shape[k] = (k === "jetCount" || k === "jumpJetCount") ? Math.round(v) : Math.round(v / r[2]) * r[2];
         });
         MF.state.shape.style = DATA.chassis.styles[Math.floor(Math.random() * DATA.chassis.styles.length)];
+        const lib = DATA.chassis.signatureParts;
+        const ng = {};
+        ["frame", "head", "shoulders", "back", "arms", "legs"].forEach((k) => {
+          ng[k] = lib[k][Math.floor(Math.random() * lib[k].length)].id;
+        });
+        ng.extras = lib.extras.filter(() => Math.random() < 0.28).slice(0, 3).map((x) => x.id);
+        MF.state.shape.sig = ng;
         MF.save(); render(sec);
       } else if (a === "fg-reset") { MF.state.shape = clone(DATA.chassis.presets.biped); MF.save(); render(sec); }
       else if (a === "fg-bake") {
@@ -179,6 +219,12 @@ MF.tabs.forge = (function () {
     };
     sec.onchange = function (e) {
       if (e.target.id === "fg-style") { MF.state.shape.style = e.target.value; MF.save(); update(sec); }
+      else if (e.target.id && e.target.id.indexOf("fg-sig-") === 0) {
+        const slot = e.target.id.slice(7);
+        const g = MF.state.shape.sig || (MF.state.shape.sig = { extras: [] });
+        g[slot] = e.target.value;
+        MF.save(); render(sec);
+      }
       else if (e.target.id && e.target.id.indexOf("fg-part-") === 0) {
         MF.state.assembly[e.target.id.slice(8)] = e.target.value; MF.save(); render(sec);
       } else if (e.target.id === "fg-reactor") {
@@ -220,15 +266,18 @@ MF.tabs.forge = (function () {
       MF.draw.shapeOn(cv, MF.state.shape, {
         view: "orbit", yaw: MF.forgeView.yaw, pitch: MF.forgeView.pitch,
         scale: base * MF.forgeView.zoom,
-        dimensions: true, labels: true, label: "ORBIT · YAW " + fmt(MF.forgeView.yaw, 2), filled: false
+        dimensions: true, labels: true, label: "ORBIT · YAW " + fmt(MF.forgeView.yaw, 2),
+        filled: true, alpha: 0.16, shellOnly: true, ribs: false, solid: true
       });
     }
   }
   function update(sec) {
     const s = MF.state.shape;
     const f = $("fg-front"), sd = $("fg-side");
-    if (f) MF.draw.shapeOn(f, s, { view: "front", dimensions: true, labels: true, label: "FRONT ELEVATION" });
-    if (sd) MF.draw.shapeOn(sd, s, { view: "side", dimensions: true, labels: true, label: "SIDE ELEVATION" });
+    if (f) MF.draw.shapeOn(f, s, { view: "front", dimensions: true, labels: true,
+      label: "FRONT ELEVATION", filled: true, alpha: 0.18, shellOnly: true, ribs: false, solid: true });
+    if (sd) MF.draw.shapeOn(sd, s, { view: "side", dimensions: true, labels: true,
+      label: "SIDE ELEVATION", filled: true, alpha: 0.18, shellOnly: true, ribs: false, solid: true });
     drawOrbit();
     // Use a temporary design view so telemetry reflects the working shape even before saving.
     const d = clone(MF.activeDesign()); d.shape = clone(s);

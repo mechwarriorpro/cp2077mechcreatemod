@@ -4,7 +4,7 @@
 
 | Asset | Source | Format |
 |---|---|---|
-| All chassis views (TEARDOWN, HANGAR thumbnails, MECH FORGE front/side/orbit, baked COMBAT sprite) | `MF.shapeParts()` + `MF.draw.mech()` + canvas 2D API | original procedural **sleek mech wireframe**: tapered octagonal hulls, chamfered rings, joint rings, swept fins, radiator banks and nozzle bells from the 20 shape params |
+| All chassis views (TEARDOWN, HANGAR thumbnails, MECH FORGE front/side/orbit, baked COMBAT sprite) | `MF.shapeParts()` + `MF.sigGeometry()` + `MF.draw.mech()` + canvas 2D API | original procedural **sleek mech wireframe**: tapered/wedge hulls, domes, pods, swept blades, rings, cell racks, chamfered joint rings, radiator fins and nozzle bells from the 20 shape params **plus a mixable 7-slot signature-part composition** |
 | Internals mounting bays + power/heat routing | `MF.draw.mech()` + `MF.sim.fitBalance()` + canvas 2D API | procedural bay markers, bus trunks, heat runs and coolant loops |
 | Front / side / orbit views, dimension labels, grids | canvas 2D API | procedural |
 | RCS polar plot, thermal map, ECM coverage ring, dependency graph, charts | canvas 2D API | procedural |
@@ -32,3 +32,7 @@ audio or network requests. Data URIs / `Blob` are used only for user-triggered J
 Roster ids, reactor preset ids and subsystem template ids are listed in `ROSTER.md` and embedded in
 the generated Lua table. Canonical spelling chosen per chassis, aliases recorded in
 `chassis.json` (Earlcumber/Erlecumber, Tzendolg/Tzendolimble, Toybox/Toy Box).
+
+## Signature-part library
+
+Original procedural **signature-part library** (`chassis.json → signatureParts`, 7 slots / 59 part types). Each of the 30 prefabs and 7 shape presets ships a unique `shape.sig` composition, and MECH FORGE lets the player mix them: cockpit pods, cranial skulls, reverse-joint and splayed legs, tetrapod skirts, ether wings, booster fins, missile racks, blade arms, shields, crests, hover discs, tracked siege hulls and legless flight frames. These are original **component TYPES** drawn with canvas geometry — no ripped models, textures, traced silhouettes or base-mod files.

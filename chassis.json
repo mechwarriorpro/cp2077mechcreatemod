@@ -77,7 +77,18 @@
       "jetCount": 2,
       "thrusterSize": 0.73,
       "jumpJetCount": 1,
-      "style": "angular"
+      "style": "angular",
+      "sig": {
+        "frame": "vanguard",
+        "head": "pod",
+        "shoulders": "pauldron",
+        "back": "boosterPack",
+        "arms": "standard",
+        "legs": "braced",
+        "extras": [
+          "antenna"
+        ]
+      }
     },
     "reversejoint": {
       "torsoW": 2.1,
@@ -99,7 +110,18 @@
       "jetCount": 4,
       "thrusterSize": 1.01,
       "jumpJetCount": 2,
-      "style": "angular"
+      "style": "angular",
+      "sig": {
+        "frame": "slim",
+        "head": "sensorPod",
+        "shoulders": "smooth",
+        "back": "jetWing",
+        "arms": "blade",
+        "legs": "reverseJoint",
+        "extras": [
+          "winglets"
+        ]
+      }
     },
     "knight": {
       "torsoW": 2.5,
@@ -121,7 +143,19 @@
       "jetCount": 2,
       "thrusterSize": 0.73,
       "jumpJetCount": 2,
-      "style": "knight"
+      "style": "knight",
+      "sig": {
+        "frame": "knight",
+        "head": "crestHelm",
+        "shoulders": "etherWing",
+        "back": "etherWings",
+        "arms": "blade",
+        "legs": "braced",
+        "extras": [
+          "crest",
+          "halo"
+        ]
+      }
     },
     "spider": {
       "torsoW": 2.9,
@@ -143,7 +177,18 @@
       "jetCount": 4,
       "thrusterSize": 1.01,
       "jumpJetCount": 3,
-      "style": "spider"
+      "style": "spider",
+      "sig": {
+        "frame": "spider",
+        "head": "sensorPod",
+        "shoulders": "missileRack",
+        "back": "radiatorFins",
+        "arms": "standard",
+        "legs": "spiderLegs",
+        "extras": [
+          "spikes"
+        ]
+      }
     },
     "tetrapod": {
       "torsoW": 3.0,
@@ -165,7 +210,18 @@
       "jetCount": 6,
       "thrusterSize": 1.29,
       "jumpJetCount": 3,
-      "style": "tetrapod"
+      "style": "tetrapod",
+      "sig": {
+        "frame": "tetrapod",
+        "head": "dome",
+        "shoulders": "smooth",
+        "back": "hoverDisc",
+        "arms": "twinPod",
+        "legs": "tetrapodLegs",
+        "extras": [
+          "skirt"
+        ]
+      }
     },
     "corpo": {
       "torsoW": 2.2,
@@ -187,7 +243,18 @@
       "jetCount": 2,
       "thrusterSize": 0.73,
       "jumpJetCount": 1,
-      "style": "rounded"
+      "style": "rounded",
+      "sig": {
+        "frame": "corpo",
+        "head": "dome",
+        "shoulders": "pauldron",
+        "back": "fusionBackpack",
+        "arms": "cannon",
+        "legs": "heavy",
+        "extras": [
+          "shield"
+        ]
+      }
     },
     "atlas": {
       "torsoW": 2.4,
@@ -209,7 +276,18 @@
       "jetCount": 2,
       "thrusterSize": 0.73,
       "jumpJetCount": 1,
-      "style": "angular"
+      "style": "angular",
+      "sig": {
+        "frame": "atlas",
+        "head": "skull",
+        "shoulders": "cannonPod",
+        "back": "fusionBackpack",
+        "arms": "cannon",
+        "legs": "heavy",
+        "extras": [
+          "missilePods"
+        ]
+      }
     }
   },
   "roster": [
@@ -254,7 +332,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "vanguard",
+          "head": "pod",
+          "shoulders": "pauldron",
+          "back": "boosterPack",
+          "arms": "standard",
+          "legs": "braced",
+          "extras": [
+            "antenna",
+            "missilePods"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.0,
@@ -310,7 +400,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "vanguard",
+          "head": "pod",
+          "shoulders": "cannonPod",
+          "back": "fusionBackpack",
+          "arms": "cannon",
+          "legs": "braced",
+          "extras": [
+            "spikes",
+            "halo"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 0.97,
@@ -366,7 +468,18 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "hunchback",
+          "head": "visor",
+          "shoulders": "missileRack",
+          "back": "missileBox",
+          "arms": "standard",
+          "legs": "braced",
+          "extras": [
+            "missilePods"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.02,
@@ -422,7 +535,19 @@
         "jetCount": 4,
         "thrusterSize": 1.01,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "flyer",
+          "head": "sensorPod",
+          "shoulders": "smooth",
+          "back": "jetWing",
+          "arms": "twinPod",
+          "legs": "hoverSkirt",
+          "extras": [
+            "winglets",
+            "antenna"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 0.92,
@@ -478,7 +603,19 @@
         "jetCount": 4,
         "thrusterSize": 1.01,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "slim",
+          "head": "hood",
+          "shoulders": "spike",
+          "back": "jetWing",
+          "arms": "blade",
+          "legs": "reverseJoint",
+          "extras": [
+            "blade",
+            "tail"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 0.9,
@@ -534,7 +671,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "atlas",
+          "head": "skull",
+          "shoulders": "pauldron",
+          "back": "radiatorFins",
+          "arms": "cannon",
+          "legs": "heavy",
+          "extras": [
+            "spikes",
+            "skirt"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.22,
@@ -590,7 +739,18 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "tank",
+          "head": "dome",
+          "shoulders": "cannonPod",
+          "back": "missileBox",
+          "arms": "cannon",
+          "legs": "hoverSkirt",
+          "extras": [
+            "missilePods"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.2,
@@ -646,7 +806,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "vanguard",
+          "head": "pod",
+          "shoulders": "missileRack",
+          "back": "boosterPack",
+          "arms": "twinPod",
+          "legs": "braced",
+          "extras": [
+            "antenna",
+            "halo"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.05,
@@ -703,7 +875,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 2,
-        "style": "knight"
+        "style": "knight",
+        "sig": {
+          "frame": "knight",
+          "head": "crestHelm",
+          "shoulders": "etherWing",
+          "back": "etherWings",
+          "arms": "blade",
+          "legs": "braced",
+          "extras": [
+            "crest",
+            "halo"
+          ]
+        }
       },
       "style": "knight",
       "massScale": 1.08,
@@ -759,7 +943,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 2,
-        "style": "knight"
+        "style": "knight",
+        "sig": {
+          "frame": "knight",
+          "head": "dome",
+          "shoulders": "pauldron",
+          "back": "fusionBackpack",
+          "arms": "shieldDisc",
+          "legs": "heavy",
+          "extras": [
+            "shield",
+            "skirt"
+          ]
+        }
       },
       "style": "knight",
       "massScale": 1.02,
@@ -815,7 +1011,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 2,
-        "style": "knight"
+        "style": "knight",
+        "sig": {
+          "frame": "knight",
+          "head": "crestHelm",
+          "shoulders": "etherWing",
+          "back": "etherWings",
+          "arms": "blade",
+          "legs": "braced",
+          "extras": [
+            "crest",
+            "winglets"
+          ]
+        }
       },
       "style": "knight",
       "massScale": 1.12,
@@ -871,7 +1079,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 2,
-        "style": "knight"
+        "style": "knight",
+        "sig": {
+          "frame": "knight",
+          "head": "skull",
+          "shoulders": "spike",
+          "back": "radiatorFins",
+          "arms": "cannon",
+          "legs": "heavy",
+          "extras": [
+            "shield",
+            "spikes"
+          ]
+        }
       },
       "style": "knight",
       "massScale": 1.26,
@@ -928,7 +1148,19 @@
         "jetCount": 7,
         "thrusterSize": 1.43,
         "jumpJetCount": 3,
-        "style": "tetrapod"
+        "style": "tetrapod",
+        "sig": {
+          "frame": "tetrapod",
+          "head": "dome",
+          "shoulders": "smooth",
+          "back": "hoverDisc",
+          "arms": "standard",
+          "legs": "tetrapodLegs",
+          "extras": [
+            "skirt",
+            "halo"
+          ]
+        }
       },
       "style": "tetrapod",
       "massScale": 1.18,
@@ -984,7 +1216,19 @@
         "jetCount": 4,
         "thrusterSize": 1.01,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "flyer",
+          "head": "sensorPod",
+          "shoulders": "smooth",
+          "back": "jetWing",
+          "arms": "twinPod",
+          "legs": "hoverSkirt",
+          "extras": [
+            "winglets",
+            "tail"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 0.88,
@@ -1040,7 +1284,19 @@
         "jetCount": 7,
         "thrusterSize": 1.43,
         "jumpJetCount": 3,
-        "style": "tetrapod"
+        "style": "tetrapod",
+        "sig": {
+          "frame": "tank",
+          "head": "dome",
+          "shoulders": "pauldron",
+          "back": "missileBox",
+          "arms": "shieldDisc",
+          "legs": "hoverSkirt",
+          "extras": [
+            "skirt",
+            "spikes"
+          ]
+        }
       },
       "style": "tetrapod",
       "massScale": 1.28,
@@ -1096,7 +1352,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "wedge",
+          "head": "hood",
+          "shoulders": "spike",
+          "back": "boosterPack",
+          "arms": "blade",
+          "legs": "reverseJoint",
+          "extras": [
+            "antenna",
+            "blade"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 0.98,
@@ -1152,7 +1420,19 @@
         "jetCount": 4,
         "thrusterSize": 1.01,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "wedge",
+          "head": "visor",
+          "shoulders": "smooth",
+          "back": "jetWing",
+          "arms": "claw",
+          "legs": "reverseJoint",
+          "extras": [
+            "tail",
+            "winglets"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 0.94,
@@ -1208,7 +1488,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "knight",
+          "head": "crestHelm",
+          "shoulders": "pauldron",
+          "back": "fusionBackpack",
+          "arms": "shieldDisc",
+          "legs": "braced",
+          "extras": [
+            "shield",
+            "crest"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.14,
@@ -1264,7 +1556,19 @@
         "jetCount": 4,
         "thrusterSize": 1.01,
         "jumpJetCount": 3,
-        "style": "spider"
+        "style": "spider",
+        "sig": {
+          "frame": "tank",
+          "head": "dome",
+          "shoulders": "missileRack",
+          "back": "missileBox",
+          "arms": "standard",
+          "legs": "hoverSkirt",
+          "extras": [
+            "spikes",
+            "skirt"
+          ]
+        }
       },
       "style": "spider",
       "massScale": 1.24,
@@ -1320,7 +1624,19 @@
         "jetCount": 4,
         "thrusterSize": 1.01,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "wedge",
+          "head": "sensorPod",
+          "shoulders": "smooth",
+          "back": "boosterPack",
+          "arms": "blade",
+          "legs": "reverseJoint",
+          "extras": [
+            "winglets",
+            "antenna"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 0.93,
@@ -1376,7 +1692,19 @@
         "jetCount": 7,
         "thrusterSize": 1.43,
         "jumpJetCount": 3,
-        "style": "tetrapod"
+        "style": "tetrapod",
+        "sig": {
+          "frame": "tetrapod",
+          "head": "dome",
+          "shoulders": "smooth",
+          "back": "hoverDisc",
+          "arms": "twinPod",
+          "legs": "tetrapodLegs",
+          "extras": [
+            "skirt",
+            "halo"
+          ]
+        }
       },
       "style": "tetrapod",
       "massScale": 1.16,
@@ -1432,7 +1760,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "hunchback",
+          "head": "visor",
+          "shoulders": "cannonPod",
+          "back": "missileBox",
+          "arms": "cannon",
+          "legs": "heavy",
+          "extras": [
+            "halo",
+            "missilePods"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.18,
@@ -1489,7 +1829,19 @@
         "jetCount": 4,
         "thrusterSize": 1.01,
         "jumpJetCount": 3,
-        "style": "spider"
+        "style": "spider",
+        "sig": {
+          "frame": "hover",
+          "head": "dome",
+          "shoulders": "etherWing",
+          "back": "jetWing",
+          "arms": "blade",
+          "legs": "hoverSkirt",
+          "extras": [
+            "halo",
+            "winglets"
+          ]
+        }
       },
       "style": "spider",
       "massScale": 1.06,
@@ -1545,7 +1897,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "atlas",
+          "head": "skull",
+          "shoulders": "cannonPod",
+          "back": "fusionBackpack",
+          "arms": "cannon",
+          "legs": "heavy",
+          "extras": [
+            "missilePods",
+            "spikes"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.3,
@@ -1601,7 +1965,18 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "hunchback",
+          "head": "hood",
+          "shoulders": "missileRack",
+          "back": "missileBox",
+          "arms": "twinPod",
+          "legs": "braced",
+          "extras": [
+            "missilePods"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.1,
@@ -1657,7 +2032,18 @@
         "jetCount": 4,
         "thrusterSize": 1.01,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "slim",
+          "head": "visor",
+          "shoulders": "spike",
+          "back": "jetWing",
+          "arms": "standard",
+          "legs": "digitigrade",
+          "extras": [
+            "spikes"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 0.82,
@@ -1713,7 +2099,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "angular"
+        "style": "angular",
+        "sig": {
+          "frame": "atlas",
+          "head": "skull",
+          "shoulders": "cannonPod",
+          "back": "radiatorFins",
+          "arms": "cannon",
+          "legs": "braced",
+          "extras": [
+            "antenna",
+            "skirt"
+          ]
+        }
       },
       "style": "angular",
       "massScale": 1.16,
@@ -1769,7 +2167,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 1,
-        "style": "rounded"
+        "style": "rounded",
+        "sig": {
+          "frame": "tank",
+          "head": "dome",
+          "shoulders": "pauldron",
+          "back": "missileBox",
+          "arms": "cannon",
+          "legs": "hoverSkirt",
+          "extras": [
+            "shield",
+            "spikes"
+          ]
+        }
       },
       "style": "rounded",
       "massScale": 1.25,
@@ -1825,7 +2235,19 @@
         "jetCount": 2,
         "thrusterSize": 0.73,
         "jumpJetCount": 2,
-        "style": "knight"
+        "style": "knight",
+        "sig": {
+          "frame": "knight",
+          "head": "crestHelm",
+          "shoulders": "etherWing",
+          "back": "etherWings",
+          "arms": "blade",
+          "legs": "braced",
+          "extras": [
+            "crest",
+            "blade"
+          ]
+        }
       },
       "style": "knight",
       "massScale": 1.02,
@@ -1881,7 +2303,19 @@
         "jetCount": 4,
         "thrusterSize": 1.01,
         "jumpJetCount": 3,
-        "style": "spider"
+        "style": "spider",
+        "sig": {
+          "frame": "spider",
+          "head": "sensorPod",
+          "shoulders": "missileRack",
+          "back": "radiatorFins",
+          "arms": "twinPod",
+          "legs": "spiderLegs",
+          "extras": [
+            "antenna",
+            "spikes"
+          ]
+        }
       },
       "style": "spider",
       "massScale": 1.15,
@@ -1897,5 +2331,376 @@
       "note": "Original hostile frame; 4-5 star escalation study.",
       "internalsProfile": "spider"
     }
-  ]
+  ],
+  "signatureParts": {
+    "frame": [
+      {
+        "id": "vanguard",
+        "label": "Vanguard braced frame",
+        "source": "Titanfall BT-7274",
+        "note": "Broad angular chest, compact canopy, braced legs"
+      },
+      {
+        "id": "atlas",
+        "label": "Atlas hunchback frame",
+        "source": "BattleTech Atlas",
+        "note": "Heavy hunchback torso, skull head, thick legs"
+      },
+      {
+        "id": "hunchback",
+        "label": "Missile hunch frame",
+        "source": "BattleTech Timber Wolf",
+        "note": "Raised dorsal box over a narrow waist"
+      },
+      {
+        "id": "wedge",
+        "label": "Coral wedge frame",
+        "source": "Armored Core",
+        "note": "Low sloped wedge torso, swept shoulders"
+      },
+      {
+        "id": "slim",
+        "label": "Striker slim frame",
+        "source": "Titanfall Northstar / Ronin",
+        "note": "Narrow torso, long light limbs"
+      },
+      {
+        "id": "knight",
+        "label": "Ether knight frame",
+        "source": "Knights & Magic Ikaruga",
+        "note": "Tall crested torso with ether wings"
+      },
+      {
+        "id": "spider",
+        "label": "Spider low frame",
+        "source": "Mecha Break Stego",
+        "note": "Low wide hull with splayed legs"
+      },
+      {
+        "id": "tetrapod",
+        "label": "Tetrapod hover frame",
+        "source": "Armored Core Tetrapod",
+        "note": "Wide four-point stance with hover skirt"
+      },
+      {
+        "id": "corpo",
+        "label": "Corpo rounded frame",
+        "source": "Night City Militech Behemoth",
+        "note": "Rounded heavy chassis"
+      },
+      {
+        "id": "hover",
+        "label": "IBIS hover frame",
+        "source": "Armored Core IBIS",
+        "note": "Disc-like hover body, no feet"
+      },
+      {
+        "id": "tank",
+        "label": "Tracked siege hull",
+        "source": "Mecha Break Tricera / Militech Behemoth",
+        "note": "Low wide hull on twin tread pods, dorsal turret, no walking legs"
+      },
+      {
+        "id": "flyer",
+        "label": "Legless flight frame",
+        "source": "Titanfall Northstar / Mecha Break Falcon",
+        "note": "Slim fuselage, huge swept wings and ventral fins, no legs or arms"
+      }
+    ],
+    "head": [
+      {
+        "id": "pod",
+        "label": "Vanguard cockpit pod",
+        "source": "Titanfall BT-7274",
+        "note": "Angular pod with a wide visor slit"
+      },
+      {
+        "id": "skull",
+        "label": "Atlas cranial skull",
+        "source": "BattleTech Atlas",
+        "note": "Blocky cranial plate with eye slits"
+      },
+      {
+        "id": "dome",
+        "label": "Sensor dome",
+        "source": "Armored Core IBIS",
+        "note": "Rounded glass sensor dome"
+      },
+      {
+        "id": "visor",
+        "label": "Wide visor head",
+        "source": "Mecha Break Falcon",
+        "note": "Thin horizontal slit visor"
+      },
+      {
+        "id": "crestHelm",
+        "label": "Crested helm",
+        "source": "Knights & Magic Ikaruga",
+        "note": "Helm with a tall ether crest"
+      },
+      {
+        "id": "sensorPod",
+        "label": "Small sensor pod",
+        "source": "Titanfall Northstar",
+        "note": "Compact pod with antennae"
+      },
+      {
+        "id": "hood",
+        "label": "Sloped hood",
+        "source": "Armored Core Raven",
+        "note": "Angled hood over a recessed cockpit"
+      },
+      {
+        "id": "none",
+        "label": "No separate head",
+        "source": "Armored Core Tetrapod",
+        "note": "Cockpit integrated into the torso"
+      }
+    ],
+    "shoulders": [
+      {
+        "id": "pauldron",
+        "label": "Angular pauldrons",
+        "source": "Titanfall BT-7274",
+        "note": "Large layered shoulder blocks"
+      },
+      {
+        "id": "missileRack",
+        "label": "Shoulder missile rack",
+        "source": "BattleTech Timber Wolf",
+        "note": "Boxed cell grid on each shoulder"
+      },
+      {
+        "id": "cannonPod",
+        "label": "Shoulder cannon pod",
+        "source": "BattleTech Atlas / Marauder",
+        "note": "Cylindrical autocannon housing"
+      },
+      {
+        "id": "etherWing",
+        "label": "Ether reactor wing",
+        "source": "Knights & Magic Ikaruga",
+        "note": "Swept crystal wing from each shoulder"
+      },
+      {
+        "id": "spike",
+        "label": "Spiked pauldrons",
+        "source": "Mecha Break Panther",
+        "note": "Sharp swept spikes"
+      },
+      {
+        "id": "smooth",
+        "label": "Rounded compact shoulders",
+        "source": "Armored Core Tetrapod",
+        "note": "Low-profile smooth caps"
+      },
+      {
+        "id": "none",
+        "label": "Bare shoulder joints",
+        "source": "BattleTech Jenner",
+        "note": "No additional shoulder armour"
+      }
+    ],
+    "back": [
+      {
+        "id": "etherWings",
+        "label": "Twin ether wings",
+        "source": "Knights & Magic Ikaruga",
+        "note": "Two long swept reactor wings with halo rings"
+      },
+      {
+        "id": "boosterPack",
+        "label": "Twin booster pack",
+        "source": "Titanfall BT-7274",
+        "note": "Paired vector nozzles and short fins"
+      },
+      {
+        "id": "fusionBackpack",
+        "label": "Fusion backpack",
+        "source": "BattleTech Clan XL",
+        "note": "Large slab with heat-exchange fins"
+      },
+      {
+        "id": "radiatorFins",
+        "label": "Tall radiator fins",
+        "source": "Titanfall Scorch",
+        "note": "Vertical fin array with vent louvres"
+      },
+      {
+        "id": "missileBox",
+        "label": "Dorsal missile box",
+        "source": "Titanfall Tone / BattleTech Timber Wolf",
+        "note": "Bozed LRM launcher with cell grid"
+      },
+      {
+        "id": "jetWing",
+        "label": "Swept jet wing",
+        "source": "Mecha Break Falcon / Northstar",
+        "note": "Delta wing with embedded nozzles"
+      },
+      {
+        "id": "hoverDisc",
+        "label": "Hover disc / halo",
+        "source": "Armored Core IBIS / Tetrapod",
+        "note": "Circular lift ring behind the hull"
+      },
+      {
+        "id": "none",
+        "label": "Clean back",
+        "source": "BattleTech Jenner",
+        "note": "No dorsal assembly"
+      }
+    ],
+    "arms": [
+      {
+        "id": "standard",
+        "label": "Standard manipulator arms",
+        "source": "Titanfall BT-7274",
+        "note": "Armoured forearms and compact mounts"
+      },
+      {
+        "id": "blade",
+        "label": "Energy blade arm",
+        "source": "Armored Core Coral / Ronin",
+        "note": "Long swept blade plus a slim forearm"
+      },
+      {
+        "id": "shieldDisc",
+        "label": "Vortex shield disc",
+        "source": "Titanfall Tone / Ion",
+        "note": "Round shield disc on the left arm"
+      },
+      {
+        "id": "cannon",
+        "label": "Heavy cannon arm",
+        "source": "BattleTech Atlas / Legion",
+        "note": "Large barrel with a recoil housing"
+      },
+      {
+        "id": "claw",
+        "label": "Multi-claw arm",
+        "source": "Mecha Break Panther",
+        "note": "Segmented claw with tapered digits"
+      },
+      {
+        "id": "twinPod",
+        "label": "Twin missile pods",
+        "source": "Titanfall Monarch",
+        "note": "Paired boxed launchers per arm"
+      },
+      {
+        "id": "slim",
+        "label": "Slim striker arms",
+        "source": "Titanfall Northstar",
+        "note": "Thin low-mass arms"
+      }
+    ],
+    "legs": [
+      {
+        "id": "braced",
+        "label": "Heavy braced legs",
+        "source": "Titanfall BT-7274",
+        "note": "Straight thick legs with broad feet"
+      },
+      {
+        "id": "digitigrade",
+        "label": "Digitigrade legs",
+        "source": "Titanfall Northstar",
+        "note": "Bent hock with a long lower shin"
+      },
+      {
+        "id": "reverseJoint",
+        "label": "Reverse-joint legs",
+        "source": "Armored Core Raven-RJ",
+        "note": "Pronounced backward knee and hooked feet"
+      },
+      {
+        "id": "spiderLegs",
+        "label": "Four splayed spider legs",
+        "source": "Mecha Break Stego",
+        "note": "Low wide four-point stance"
+      },
+      {
+        "id": "tetrapodLegs",
+        "label": "Tetrapod hover legs",
+        "source": "Armored Core Tetrapod",
+        "note": "Four legs plus a lift skirt"
+      },
+      {
+        "id": "hoverSkirt",
+        "label": "Hover skirt, no feet",
+        "source": "Armored Core IBIS",
+        "note": "Circular skirt with lift rings"
+      },
+      {
+        "id": "heavy",
+        "label": "Heavy short legs",
+        "source": "Titanfall Scorch / Legion",
+        "note": "Stubby wide pillars"
+      }
+    ],
+    "extras": [
+      {
+        "id": "crest",
+        "label": "Crest / comms fin",
+        "source": "Knights & Magic",
+        "note": "Tall swept crest"
+      },
+      {
+        "id": "shield",
+        "label": "Tower shield",
+        "source": "Knights & Magic Toybox / Welkin",
+        "note": "Large layered plate"
+      },
+      {
+        "id": "blade",
+        "label": "Hip blade",
+        "source": "Titanfall Ronin",
+        "note": "Sheathed energy blade"
+      },
+      {
+        "id": "antenna",
+        "label": "Antenna mast",
+        "source": "Titanfall BT-7274 / Northstar",
+        "note": "Thin aerial with a tip beacon"
+      },
+      {
+        "id": "skirt",
+        "label": "Armour skirt",
+        "source": "Knights & Magic Tzendolg",
+        "note": "Layered hip skirt plates"
+      },
+      {
+        "id": "tail",
+        "label": "Stabiliser tail",
+        "source": "Mecha Break Panther",
+        "note": "Segmented rear stabiliser"
+      },
+      {
+        "id": "winglets",
+        "label": "Winglets",
+        "source": "Mecha Break Falcon",
+        "note": "Small swept fins on hips"
+      },
+      {
+        "id": "missilePods",
+        "label": "Hip missile pods",
+        "source": "Titanfall Tone / Monarch",
+        "note": "Small boxed launchers"
+      },
+      {
+        "id": "halo",
+        "label": "Reactor halo",
+        "source": "Knights & Magic Ikaruga / IBIS",
+        "note": "Floating ring around the core"
+      },
+      {
+        "id": "spikes",
+        "label": "Armour spikes",
+        "source": "Mecha Break Stego / Tricera",
+        "note": "Clusters of sharp spikes"
+      }
+    ]
+  },
+  "signatureNote": "Original procedural geometry inspired by characteristic part TYPES from the study materials; no model, mesh, texture or silhouette is imported, traced or extracted. Every part is drawn from parametric primitives in tools/src/20_render.js. Players may mix any parts freely. Body plans include biped, reverse-joint, tetrapod/spider four-leg, legless hover disc, tracked siege hull and legless flight frame."
 }

@@ -6,7 +6,7 @@
 The point is **fully custom mech creation**, not a roster of famous mechs. You author the frame,
 the limbs and every internal subsystem — power, mass, thermal, signature and electronic warfare —
 then stress-test that design in combat. Famous mechs exist only to be studied, torn apart and mined
-for parts.
+for **part types** — never their assets.
 
 **Priority:** ~75% fully custom chassis + player-designed internal subsystems · ~15% prefab/teardown
 library · ~10% combat test harness (it exists to prove custom builds work).
@@ -37,11 +37,14 @@ breaks the user's game. The installable path is CET-only.
    `crystalSize`, grade, containment, coolant and filtration. Bigger crystal = more power, much more
    instability. Run the 30 s sim. **SEND TO FORGE**.
 4. **MECH FORGE** — `FULL MODELING TABLE`: 20 shape parameters (incl. thruster size + jump jet
-   count), front + side elevations and a
-   drag-to-orbit 3D wireframe with grid and dimension labels. `RANDOMIZE`, `RESET`, `BAKE SHAPE`.
+   count) **plus `SIGNATURE PARTS`**: six part-slot selectors and up to three accent chips so you can
+   mix characteristic components from the study frames into your own design. Front + side elevations
+   and a drag-to-orbit 3D view with grid and dimension labels. `RANDOMIZE`, `RESET`, `BAKE SHAPE`.
    `PREFAB ASSEMBLY` is the alternative mode (pick a frame/limb set). Hook up your subsystems.
-5. **TEARDOWN** — a **sleek mech wireframe** built from tapered octagonal hulls, chamfered rings,
-   joint rings, swept fins, radiators and nozzle bells. Toggle **WIREFRAME**, **INTERNALS FIT**
+5. **TEARDOWN** — a **sleek mech wireframe** built from signature part geometry: tapered and
+   wedge hulls, domes, pods, swept blades, rings, cell racks, joint rings, swept fins, radiators and
+   nozzle bells. Six body plans (biped, reverse-joint, four-leg spider/tetrapod, legless hover disc,
+   tracked siege hull, legless flyer) mean no two prefabs share a silhouette. Toggle **WIREFRAME**, **INTERNALS FIT**
    (physical mounting bays showing where every sub-component sits) and **POWER / HEAT FLOW**
    (routed bus trunks, heat runs to radiators, coolant return loop). Fit and balance are the point:
    `AUTO ROUTE`, bus/coolant sliders, `STRESS FIT`, `APPLY FIT → FORGE`, plus **SCAN INTERNALS**,
@@ -52,6 +55,10 @@ breaks the user's game. The installable path is CET-only.
    inertia, RCS detection, ECM lock breaks and reactor surges are live consequences.
 7. **HANGAR**, **DOSSIER**, **SETTINGS** — prefab/teardown library with `UNLOCK ALL (TEST MODE)`,
    full engineering dossier, and all simulation exponents as editable config.
+
+### Signature parts — distinct shapes, no ripped assets
+
+Original procedural **signature-part library** (`chassis.json → signatureParts`, 7 slots / 59 part types). Each of the 30 prefabs and 7 shape presets ships a unique `shape.sig` composition, and MECH FORGE lets the player mix them: cockpit pods, cranial skulls, reverse-joint and splayed legs, tetrapod skirts, ether wings, booster fins, missile racks, blade arms, shields, crests, hover discs, tracked siege hulls and legless flight frames. These are original **component TYPES** drawn with canvas geometry — no ripped models, textures, traced silhouettes or base-mod files. The library is data-driven: `MF.sigGeometry()` in `tools/src/20_render.js` turns each slot into procedural geometry, and the same composition drives HANGAR thumbnails, MECH FORGE, TEARDOWN and the baked COMBAT sprite. `USE AS TEMPLATE` loads a prefab's part mix straight into the Forge.
 
 Everything persists to `localStorage` (with an in-memory fallback). **SETTINGS → EXPORT ALL STATE
 JSON** / **IMPORT ALL STATE** moves designs and subsystems between machines. `GENERATE CET LUA`

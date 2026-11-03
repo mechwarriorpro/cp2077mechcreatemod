@@ -177,6 +177,20 @@ setTimeout(() => {
     must(MF.DATA.components.parts.some(x => x.type === 'jumpjet'), 'jump jets are assembly parts');
     must(MF.shapeParts(MF.state.shape).some(b => b.anchor === 'jumpJet'), 'jump jet geometry exists');
     must(MF.DATA.chassis.shapeKeys.length === 20, 'modeling table has 20 parameters');
+    const sigLib = MF.DATA.chassis.signatureParts;
+    must(Object.keys(sigLib).length === 7 && sigLib.frame.length >= 10,
+      'signature-part library has 7 slots and 10+ body plans');
+    const sigs = MF.DATA.chassis.roster.map(c => JSON.stringify(c.shape.sig));
+    must(new Set(sigs).size === 30, 'all 30 prefabs have distinct signature-part compositions');
+    const plans = new Set(MF.DATA.chassis.roster.map(c => c.shape.sig.frame));
+    must(plans.size >= 6 && plans.has('tank') && plans.has('flyer') && plans.has('hover'),
+      'roster covers 6+ body plans including tank, flyer and hover');
+    const tankParts = MF.shapeParts(MF.getDesign('tricera').shape).map(b => b.anchor);
+    const flyerParts = MF.shapeParts(MF.getDesign('northstar').shape).map(b => b.anchor);
+    must(!tankParts.includes('footL') && !flyerParts.includes('footL'),
+      'tank and flyer body plans remove walking legs');
+    must(MF.shapeParts(MF.getDesign('tzendolg').shape).map(b => b.anchor).includes('extraLegL'),
+      'four-leg body plan keeps rear leg columns');
     click('[data-act="td-extract"]');
     must(MF.state.blueprints.length > 0 && MF.state.salvage > 0, 'EXTRACT yields blueprints + salvage');
     click('[data-act="td-compare"]');
@@ -189,6 +203,17 @@ setTimeout(() => {
     must(MF.state.shape.torsoW > 0, 'RANDOMIZE keeps a valid shape');
     click('[data-act="fg-preset"][data-k="spider"]');
     must(MF.state.shape.style === 'spider', 'shape preset applies');
+    const forgeHTML = w.document.getElementById('fg-mode-body').innerHTML;
+    must(forgeHTML.indexOf('SIGNATURE PARTS') >= 0, 'MECH FORGE exposes SIGNATURE PARTS selectors');
+    const sigSel = w.document.getElementById('fg-sig-frame');
+    must(!!sigSel, 'signature frame selector exists');
+    const beforeSig = MF.state.shape.sig.frame;
+    sigSel.value = 'flyer'; sigSel.dispatchEvent(new w.Event('change', { bubbles: true }));
+    must(MF.state.shape.sig.frame === 'flyer' && beforeSig !== 'flyer',
+      'changing a signature slot updates the working shape');
+    must(MF.shapeParts(MF.state.shape).some(b => b.anchor === 'sigArmL'), 'signature geometry follows the selector');
+    click('[data-act="fg-preset"][data-k="biped"]');
+    must(!!MF.state.shape.sig && !!MF.state.shape.sig.frame, 'preset restores a signature composition');
     click('[data-act="fg-bake"]');
     must(MF.activeDesign().origin === 'custom' && !!MF.state.bakedShape, 'BAKE SHAPE creates a custom design + baked silhouette');
     click('[data-act="fg-mode"][data-v="assembly"]');
@@ -199,6 +224,9 @@ setTimeout(() => {
     must(!!w.document.getElementById('fg-orbit'), 'full modeling table + orbit canvas');
 
     // HANGAR
+    MF.setTab('dossier');
+    must(w.document.getElementById('tab-dossier').innerHTML.indexOf('SIGNATURE PART COMPOSITION') >= 0,
+      'dossier reports the signature-part composition');
     MF.setTab('hangar');
     click('[data-act="hangar-filter"][data-v="CUSTOM"]');
     must(MF.state.hangarFilter === 'CUSTOM', 'hangar filter works');

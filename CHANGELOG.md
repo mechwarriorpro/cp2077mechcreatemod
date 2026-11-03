@@ -1,5 +1,25 @@
 # CHANGELOG.md
 
+## 2026-11-03 — signature-part silhouettes + player mixing (0.1.3-test)
+
+- **The 30 prefabs no longer share one generic biped.** Added `chassis.json → signatureParts`: 7 slots /
+  59 original procedural part types, and a unique `shape.sig` composition for every roster chassis and
+  all 7 shape presets (30/30 distinct).
+- **Six body plans** now render: biped, reverse-joint, spider/tetrapod with four splayed leg columns,
+  legless hover disc, low tracked siege hull, and legless flight frame. `MF.sigGeometry()` swaps whole
+  torsos, heads, shoulders, back packs, arms, weapons, legs and accents instead of scaling one hull.
+- **New procedural primitives**: wedge hulls, ellipsoid domes, capsule pods, swept blades, reactor
+  rings and cell racks, plus solid dark-panel shell rendering for HANGAR / FORGE views (the TEARDOWN
+  wireframe still shows internals).
+- **MECH FORGE → `SIGNATURE PARTS`**: six slot selectors and up to three accent chips;
+  `RANDOMIZE` rolls the part mix, `RESET`/preset/blank/`USE AS TEMPLATE` carry `sig`, and baked
+  silhouettes, import/export, dossier and combat all use the same composition.
+- 10 `sig*` mounting anchors added to every teardown part set (42–44 parts each) with explode
+  directions; `DOSSIER` gains a signature composition table.
+- Validator now requires the library, unique compositions, valid slot ids, the UI selectors and
+  renderer entry points. Strict validation, smoke tests, Lua parse/runtime and a 30-mech visual
+  regression render all pass. No third-party or base-mod assets were imported.
+
 ## 2026-11-03 — sleek mech wireframe + fit/transfer balancing (0.1.2-test)
 
 - **Replaced the boxy wireframe with a sleek procedural mech wireframe.** `MF.shapeParts()` now

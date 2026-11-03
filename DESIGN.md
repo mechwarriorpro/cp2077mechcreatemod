@@ -18,11 +18,11 @@ The five non-negotiable, first-class, visible, editable and consequential quanti
 | # | Requirement | Where |
 |---|---|---|
 | R1 | Optional companion layer for BT-7274 (Nexus 35041); never bundles/edits its files | `README.md`, `PERMISSIONS.md`, `docs/BaseModHooks.md` |
-| R2 | Fully custom chassis + limbs: parametric editor, front/side/drag-to-orbit wireframe, baked combat silhouette; both prefab lists and full modeling table | `MECH FORGE`, `tools/src/20_render.js`, `70_ui_forge.js` |
+| R2 | Fully custom chassis + limbs: parametric editor, **mixable signature-part library (7 slots)**, six distinct body plans, front/side/drag-to-orbit wireframe, baked combat silhouette; both prefab lists and full modeling table | `MECH FORGE`, `tools/src/20_render.js`, `70_ui_forge.js`, `chassis.json → signatureParts` |
 | R3 | Blank-slate subsystem authoring, saved as reusable component; six attributes | `INTERNAL SYSTEMS`, `subsystems.json`, `10_sim.js` |
 | R4 | Power / mass+CoM+inertia / heat / RCS by aspect / ECM with gauges, warnings, consequences | `10_sim.js`, `60_ui_systems.js`, `85_combat.js` |
 | R5 | Mana reactor: F, G, A, η, S, Q, C, W, L; bigger crystal = more power, more unstable; biome ambient mana | `REACTOR LAB`, `reactors.json`, `docs/REACTOR_MODEL.md` |
-| R6 | Teardown: **sleek mech wireframe** (tapered hulls / joints / fins / nozzles), physical internals fit, power + heat transfer routing/balancing, step-through separation, INTERNALS tree with six attributes, salvage/blueprints/telemetry | `TEARDOWN`, `teardowns.json`, `20_render.js`, `40_ui_teardown.js` |
+| R6 | Teardown: **sleek mech wireframe** (signature hulls / domes / blades / rings / racks / joints / fins / nozzles), physical internals fit, power + heat transfer routing/balancing, step-through separation, INTERNALS tree with six attributes, salvage/blueprints/telemetry | `TEARDOWN`, `teardowns.json`, `20_render.js`, `40_ui_teardown.js` |
 | R7 | ~30 chassis / 6 factions as examples, teardown sources, templates; `UNLOCK ALL (TEST MODE)` | `chassis.json`, `HANGAR`, `ROSTER.md` |
 | R8 | Hostiles, boss waves, hangar selector, salvage/XP — test harness only | `85_combat.js`, `30_ui_hangar.js` |
 | R9 | 8 tabs: HANGAR · TEARDOWN · REACTOR LAB · INTERNAL SYSTEMS · MECH FORGE · COMBAT TEST · DOSSIER · SETTINGS | `tools/src/body.html`, `90_main.js` |
@@ -79,15 +79,21 @@ All constants/exponents are in `simulation.json` / `reactors.json` and editable 
 `tools/src/*.js` + `app.css` + `body.html` are concatenated by `tools/generate.py` into one
 `<script>`/`<style>` pair inside `test_build.html`, with all six JSON files embedded as an inline
 `<script type="application/json">`. No build step is needed by the end user. Canvas is the only
-rendering surface. `MF.shapeParts` builds **sleek procedural mech geometry** — tapered octagonal
-hulls with waisted profiles, chamfered rings, joint rings, swept armour/radiator fins and flared
-nozzle bells — from the 20 shape parameters. `MF.draw.mech` adds exploded separation, physical
+rendering surface. `MF.shapeParts` builds **sleek procedural mech geometry** — tapered/wedge hulls,
+ellipsoid domes, capsule pods, swept blades, reactor rings, cell racks, chamfered joint rings and flared
+nozzle bells — from the 20 shape parameters **merged with `MF.sigGeometry(shape, shape.sig)`**. Signature
+slots change the body plan (biped, four-leg, hover, tank, flyer) and swap whole limbs, heads, shoulders,
+back packs and accents, so all 30 prefabs have distinct silhouettes. `MF.draw.mech` adds exploded separation, physical
 internals mounting bays and routed bus/heat/coolant lines. `MF.sim.fitBalance` turns each bay's six
 attributes into real power draw, transfer loss, heat generation and effective dissipation, with
 `BUS OVERDRAW`, `COOLANT SATURATION`, `HOT SPOT` and `TRANSFER LOSS` flags. `APPLY FIT → FORGE`
 writes the fit into a freeform subsystem so it changes the deployable build. `MF.sim` is the pure simulation core; `MF.draw` owns procedural wireframes;
 `MF.tabs.*` are the eight UI panels; `MF.combat` is the harness; `MF.store` is persistence with a
 sandboxed-iframe fallback.
+
+### Signature parts
+
+Original procedural **signature-part library** (`chassis.json → signatureParts`, 7 slots / 59 part types). Each of the 30 prefabs and 7 shape presets ships a unique `shape.sig` composition, and MECH FORGE lets the player mix them: cockpit pods, cranial skulls, reverse-joint and splayed legs, tetrapod skirts, ether wings, booster fins, missile racks, blade arms, shields, crests, hover discs, tracked siege hulls and legless flight frames. These are original **component TYPES** drawn with canvas geometry — no ripped models, textures, traced silhouettes or base-mod files.
 
 The CET `init.lua` is generated from the same JSON and mirrors the telemetry math; the browser owns
 the visual modeling table and combat canvas, while CET provides an in-game ImGui test surface.

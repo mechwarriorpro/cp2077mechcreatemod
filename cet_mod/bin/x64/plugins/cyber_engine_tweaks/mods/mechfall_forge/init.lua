@@ -58,7 +58,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "vanguard",
+          ["head"] = "pod",
+          ["shoulders"] = "pauldron",
+          ["back"] = "boosterPack",
+          ["arms"] = "standard",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "antenna",
+            "missilePods"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -100,7 +112,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "vanguard",
+          ["head"] = "pod",
+          ["shoulders"] = "cannonPod",
+          ["back"] = "fusionBackpack",
+          ["arms"] = "cannon",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "spikes",
+            "halo"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -142,7 +166,18 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "hunchback",
+          ["head"] = "visor",
+          ["shoulders"] = "missileRack",
+          ["back"] = "missileBox",
+          ["arms"] = "standard",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "missilePods"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -184,7 +219,19 @@ return {
         ["jetCount"] = 4,
         ["thrusterSize"] = 1.01,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "flyer",
+          ["head"] = "sensorPod",
+          ["shoulders"] = "smooth",
+          ["back"] = "jetWing",
+          ["arms"] = "twinPod",
+          ["legs"] = "hoverSkirt",
+          ["extras"] = {
+            "winglets",
+            "antenna"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -226,7 +273,19 @@ return {
         ["jetCount"] = 4,
         ["thrusterSize"] = 1.01,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "slim",
+          ["head"] = "hood",
+          ["shoulders"] = "spike",
+          ["back"] = "jetWing",
+          ["arms"] = "blade",
+          ["legs"] = "reverseJoint",
+          ["extras"] = {
+            "blade",
+            "tail"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -268,7 +327,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "atlas",
+          ["head"] = "skull",
+          ["shoulders"] = "pauldron",
+          ["back"] = "radiatorFins",
+          ["arms"] = "cannon",
+          ["legs"] = "heavy",
+          ["extras"] = {
+            "spikes",
+            "skirt"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -310,7 +381,18 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "tank",
+          ["head"] = "dome",
+          ["shoulders"] = "cannonPod",
+          ["back"] = "missileBox",
+          ["arms"] = "cannon",
+          ["legs"] = "hoverSkirt",
+          ["extras"] = {
+            "missilePods"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -352,7 +434,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "vanguard",
+          ["head"] = "pod",
+          ["shoulders"] = "missileRack",
+          ["back"] = "boosterPack",
+          ["arms"] = "twinPod",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "antenna",
+            "halo"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -394,7 +488,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 2,
-        ["style"] = "knight"
+        ["style"] = "knight",
+        ["sig"] = {
+          ["frame"] = "knight",
+          ["head"] = "crestHelm",
+          ["shoulders"] = "etherWing",
+          ["back"] = "etherWings",
+          ["arms"] = "blade",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "crest",
+            "halo"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_ether",
@@ -436,7 +542,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 2,
-        ["style"] = "knight"
+        ["style"] = "knight",
+        ["sig"] = {
+          ["frame"] = "knight",
+          ["head"] = "dome",
+          ["shoulders"] = "pauldron",
+          ["back"] = "fusionBackpack",
+          ["arms"] = "shieldDisc",
+          ["legs"] = "heavy",
+          ["extras"] = {
+            "shield",
+            "skirt"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_ether",
@@ -478,7 +596,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 2,
-        ["style"] = "knight"
+        ["style"] = "knight",
+        ["sig"] = {
+          ["frame"] = "knight",
+          ["head"] = "crestHelm",
+          ["shoulders"] = "etherWing",
+          ["back"] = "etherWings",
+          ["arms"] = "blade",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "crest",
+            "winglets"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_ether",
@@ -520,7 +650,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 2,
-        ["style"] = "knight"
+        ["style"] = "knight",
+        ["sig"] = {
+          ["frame"] = "knight",
+          ["head"] = "skull",
+          ["shoulders"] = "spike",
+          ["back"] = "radiatorFins",
+          ["arms"] = "cannon",
+          ["legs"] = "heavy",
+          ["extras"] = {
+            "shield",
+            "spikes"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_ether",
@@ -562,7 +704,19 @@ return {
         ["jetCount"] = 7,
         ["thrusterSize"] = 1.43,
         ["jumpJetCount"] = 3,
-        ["style"] = "tetrapod"
+        ["style"] = "tetrapod",
+        ["sig"] = {
+          ["frame"] = "tetrapod",
+          ["head"] = "dome",
+          ["shoulders"] = "smooth",
+          ["back"] = "hoverDisc",
+          ["arms"] = "standard",
+          ["legs"] = "tetrapodLegs",
+          ["extras"] = {
+            "skirt",
+            "halo"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_ether",
@@ -604,7 +758,19 @@ return {
         ["jetCount"] = 4,
         ["thrusterSize"] = 1.01,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "flyer",
+          ["head"] = "sensorPod",
+          ["shoulders"] = "smooth",
+          ["back"] = "jetWing",
+          ["arms"] = "twinPod",
+          ["legs"] = "hoverSkirt",
+          ["extras"] = {
+            "winglets",
+            "tail"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_corite",
@@ -646,7 +812,19 @@ return {
         ["jetCount"] = 7,
         ["thrusterSize"] = 1.43,
         ["jumpJetCount"] = 3,
-        ["style"] = "tetrapod"
+        ["style"] = "tetrapod",
+        ["sig"] = {
+          ["frame"] = "tank",
+          ["head"] = "dome",
+          ["shoulders"] = "pauldron",
+          ["back"] = "missileBox",
+          ["arms"] = "shieldDisc",
+          ["legs"] = "hoverSkirt",
+          ["extras"] = {
+            "skirt",
+            "spikes"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_corite",
@@ -688,7 +866,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "wedge",
+          ["head"] = "hood",
+          ["shoulders"] = "spike",
+          ["back"] = "boosterPack",
+          ["arms"] = "blade",
+          ["legs"] = "reverseJoint",
+          ["extras"] = {
+            "antenna",
+            "blade"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_corite",
@@ -730,7 +920,19 @@ return {
         ["jetCount"] = 4,
         ["thrusterSize"] = 1.01,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "wedge",
+          ["head"] = "visor",
+          ["shoulders"] = "smooth",
+          ["back"] = "jetWing",
+          ["arms"] = "claw",
+          ["legs"] = "reverseJoint",
+          ["extras"] = {
+            "tail",
+            "winglets"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_corite",
@@ -772,7 +974,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "knight",
+          ["head"] = "crestHelm",
+          ["shoulders"] = "pauldron",
+          ["back"] = "fusionBackpack",
+          ["arms"] = "shieldDisc",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "shield",
+            "crest"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_corite",
@@ -814,7 +1028,19 @@ return {
         ["jetCount"] = 4,
         ["thrusterSize"] = 1.01,
         ["jumpJetCount"] = 3,
-        ["style"] = "spider"
+        ["style"] = "spider",
+        ["sig"] = {
+          ["frame"] = "tank",
+          ["head"] = "dome",
+          ["shoulders"] = "missileRack",
+          ["back"] = "missileBox",
+          ["arms"] = "standard",
+          ["legs"] = "hoverSkirt",
+          ["extras"] = {
+            "spikes",
+            "skirt"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_corite",
@@ -856,7 +1082,19 @@ return {
         ["jetCount"] = 4,
         ["thrusterSize"] = 1.01,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "wedge",
+          ["head"] = "sensorPod",
+          ["shoulders"] = "smooth",
+          ["back"] = "boosterPack",
+          ["arms"] = "blade",
+          ["legs"] = "reverseJoint",
+          ["extras"] = {
+            "winglets",
+            "antenna"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -898,7 +1136,19 @@ return {
         ["jetCount"] = 7,
         ["thrusterSize"] = 1.43,
         ["jumpJetCount"] = 3,
-        ["style"] = "tetrapod"
+        ["style"] = "tetrapod",
+        ["sig"] = {
+          ["frame"] = "tetrapod",
+          ["head"] = "dome",
+          ["shoulders"] = "smooth",
+          ["back"] = "hoverDisc",
+          ["arms"] = "twinPod",
+          ["legs"] = "tetrapodLegs",
+          ["extras"] = {
+            "skirt",
+            "halo"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -940,7 +1190,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "hunchback",
+          ["head"] = "visor",
+          ["shoulders"] = "cannonPod",
+          ["back"] = "missileBox",
+          ["arms"] = "cannon",
+          ["legs"] = "heavy",
+          ["extras"] = {
+            "halo",
+            "missilePods"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -982,7 +1244,19 @@ return {
         ["jetCount"] = 4,
         ["thrusterSize"] = 1.01,
         ["jumpJetCount"] = 3,
-        ["style"] = "spider"
+        ["style"] = "spider",
+        ["sig"] = {
+          ["frame"] = "hover",
+          ["head"] = "dome",
+          ["shoulders"] = "etherWing",
+          ["back"] = "jetWing",
+          ["arms"] = "blade",
+          ["legs"] = "hoverSkirt",
+          ["extras"] = {
+            "halo",
+            "winglets"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -1024,7 +1298,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "atlas",
+          ["head"] = "skull",
+          ["shoulders"] = "cannonPod",
+          ["back"] = "fusionBackpack",
+          ["arms"] = "cannon",
+          ["legs"] = "heavy",
+          ["extras"] = {
+            "missilePods",
+            "spikes"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -1066,7 +1352,18 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "hunchback",
+          ["head"] = "hood",
+          ["shoulders"] = "missileRack",
+          ["back"] = "missileBox",
+          ["arms"] = "twinPod",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "missilePods"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -1108,7 +1405,18 @@ return {
         ["jetCount"] = 4,
         ["thrusterSize"] = 1.01,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "slim",
+          ["head"] = "visor",
+          ["shoulders"] = "spike",
+          ["back"] = "jetWing",
+          ["arms"] = "standard",
+          ["legs"] = "digitigrade",
+          ["extras"] = {
+            "spikes"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -1150,7 +1458,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "angular"
+        ["style"] = "angular",
+        ["sig"] = {
+          ["frame"] = "atlas",
+          ["head"] = "skull",
+          ["shoulders"] = "cannonPod",
+          ["back"] = "radiatorFins",
+          ["arms"] = "cannon",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "antenna",
+            "skirt"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_standard",
@@ -1192,7 +1512,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 1,
-        ["style"] = "rounded"
+        ["style"] = "rounded",
+        ["sig"] = {
+          ["frame"] = "tank",
+          ["head"] = "dome",
+          ["shoulders"] = "pauldron",
+          ["back"] = "missileBox",
+          ["arms"] = "cannon",
+          ["legs"] = "hoverSkirt",
+          ["extras"] = {
+            "shield",
+            "spikes"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_corite",
@@ -1234,7 +1566,19 @@ return {
         ["jetCount"] = 2,
         ["thrusterSize"] = 0.73,
         ["jumpJetCount"] = 2,
-        ["style"] = "knight"
+        ["style"] = "knight",
+        ["sig"] = {
+          ["frame"] = "knight",
+          ["head"] = "crestHelm",
+          ["shoulders"] = "etherWing",
+          ["back"] = "etherWings",
+          ["arms"] = "blade",
+          ["legs"] = "braced",
+          ["extras"] = {
+            "crest",
+            "blade"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_corite",
@@ -1276,7 +1620,19 @@ return {
         ["jetCount"] = 4,
         ["thrusterSize"] = 1.01,
         ["jumpJetCount"] = 3,
-        ["style"] = "spider"
+        ["style"] = "spider",
+        ["sig"] = {
+          ["frame"] = "spider",
+          ["head"] = "sensorPod",
+          ["shoulders"] = "missileRack",
+          ["back"] = "radiatorFins",
+          ["arms"] = "twinPod",
+          ["legs"] = "spiderLegs",
+          ["extras"] = {
+            "antenna",
+            "spikes"
+          }
+        }
       },
       ["subsystems"] = {
         "bus_corite",

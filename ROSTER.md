@@ -49,9 +49,14 @@
 | 29 | Arasaka "Oni" | Oni | Night City | knight | Original stealth boss frame | Militech RTG | 8 | 484 | 246 |
 | 30 | MaxTac "RAM" | RAM | Night City | spider | Original 4-5 star hunter | Corite Corixium Core | 8 | 497 | 253 |
 
+## Signature parts
+
+Each chassis composes original procedural parts inspired by the characteristic components of the study materials (cockpit pods, skull heads, missile racks, ether wings, reverse-joint legs, hover discs, blade arms, crests, shields). See `chassis.json → signatureParts` and `docs/AssetManifest.md`. No third-party geometry is imported.
+
+
 ## Shape parameters (source material for the modeling table)
 
-Every chassis carries a full 18-parameter shape vector that can be loaded into MECH FORGE:
+Every chassis carries a 20-parameter shape vector plus a `sig` signature-part composition that can be loaded into MECH FORGE:
 
 `torsoW, torsoH, torsoD, headScale, shoulderW, shoulderH, upperArm, foreArm, upperLeg, lowerLeg, hipW, footL, weaponX, weaponY, legStance, armorFlare, jetCount, thrusterSize, jumpJetCount, style`
 

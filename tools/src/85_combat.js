@@ -334,8 +334,8 @@ MF.combat = {
     const d = MF.activeDesign();
     const scale = 13 * clamp(1.0 + d.shape.torsoW / 8, 0.8, 1.5);
     const P = MF.projector("front", 0, 0, scale, p.x, p.y);
-    MF.shapeParts(MF.state.bakedShape || d.shape).forEach((b) => {
-      MF.draw.box(ctx, b, P, { filled: true, alpha: 0.30, color: "#4dd0e1", strokeAlpha: 0.95 });
+    MF.shapeParts(MF.state.bakedShape || d.shape).filter((b) => !b.internal).forEach((b) => {
+      MF.draw.part(ctx, b, P, { filled: true, alpha: 0.30, color: "#4dd0e1", strokeAlpha: 0.95, ribs: false, solid: true });
     });
     ctx.strokeStyle = "#ffb347"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(p.x, p.y);
@@ -347,8 +347,8 @@ MF.combat = {
     /* companion */
     const cm = this.companion;
     const PC = MF.projector("front", 0, 0, 8, cm.x, cm.y);
-    MF.shapeParts(DATA.chassis.presets.biped).slice(0, 12).forEach((b) =>
-      MF.draw.box(ctx, b, PC, { filled: true, alpha: 0.16, color: "#8bd450", strokeAlpha: 0.6 }));
+    MF.shapeParts(DATA.chassis.presets.biped).filter((b) => !b.internal).slice(0, 12).forEach((b) =>
+      MF.draw.part(ctx, b, PC, { filled: true, alpha: 0.16, color: "#8bd450", strokeAlpha: 0.6, ribs: false }));
     /* hostiles */
     this.enemies.forEach((e) => {
       ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.angle);

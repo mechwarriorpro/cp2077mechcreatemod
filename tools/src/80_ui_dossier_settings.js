@@ -6,6 +6,14 @@ MF.tabs.dossier = (function () {
     const shapeRows = DATA.chassis.shapeKeys.map((k) => "<tr><td>" + esc(k) + '</td><td class="num">' +
       (typeof d.shape[k] === "number" ? fmt(d.shape[k], 2) : esc(d.shape[k])) + "</td></tr>").join("");
     const partRows = t.parts.map((p) => Object.assign({ name: p.name }, p.six));
+    const lib = DATA.chassis.signatureParts, sig = d.shape.sig || {};
+    const sigRows = ["frame", "head", "shoulders", "back", "arms", "legs"].map((slot) => {
+      const entry = lib[slot].find((x) => x.id === sig[slot]);
+      return "<tr><td>" + slot.toUpperCase() + "</td><td>" + esc(entry ? entry.label : "—") +
+        "</td><td class='mf-dim'>" + esc(entry ? entry.source : "") + "</td></tr>";
+    }).join("") + "<tr><td>ACCENTS</td><td colspan='2'>" +
+      esc((sig.extras || []).map((id) => { const e = lib.extras.find((x) => x.id === id); return e ? e.label : id; }).join(" · ") || "none") +
+      "</td></tr>";
     return '<div class="mf-row between"><h2>' + esc(d.name) + ' · ENGINEERING DOSSIER</h2>' +
       '<span class="mf-pill ' + (d.origin === "custom" ? "green" : "cyan") + '">' +
       (d.origin === "custom" ? "PLAYER-AUTHORED" : "PREFAB / SOURCE MATERIAL") + "</span></div>" +
@@ -15,6 +23,10 @@ MF.tabs.dossier = (function () {
       '<div class="mf-grid2"><div>' +
       MF.ui.panel("CHASSIS VECTOR", '<table class="mf-table"><thead><tr><th>PARAM</th><th>VALUE</th></tr></thead><tbody>' +
         shapeRows + "</tbody></table>") +
+      MF.ui.panel("SIGNATURE PART COMPOSITION", '<div class="mf-note">Original procedural part ' +
+        "TYPES inspired by the characteristic components of the study frames — mixable in MECH FORGE." +
+        "</div><table class=\"mf-table\"><thead><tr><th>SLOT</th><th>PART</th><th>STUDY REFERENCE</th></tr></thead><tbody>" +
+        sigRows + "</tbody></table>") +
       MF.ui.panel("REACTOR", '<div class="mf-kv">' +
         '<span class="k">PRESET</span><span>' + esc(d.reactorId || "custom") + "</span>" +
         '<span class="k">NET OUTPUT</span><span>' + fmt(t.reactor.netOutput, 1) + " kW</span>" +

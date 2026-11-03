@@ -120,7 +120,8 @@ MF.tabs.hangar = (function () {
     sec.querySelectorAll("canvas[data-shape]").forEach((cv) => {
       const x = MF.getDesign(cv.dataset.shape);
       if (!x) return;
-      MF.draw.shapeOn(cv, x.shape, { view: "front", filled: true, gridStep: 12, alpha: 0.20, ribs: false });
+      MF.draw.shapeOn(cv, x.shape, { view: "front", filled: true, gridStep: 12,
+        alpha: 0.20, ribs: false, shellOnly: true, solid: true });
     });
     $("hangar-detail").innerHTML = detailHTML(d);
     sec.onclick = function (e) {

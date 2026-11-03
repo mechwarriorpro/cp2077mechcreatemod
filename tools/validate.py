@@ -26,6 +26,9 @@ ANCHORS = {"torso", "head", "sensor", "backpack", "reactor", "bus", "capacitor",
            "weaponL", "weaponR", "hip", "upperLegL", "upperLegR", "lowerLegL", "lowerLegR",
            "footL", "footR", "jetL", "jetR", "flareL", "flareR", "extraLegL", "extraLegR",
            "crest", "shield", "thrusterL", "thrusterR", "jumpJet", "radiatorL", "radiatorR",
+           "sigHead", "sigShoulderL", "sigShoulderR", "sigBackL", "sigBackR",
+           "sigArmL", "sigArmR", "sigLegL", "sigLegR", "sigExtra",
+           "sigExtra2", "sigExtra3",
            "ventL", "ventR", "jointL", "jointR", "kneeL", "kneeR"}
 TABS = ("HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST",
         "DOSSIER", "SETTINGS")
@@ -153,7 +156,7 @@ def main() -> int:
         err("chassis.shapeKeys must be the 20 canonical shape parameters")
     for c in roster:
         where = f"chassis {c['id']}"
-        if set(c.get("shape", {})) != set(SHAPE_KEYS):
+        if not set(SHAPE_KEYS).issubset(c.get("shape", {})):
             err(f"{where}: shape must have all 20 parameters")
         if c.get("shape", {}).get("style") not in ch.get("styles", []):
             err(f"{where}: unknown style")
@@ -167,8 +170,49 @@ def main() -> int:
         if c.get("internalsProfile") not in ("biped", "reversejoint", "knight", "spider", "tetrapod", "corpo"):
             err(f"{where}: unknown internalsProfile")
     for a, preset in ch.get("presets", {}).items():
-        if set(preset) != set(SHAPE_KEYS):
+        if not set(SHAPE_KEYS).issubset(preset):
             err(f"shape preset {a} must have all 20 parameters")
+
+    # signature part library: each prefab must have a distinct composition
+    spl = ch.get("signatureParts", {})
+    for slot in ("frame", "head", "shoulders", "back", "arms", "legs", "extras"):
+        if not spl.get(slot):
+            err(f"chassis.signatureParts missing slot {slot}")
+    sigmap = {}
+    for c0 in roster:
+        g = c0["shape"].get("sig") or {}
+        for slot in ("frame", "head", "shoulders", "back", "arms", "legs"):
+            ids = {x["id"] for x in spl.get(slot, [])}
+            if g.get(slot) not in ids:
+                err(f"chassis {c0['id']}: unknown signature {slot} {g.get(slot)!r}")
+        for x in g.get("extras", []):
+            if x not in {e["id"] for e in spl.get("extras", [])}:
+                err(f"chassis {c0['id']}: unknown signature extra {x!r}")
+        sigmap[c0["id"]] = json.dumps(g, sort_keys=True)
+    if len(set(sigmap.values())) < 28:
+        err("signature part compositions must make at least 28 of the 30 prefabs visually distinct")
+    for c0 in roster:
+        if len((c0["shape"].get("sig") or {}).get("extras", [])) > 3:
+            err(f"chassis {c0['id']}: at most 3 signature accents")
+    frames_used = {(c0["shape"].get("sig") or {}).get("frame") for c0 in roster}
+    if len(frames_used) < 6:
+        err(f"roster must use at least 6 distinct body/frame plans, got {len(frames_used)}")
+    for required in ("spider", "tetrapod", "hover", "tank", "flyer"):
+        if required not in frames_used:
+            err(f"roster missing body plan: {required}")
+    if not ({"vanguard", "wedge", "slim", "knight", "atlas", "hunchback"} & frames_used):
+        err("roster missing a biped / knight body plan")
+    if not ch.get("signatureNote"):
+        err("chassis.signatureNote must state the original procedural / no-import policy")
+    for a, preset in ch.get("presets", {}).items():
+        g = preset.get("sig")
+        if not g:
+            err(f"shape preset {a} missing signature composition")
+            continue
+        for slot in ("frame", "head", "shoulders", "back", "arms", "legs"):
+            ids = {x["id"] for x in spl.get(slot, [])}
+            if g.get(slot) not in ids:
+                err(f"shape preset {a}: unknown signature {slot} {g.get(slot)!r}")
 
     # ---------------------------------------------------------------- components
     comp = d["components"]
@@ -253,7 +297,9 @@ def main() -> int:
                 err(f"test_build.html missing expected content {token!r}")
         for token in ("MF.draw.mech", "SLEEK MECH WIREFRAME", "FIT & TRANSFER BALANCE",
                       "AUTO ROUTE", "APPLY FIT", "JUMP JET POD", "thrusterSize", "jumpJetCount",
-                      "BUS OVERDRAW", "COOLANT SATURATION"):
+                      "BUS OVERDRAW", "COOLANT SATURATION", "SIGNATURE PARTS", "MF.sigGeometry",
+                      "Vanguard cockpit pod", "Atlas cranial skull", "Tracked siege hull",
+                      "Legless flight frame", "SIGNATURE PART COMPOSITION"):
             if token not in text:
                 err(f"test_build.html missing expected content {token!r}")
         if "MF.draw.matrix" in text or "NO FRANCHISE GEOMETRY" in text:

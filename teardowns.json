@@ -1601,6 +1601,90 @@
         "internalsKey": "radiator_bank",
         "salvage": 268,
         "blueprint": "bp_biped_31"
+      },
+      {
+        "anchor": "sigHead",
+        "name": "Signature head / sensor",
+        "internalsKey": "cockpit",
+        "salvage": 260,
+        "blueprint": "bp_biped_sig_0"
+      },
+      {
+        "anchor": "sigShoulderL",
+        "name": "Signature shoulder L",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 269,
+        "blueprint": "bp_biped_sig_1"
+      },
+      {
+        "anchor": "sigShoulderR",
+        "name": "Signature shoulder R",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 278,
+        "blueprint": "bp_biped_sig_2"
+      },
+      {
+        "anchor": "sigBackL",
+        "name": "Signature dorsal L",
+        "internalsKey": "jet_pack",
+        "salvage": 287,
+        "blueprint": "bp_biped_sig_3"
+      },
+      {
+        "anchor": "sigBackR",
+        "name": "Signature dorsal R",
+        "internalsKey": "jet_pack",
+        "salvage": 296,
+        "blueprint": "bp_biped_sig_4"
+      },
+      {
+        "anchor": "sigArmL",
+        "name": "Signature arm L",
+        "internalsKey": "weapon_mount",
+        "salvage": 305,
+        "blueprint": "bp_biped_sig_5"
+      },
+      {
+        "anchor": "sigArmR",
+        "name": "Signature arm R",
+        "internalsKey": "weapon_mount",
+        "salvage": 314,
+        "blueprint": "bp_biped_sig_6"
+      },
+      {
+        "anchor": "sigLegL",
+        "name": "Signature leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 323,
+        "blueprint": "bp_biped_sig_7"
+      },
+      {
+        "anchor": "sigLegR",
+        "name": "Signature leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 332,
+        "blueprint": "bp_biped_sig_8"
+      },
+      {
+        "anchor": "sigExtra",
+        "name": "Signature accent",
+        "internalsKey": "armor",
+        "salvage": 341,
+        "blueprint": "bp_biped_sig_9"
+      },
+      {
+        "anchor": "sigExtra2",
+        "name": "Signature accent 2",
+        "internalsKey": "armor",
+        "salvage": 360,
+        "blueprint": "bp_biped_sigx_0"
+      },
+      {
+        "anchor": "sigExtra3",
+        "name": "Signature accent 3",
+        "internalsKey": "armor",
+        "salvage": 369,
+        "blueprint": "bp_biped_sigx_1"
       }
     ],
     "knight": [
@@ -1841,6 +1925,90 @@
         "internalsKey": "armor",
         "salvage": 284,
         "blueprint": "bp_knight_33"
+      },
+      {
+        "anchor": "sigHead",
+        "name": "Signature head / sensor",
+        "internalsKey": "cockpit",
+        "salvage": 260,
+        "blueprint": "bp_knight_sig_0"
+      },
+      {
+        "anchor": "sigShoulderL",
+        "name": "Signature shoulder L",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 269,
+        "blueprint": "bp_knight_sig_1"
+      },
+      {
+        "anchor": "sigShoulderR",
+        "name": "Signature shoulder R",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 278,
+        "blueprint": "bp_knight_sig_2"
+      },
+      {
+        "anchor": "sigBackL",
+        "name": "Signature dorsal L",
+        "internalsKey": "jet_pack",
+        "salvage": 287,
+        "blueprint": "bp_knight_sig_3"
+      },
+      {
+        "anchor": "sigBackR",
+        "name": "Signature dorsal R",
+        "internalsKey": "jet_pack",
+        "salvage": 296,
+        "blueprint": "bp_knight_sig_4"
+      },
+      {
+        "anchor": "sigArmL",
+        "name": "Signature arm L",
+        "internalsKey": "weapon_mount",
+        "salvage": 305,
+        "blueprint": "bp_knight_sig_5"
+      },
+      {
+        "anchor": "sigArmR",
+        "name": "Signature arm R",
+        "internalsKey": "weapon_mount",
+        "salvage": 314,
+        "blueprint": "bp_knight_sig_6"
+      },
+      {
+        "anchor": "sigLegL",
+        "name": "Signature leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 323,
+        "blueprint": "bp_knight_sig_7"
+      },
+      {
+        "anchor": "sigLegR",
+        "name": "Signature leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 332,
+        "blueprint": "bp_knight_sig_8"
+      },
+      {
+        "anchor": "sigExtra",
+        "name": "Signature accent",
+        "internalsKey": "armor",
+        "salvage": 341,
+        "blueprint": "bp_knight_sig_9"
+      },
+      {
+        "anchor": "sigExtra2",
+        "name": "Signature accent 2",
+        "internalsKey": "armor",
+        "salvage": 360,
+        "blueprint": "bp_knight_sigx_0"
+      },
+      {
+        "anchor": "sigExtra3",
+        "name": "Signature accent 3",
+        "internalsKey": "armor",
+        "salvage": 369,
+        "blueprint": "bp_knight_sigx_1"
       }
     ],
     "reversejoint": [
@@ -2053,6 +2221,90 @@
         "internalsKey": "radiator_bank",
         "salvage": 252,
         "blueprint": "bp_reversejoint_29"
+      },
+      {
+        "anchor": "sigHead",
+        "name": "Signature head / sensor",
+        "internalsKey": "cockpit",
+        "salvage": 260,
+        "blueprint": "bp_reversejoint_sig_0"
+      },
+      {
+        "anchor": "sigShoulderL",
+        "name": "Signature shoulder L",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 269,
+        "blueprint": "bp_reversejoint_sig_1"
+      },
+      {
+        "anchor": "sigShoulderR",
+        "name": "Signature shoulder R",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 278,
+        "blueprint": "bp_reversejoint_sig_2"
+      },
+      {
+        "anchor": "sigBackL",
+        "name": "Signature dorsal L",
+        "internalsKey": "jet_pack",
+        "salvage": 287,
+        "blueprint": "bp_reversejoint_sig_3"
+      },
+      {
+        "anchor": "sigBackR",
+        "name": "Signature dorsal R",
+        "internalsKey": "jet_pack",
+        "salvage": 296,
+        "blueprint": "bp_reversejoint_sig_4"
+      },
+      {
+        "anchor": "sigArmL",
+        "name": "Signature arm L",
+        "internalsKey": "weapon_mount",
+        "salvage": 305,
+        "blueprint": "bp_reversejoint_sig_5"
+      },
+      {
+        "anchor": "sigArmR",
+        "name": "Signature arm R",
+        "internalsKey": "weapon_mount",
+        "salvage": 314,
+        "blueprint": "bp_reversejoint_sig_6"
+      },
+      {
+        "anchor": "sigLegL",
+        "name": "Signature leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 323,
+        "blueprint": "bp_reversejoint_sig_7"
+      },
+      {
+        "anchor": "sigLegR",
+        "name": "Signature leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 332,
+        "blueprint": "bp_reversejoint_sig_8"
+      },
+      {
+        "anchor": "sigExtra",
+        "name": "Signature accent",
+        "internalsKey": "armor",
+        "salvage": 341,
+        "blueprint": "bp_reversejoint_sig_9"
+      },
+      {
+        "anchor": "sigExtra2",
+        "name": "Signature accent 2",
+        "internalsKey": "armor",
+        "salvage": 360,
+        "blueprint": "bp_reversejoint_sigx_0"
+      },
+      {
+        "anchor": "sigExtra3",
+        "name": "Signature accent 3",
+        "internalsKey": "armor",
+        "salvage": 369,
+        "blueprint": "bp_reversejoint_sigx_1"
       }
     ],
     "spider": [
@@ -2293,6 +2545,90 @@
         "internalsKey": "leg_actuator",
         "salvage": 284,
         "blueprint": "bp_spider_33"
+      },
+      {
+        "anchor": "sigHead",
+        "name": "Signature head / sensor",
+        "internalsKey": "cockpit",
+        "salvage": 260,
+        "blueprint": "bp_spider_sig_0"
+      },
+      {
+        "anchor": "sigShoulderL",
+        "name": "Signature shoulder L",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 269,
+        "blueprint": "bp_spider_sig_1"
+      },
+      {
+        "anchor": "sigShoulderR",
+        "name": "Signature shoulder R",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 278,
+        "blueprint": "bp_spider_sig_2"
+      },
+      {
+        "anchor": "sigBackL",
+        "name": "Signature dorsal L",
+        "internalsKey": "jet_pack",
+        "salvage": 287,
+        "blueprint": "bp_spider_sig_3"
+      },
+      {
+        "anchor": "sigBackR",
+        "name": "Signature dorsal R",
+        "internalsKey": "jet_pack",
+        "salvage": 296,
+        "blueprint": "bp_spider_sig_4"
+      },
+      {
+        "anchor": "sigArmL",
+        "name": "Signature arm L",
+        "internalsKey": "weapon_mount",
+        "salvage": 305,
+        "blueprint": "bp_spider_sig_5"
+      },
+      {
+        "anchor": "sigArmR",
+        "name": "Signature arm R",
+        "internalsKey": "weapon_mount",
+        "salvage": 314,
+        "blueprint": "bp_spider_sig_6"
+      },
+      {
+        "anchor": "sigLegL",
+        "name": "Signature leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 323,
+        "blueprint": "bp_spider_sig_7"
+      },
+      {
+        "anchor": "sigLegR",
+        "name": "Signature leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 332,
+        "blueprint": "bp_spider_sig_8"
+      },
+      {
+        "anchor": "sigExtra",
+        "name": "Signature accent",
+        "internalsKey": "armor",
+        "salvage": 341,
+        "blueprint": "bp_spider_sig_9"
+      },
+      {
+        "anchor": "sigExtra2",
+        "name": "Signature accent 2",
+        "internalsKey": "armor",
+        "salvage": 360,
+        "blueprint": "bp_spider_sigx_0"
+      },
+      {
+        "anchor": "sigExtra3",
+        "name": "Signature accent 3",
+        "internalsKey": "armor",
+        "salvage": 369,
+        "blueprint": "bp_spider_sigx_1"
       }
     ],
     "tetrapod": [
@@ -2526,6 +2862,90 @@
         "internalsKey": "leg_actuator",
         "salvage": 276,
         "blueprint": "bp_tetrapod_32"
+      },
+      {
+        "anchor": "sigHead",
+        "name": "Signature head / sensor",
+        "internalsKey": "cockpit",
+        "salvage": 260,
+        "blueprint": "bp_tetrapod_sig_0"
+      },
+      {
+        "anchor": "sigShoulderL",
+        "name": "Signature shoulder L",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 269,
+        "blueprint": "bp_tetrapod_sig_1"
+      },
+      {
+        "anchor": "sigShoulderR",
+        "name": "Signature shoulder R",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 278,
+        "blueprint": "bp_tetrapod_sig_2"
+      },
+      {
+        "anchor": "sigBackL",
+        "name": "Signature dorsal L",
+        "internalsKey": "jet_pack",
+        "salvage": 287,
+        "blueprint": "bp_tetrapod_sig_3"
+      },
+      {
+        "anchor": "sigBackR",
+        "name": "Signature dorsal R",
+        "internalsKey": "jet_pack",
+        "salvage": 296,
+        "blueprint": "bp_tetrapod_sig_4"
+      },
+      {
+        "anchor": "sigArmL",
+        "name": "Signature arm L",
+        "internalsKey": "weapon_mount",
+        "salvage": 305,
+        "blueprint": "bp_tetrapod_sig_5"
+      },
+      {
+        "anchor": "sigArmR",
+        "name": "Signature arm R",
+        "internalsKey": "weapon_mount",
+        "salvage": 314,
+        "blueprint": "bp_tetrapod_sig_6"
+      },
+      {
+        "anchor": "sigLegL",
+        "name": "Signature leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 323,
+        "blueprint": "bp_tetrapod_sig_7"
+      },
+      {
+        "anchor": "sigLegR",
+        "name": "Signature leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 332,
+        "blueprint": "bp_tetrapod_sig_8"
+      },
+      {
+        "anchor": "sigExtra",
+        "name": "Signature accent",
+        "internalsKey": "armor",
+        "salvage": 341,
+        "blueprint": "bp_tetrapod_sig_9"
+      },
+      {
+        "anchor": "sigExtra2",
+        "name": "Signature accent 2",
+        "internalsKey": "armor",
+        "salvage": 360,
+        "blueprint": "bp_tetrapod_sigx_0"
+      },
+      {
+        "anchor": "sigExtra3",
+        "name": "Signature accent 3",
+        "internalsKey": "armor",
+        "salvage": 369,
+        "blueprint": "bp_tetrapod_sigx_1"
       }
     ],
     "corpo": [
@@ -2738,6 +3158,90 @@
         "internalsKey": "radiator_bank",
         "salvage": 252,
         "blueprint": "bp_corpo_29"
+      },
+      {
+        "anchor": "sigHead",
+        "name": "Signature head / sensor",
+        "internalsKey": "cockpit",
+        "salvage": 260,
+        "blueprint": "bp_corpo_sig_0"
+      },
+      {
+        "anchor": "sigShoulderL",
+        "name": "Signature shoulder L",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 269,
+        "blueprint": "bp_corpo_sig_1"
+      },
+      {
+        "anchor": "sigShoulderR",
+        "name": "Signature shoulder R",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 278,
+        "blueprint": "bp_corpo_sig_2"
+      },
+      {
+        "anchor": "sigBackL",
+        "name": "Signature dorsal L",
+        "internalsKey": "jet_pack",
+        "salvage": 287,
+        "blueprint": "bp_corpo_sig_3"
+      },
+      {
+        "anchor": "sigBackR",
+        "name": "Signature dorsal R",
+        "internalsKey": "jet_pack",
+        "salvage": 296,
+        "blueprint": "bp_corpo_sig_4"
+      },
+      {
+        "anchor": "sigArmL",
+        "name": "Signature arm L",
+        "internalsKey": "weapon_mount",
+        "salvage": 305,
+        "blueprint": "bp_corpo_sig_5"
+      },
+      {
+        "anchor": "sigArmR",
+        "name": "Signature arm R",
+        "internalsKey": "weapon_mount",
+        "salvage": 314,
+        "blueprint": "bp_corpo_sig_6"
+      },
+      {
+        "anchor": "sigLegL",
+        "name": "Signature leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 323,
+        "blueprint": "bp_corpo_sig_7"
+      },
+      {
+        "anchor": "sigLegR",
+        "name": "Signature leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 332,
+        "blueprint": "bp_corpo_sig_8"
+      },
+      {
+        "anchor": "sigExtra",
+        "name": "Signature accent",
+        "internalsKey": "armor",
+        "salvage": 341,
+        "blueprint": "bp_corpo_sig_9"
+      },
+      {
+        "anchor": "sigExtra2",
+        "name": "Signature accent 2",
+        "internalsKey": "armor",
+        "salvage": 360,
+        "blueprint": "bp_corpo_sigx_0"
+      },
+      {
+        "anchor": "sigExtra3",
+        "name": "Signature accent 3",
+        "internalsKey": "armor",
+        "salvage": 369,
+        "blueprint": "bp_corpo_sigx_1"
       }
     ]
   },
@@ -2933,6 +3437,66 @@
         0.9,
         0.2,
         0.3
+      ],
+      "sigHead": [
+        0,
+        1.25,
+        0.5
+      ],
+      "sigShoulderL": [
+        -1.2,
+        0.5,
+        0.2
+      ],
+      "sigShoulderR": [
+        1.2,
+        0.5,
+        0.2
+      ],
+      "sigBackL": [
+        -0.8,
+        0.5,
+        -1.2
+      ],
+      "sigBackR": [
+        0.8,
+        0.5,
+        -1.2
+      ],
+      "sigArmL": [
+        -1.4,
+        -0.4,
+        0.5
+      ],
+      "sigArmR": [
+        1.4,
+        -0.4,
+        0.5
+      ],
+      "sigLegL": [
+        -1.0,
+        -1.1,
+        0.3
+      ],
+      "sigLegR": [
+        1.0,
+        -1.1,
+        0.3
+      ],
+      "sigExtra": [
+        0,
+        0.9,
+        0.9
+      ],
+      "sigExtra2": [
+        -0.6,
+        0.75,
+        1.0
+      ],
+      "sigExtra3": [
+        0.6,
+        0.75,
+        1.0
       ]
     }
   },
@@ -2969,7 +3533,13 @@
         "nozzle bell",
         "radiator fin",
         "coolant tube",
-        "power bus"
+        "power bus",
+        "wedge hull",
+        "ellipsoid dome",
+        "swept blade",
+        "reactor ring",
+        "capsule pod",
+        "cell rack"
       ],
       "hullSections": 4,
       "bevel": 0.22,

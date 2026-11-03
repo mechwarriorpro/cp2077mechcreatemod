@@ -462,7 +462,9 @@ MF.sim.luaForDesign = function (d) {
   ];
   Object.keys(d.shape || {}).forEach((k) => {
     const v = d.shape[k];
-    lines.push("      " + k + " = " + (typeof v === "number" ? fmt(v, 2) : JSON.stringify(v)) + ",");
+    if (typeof v === "number" || typeof v === "string") {
+      lines.push("      " + k + " = " + (typeof v === "number" ? fmt(v, 2) : JSON.stringify(v)) + ",");
+    }
   });
   lines.push("    },", "    reactor = " + JSON.stringify(d.reactorId || "vanguard_link_shard") + ",",
     "    subsystemIds = " + JSON.stringify(d.subsystemIds || []) + ",",

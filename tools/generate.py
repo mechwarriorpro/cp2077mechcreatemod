@@ -187,8 +187,13 @@ def build_roster(d: dict) -> str:
         lines.append("| %d | %s | %s | %s | %s | %s | %s | %d | %d | %d |" % (
             i, x["name"], ", ".join(x["aliases"]), x["faction"], x["archetype"], x["role"],
             reactors.get(x["reactorId"], x["reactorId"]), x["hardpoints"], x["salvage"], x["xp"]))
+    lines += ["", "## Signature parts", "",
+              "Each chassis composes original procedural parts inspired by the characteristic components "
+              "of the study materials (cockpit pods, skull heads, missile racks, ether wings, reverse-joint "
+              "legs, hover discs, blade arms, crests, shields). See `chassis.json → signatureParts` and "
+              "`docs/AssetManifest.md`. No third-party geometry is imported.", ""]
     lines += ["", "## Shape parameters (source material for the modeling table)", "",
-              "Every chassis carries a full 18-parameter shape vector that can be loaded into MECH FORGE:",
+              "Every chassis carries a 20-parameter shape vector plus a `sig` signature-part composition that can be loaded into MECH FORGE:",
               "", "`" + ", ".join(c["shapeKeys"]) + "`", "",
               "Spelling variations resolved: Earlcumber/Erlecumber, Tzendolg/Tzendolimble, Toybox/Toy Box.",
               "See `HANDOVER.md` §3.6 and `PERMISSIONS.md` for IP carve-outs.", ""]
