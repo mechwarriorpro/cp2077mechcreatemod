@@ -54,6 +54,11 @@
 Each chassis composes original procedural parts inspired by the characteristic components of the study materials (cockpit pods, skull heads, missile racks, ether wings, reverse-joint legs, hover discs, blade arms, crests, shields). See `chassis.json → signatureParts` and `docs/AssetManifest.md`. No third-party geometry is imported.
 
 
+## Procedural 3D pilot and optional compatibility
+
+The `PILOT TEST` tab triangulates these shapes into a playable procedural 3D mech (mesh, terrain, gait and coating generated at runtime). `compat.json` defines the optional Autodrive waypoint solver and Crystal-Coat-compatible CCP1 share codes. See `docs/PROCEDURAL_PILOT.md` and `docs/COMPAT.md`.
+
+
 ## Shape parameters (source material for the modeling table)
 
 Every chassis carries a 20-parameter shape vector plus a `sig` signature-part composition that can be loaded into MECH FORGE:

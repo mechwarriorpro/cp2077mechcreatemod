@@ -54,9 +54,11 @@ MF.tabs.dossier = (function () {
         "</tbody></table>") +
       '<div class="mf-warnbox"><b>HONEST DISCLAIMER.</b> This is a browser prototype plus a CET-only UI test mod. ' +
       "It is testable: the simulation, authoring tools and combat harness run in your browser, and the ImGui " +
-      "overlay runs in Cyberpunk 2077. A full 3D pilotable-mech release would need original meshes, rigs, " +
-      "animations, VO, the game itself and private base-mod APIs. No base-mod files are bundled or edited; " +
-      "no third-party models, textures or ripped assets are used — all geometry is drawn procedurally. Optional hooks are pcall-wrapped and never required.</div>" +
+      "overlay runs in Cyberpunk 2077. PILOT TEST is a full playable procedural 3D mech generated at " +
+      "runtime (mesh, terrain, gait and coating) — but it is still a browser prototype. A pilotable mech " +
+      "INSIDE the game would need original meshes, rigs, animations, VO, the game itself and private " +
+      "base-mod APIs. No base-mod files are bundled or edited; no third-party models, textures or ripped " +
+      "assets are used. Autodrive / Crystal Coat compatibility is optional, pcall-wrapped and never required.</div>" +
       '<div class="mf-hr"></div><div class="mf-row">' +
       MF.ui.btn("EXPORT DOSSIER JSON", "ds-json") +
       MF.ui.btn("EXPORT DOSSIER TEXT", "ds-text") +
@@ -168,6 +170,15 @@ MF.tabs.settings = (function () {
           esc(DATA.simulation.keyBindings[k]) + "</span></td></tr>").join("") + "</tbody></table>" +
         '<div class="mf-note">Base-mod CET hooks (NumPad 9 call, NumPad 0 cycle orders, F embark) belong to the ' +
         "optional companion layer and are never required. See docs/BaseModHooks.md.</div>") +
+      MF.ui.panel("PROCEDURAL PILOT / OPTIONAL COMPAT",
+        '<div class="mf-kv">' +
+        '<span class="k">PILOT TEST</span><span>Full playable procedural 3D mech · ' +
+        esc(DATA.compat.pilot.controls) + "</span>" +
+        '<span class="k">AUTODRIVE</span><span>' + esc(MF.compat.autodrive.status().mode) +
+        " · " + esc(DATA.compat.autodrive.key) + " / T · " + esc(DATA.compat.autodrive.vanillaSince) + "</span>" +
+        '<span class="k">CRYSTAL COAT</span><span>' + esc(DATA.compat.crystalCoat.codeExample) + "</span>" +
+        '<span class="k">CET BRIDGE</span><span>COMPAT tab · pcall(GetMod) · never required</span></div>' +
+        '<div class="mf-note">' + esc(DATA.compat.disclaimer) + "</div>", "green") +
       '<div class="mf-warnbox"><b>WHAT THIS IS / IS NOT.</b> Playable browser prototype + CET-only ImGui test mod. ' +
       "No redscript, TweakXL or ArchiveXL files are installed: templates live in docs/integration/*.example only. " +
       "A compile error in r6/scripts would break the user's game. This project targets the real BT-7274 mod " +

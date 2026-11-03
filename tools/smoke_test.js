@@ -69,20 +69,55 @@ setTimeout(() => {
     const MF = w.MF;
     must(!!MF, 'MF global exists');
     const h = MF.health();
-    must(h.tabs.length === 8, 'all 8 tabs registered: ' + h.tabs.join(','));
-    must(h.data.length === 7, 'data bundle has 7 sections');
+    must(h.tabs.length === 9, 'all 9 tabs registered: ' + h.tabs.join(','));
+    must(h.data.length === 8, 'data bundle has 8 sections');
     must(Number.isFinite(h.powerMargin) && Number.isFinite(h.totalMass) && Number.isFinite(h.rcsFront), 'simulation produces finite telemetry');
     must(h.powerMargin > 0, 'baseline build has positive power margin (got ' + h.powerMargin.toFixed(1) + ')');
     must(h.validation.indexOf('BROWNOUT') < 0, 'baseline build is not in BROWNOUT');
     console.log('  health', JSON.stringify(h));
 
     // Tab sweep
-    ['hangar','teardown','reactor','systems','forge','combat','dossier','settings'].forEach(tab => {
+    ['hangar','teardown','reactor','systems','forge','combat','pilot','dossier','settings'].forEach(tab => {
       MF.setTab(tab);
       const sec = w.document.getElementById('tab-' + tab);
       must(sec && sec.innerHTML.length > 100, 'tab ' + tab + ' renders');
     });
     must(MF.combat.active === true, 'entering COMBAT TEST auto-starts the harness');
+
+    // PROCEDURAL 3D PILOT + COMPAT
+    MF.setTab('pilot');
+    must(MF.pilot.active === true, 'entering PILOT TEST auto-starts the generated world');
+    must(MF.pilot.mesh && MF.pilot.mesh.tris.length > 300, 'procedural mech mesh has real triangles');
+    must(MF.pilot.terrain && MF.pilot.terrain.obstacles.length > 10, 'seeded terrain generated obstacles');
+    must(MF.mesh3d.bodyPlan(MF.activeDesign().shape).length > 3, 'body plan derived from signature parts');
+    const scenePolys = MF.mesh3d.render(
+      w.document.createElement('canvas').getContext('2d'), 640, 360,
+      { camera: { pos: [0, 8, -18], target: [0, 2, 0], fov: 1.02, near: 0.6, far: 460 },
+        terrain: MF.pilot.terrain, center: [0, 0, 0], coat: MF.state.coat,
+        mechs: [{ mesh: MF.pilot.mesh, pos: [0, 0, 0], yaw: 0, pose: MF.mesh3d.pose(MF.activeDesign().shape, { gait: 0 }), coat: MF.state.coat }],
+        effects: [] });
+    must(scenePolys > 100, 'software 3D rasterizer draws the generated scene (' + scenePolys + ' polys)');
+    const code = MF.compat.encodeCoat(MF.state.coat);
+    must(/^CCP1;P=[0-9A-F]{6};S=[0-9A-F]{6}/.test(code), 'Crystal Coat share code is CCP1-compatible');
+    const round = MF.compat.decodeCoat(code);
+    must(round && round.primary === MF.state.coat.primary && round.secondary === MF.state.coat.secondary,
+      'Crystal Coat share code round-trips');
+    const imported = MF.compat.decodeCoat('CCP1;P=C81E3C;S=202024;L=200;N=Night Runner');
+    must(imported && imported.primary === '#C81E3C' && imported.name === 'Night Runner',
+      'reads the published Crystal Coat Picker example code');
+    const steer = MF.compat.autodrive.steer({ x: 0, z: 0, yaw: 0 }, { x: 40, z: 10 }, MF.pilot.terrain);
+    must(isFinite(steer.steer) && isFinite(steer.throttle) && steer.done === false,
+      'procedural Autodrive steering is finite and dependency-free');
+    click('#pilot-autodrive');
+    must(MF.pilot.autopilot === true, 'AUTODRIVE toggles on');
+    MF.pilot.update(0.4);
+    must(MF.pilot.waypoints.length > 0, 'autopilot has generated waypoints');
+    click('#pilot-autodrive');
+    click('#pilot-camera');
+    must(MF.pilot.cameraMode === 'COCKPIT', 'camera cycles to cockpit');
+    click('[data-act="pilot-seed"]');
+    must(MF.pilot.active === true && MF.pilot.seed > 0, 'new terrain seed regenerates the world');
+    MF.setTab('systems');
 
     // INTERNAL SYSTEMS: blank-slate authoring
     MF.setTab('systems');

@@ -31,8 +31,15 @@ dissipation, radar cross section and ECM** — then deploy your build into a com
   `APPLY FIT → FORGE`, INTERNALS trees with six attributes per sub-component, salvage, blueprints
   and reactor telemetry. Thrusters, jump jets, radiators, capacitors, coolant manifolds, power
   buses, sensors and vent panels are all first-class parts.
-- **Two test surfaces**: one self-contained `test_build.html` (no install) and a CET-only ImGui
-  overlay for in-game telemetry.
+- **Full playable procedural 3D PILOT TEST**: your shape vector + signature parts are triangulated
+  into a real 3D mech mesh at runtime; seeded-noise terrain, a procedural walk cycle, chase/cockpit/
+  orbit cameras, jump jets, waves and bosses. No meshes, rigs, textures or animation files are loaded.
+- **Autodrive + Crystal Coat compatibility**: built-in procedural autopilot (`T`) with optional CET
+  `pcall(GetMod)` waypoint hand-off, and a Crystal-Coat-compatible procedural coat (primary, secondary,
+  light hue, metallic/glossy/matte/crystal aspect) with `CCP1` hex share codes and six presets.
+  Compatible concepts and optional detection only — no other mod is bundled or required.
+- **Three test surfaces**: one self-contained `test_build.html` (no install), the procedural 3D pilot
+  test inside it, and a CET-only ImGui overlay for telemetry + optional compat bridges.
 
 ### Requirements (draft)
 
@@ -56,9 +63,21 @@ dissipation, radar cross section and ECM** — then deploy your build into a com
 
 ### Known limitations (draft — keep this section, do not soften)
 
-Browser prototype + CET UI only. No new meshes, rigs, animations, pilotable 3D mech, VO or private
-base-mod APIs. A full release would need all of those plus the game itself.
+Browser prototype + CET UI only. The `PILOT TEST` is a **playable procedural 3D mech generated at
+runtime** — no shipped meshes, rigs, animation clips or textures. It is **not** an in-game pilotable
+mech: that would still need real meshes, rigs, animations, VO, private base-mod APIs and the game
+itself. Autodrive / Crystal Coat compatibility is optional detection and shared public formats,
+not bundled or controlled mods.
 
 ### Signature parts
 
 Original procedural **signature-part library** (`chassis.json → signatureParts`, 7 slots / 59 part types). Each of the 30 prefabs and 7 shape presets ships a unique `shape.sig` composition, and MECH FORGE lets the player mix them: cockpit pods, cranial skulls, reverse-joint and splayed legs, tetrapod skirts, ether wings, booster fins, missile racks, blade arms, shields, crests, hover discs, tracked siege hulls and legless flight frames. These are original **component TYPES** drawn with canvas geometry — no ripped models, textures, traced silhouettes or base-mod files.
+
+### Compatibility scope
+
+See `docs/COMPAT.md`. Auto drive is vanilla CP2077 2.3 (`V` key) with community variants
+(Nexus 14680 / 23157 / 19309); CrystalCoat is native 2.2+ (hold `Y`) with the
+Crystal Coat Picker hex/share-code mod (Nexus 35571). FORGE 77 uses the same public fields,
+key names and share-code format in its own procedural implementations, and CET detects the mods with
+`pcall(GetMod)`. It does not ship, patch or control them. A pilotable mech inside CP2077 still needs
+real meshes, rigs, animations, VO, the game itself and private base-mod APIs.

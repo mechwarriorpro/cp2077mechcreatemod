@@ -16,7 +16,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.json", "components.json", "teardowns.json")
+DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.json",
+              "components.json", "teardowns.json", "compat.json")
 SIX = ("powerDraw", "mass", "heatGen", "heatDiss", "rcs", "ecm")
 SHAPE_KEYS = ("torsoW", "torsoH", "torsoD", "headScale", "shoulderW", "shoulderH", "upperArm",
               "foreArm", "upperLeg", "lowerLeg", "hipW", "footL", "weaponX", "weaponY",
@@ -31,7 +32,7 @@ ANCHORS = {"torso", "head", "sensor", "backpack", "reactor", "bus", "capacitor",
            "sigExtra2", "sigExtra3",
            "ventL", "ventR", "jointL", "jointR", "kneeL", "kneeR"}
 TABS = ("HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST",
-        "DOSSIER", "SETTINGS")
+        "PILOT TEST", "DOSSIER", "SETTINGS")
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -214,6 +215,31 @@ def main() -> int:
             if g.get(slot) not in ids:
                 err(f"shape preset {a}: unknown signature {slot} {g.get(slot)!r}")
 
+    # ---------------------------------------------------------------- compat / procedural pilot
+    cp = d["compat"]
+    for key in ("meta", "autodrive", "crystalCoat", "coatings", "pilot", "disclaimer"):
+        if key not in cp:
+            err(f"compat.json missing {key}")
+    ad, cc = cp.get("autodrive", {}), cp.get("crystalCoat", {})
+    if not ad.get("modNames") or not ad.get("handoffMethods") or ad.get("probe") != "GetMod":
+        err("compat.autodrive must list mod names, hand-off methods and use GetMod")
+    if not cc.get("modNames") or not cc.get("syncMethods") or "CCP1" not in cc.get("codeFormat", ""):
+        err("compat.crystalCoat must list mod names, sync methods and a CCP1 code format")
+    if not all(x in cc.get("fields", {}) for x in ("primary", "secondary", "lightHue", "aspect", "metallic")):
+        err("compat.crystalCoat.fields must expose primary/secondary/lightHue/aspect/metallic")
+    if len(cp.get("coatings", [])) < 5:
+        err("compat.coatings must define at least 5 procedural coat presets")
+    for c0 in cp.get("coatings", []):
+        for k in ("primary", "secondary"):
+            if not re.fullmatch(r"#[0-9a-fA-F]{6}", str(c0.get(k, ""))):
+                err(f"coating {c0.get('id')}: {k} must be a 6-digit hex colour")
+    pl = cp.get("pilot", {})
+    for k in ("terrain", "physics", "camera", "waves", "controls"):
+        if k not in pl:
+            err(f"compat.pilot missing {k}")
+    if not cp.get("disclaimer") or "private base-mod APIs" not in cp["disclaimer"]:
+        err("compat.disclaimer must state the in-game piloting limitation")
+
     # ---------------------------------------------------------------- components
     comp = d["components"]
     for part in comp.get("parts", []):
@@ -299,7 +325,10 @@ def main() -> int:
                       "AUTO ROUTE", "APPLY FIT", "JUMP JET POD", "thrusterSize", "jumpJetCount",
                       "BUS OVERDRAW", "COOLANT SATURATION", "SIGNATURE PARTS", "MF.sigGeometry",
                       "Vanguard cockpit pod", "Atlas cranial skull", "Tracked siege hull",
-                      "Legless flight frame", "SIGNATURE PART COMPOSITION"):
+                      "Legless flight frame", "SIGNATURE PART COMPOSITION",
+                      "PROCEDURAL 3D PILOT", "MF.mesh3d.fromShape", "MF.mesh3d.render",
+                      "MF.compat.autodrive", "MF.compat.encodeCoat", "AUTODRIVE (T)",
+                      "CRYSTAL COAT (PROCEDURAL)", "CCP1", "NEW TERRAIN SEED"):
             if token not in text:
                 err(f"test_build.html missing expected content {token!r}")
         if "MF.draw.matrix" in text or "NO FRANCHISE GEOMETRY" in text:
@@ -317,6 +346,10 @@ def main() -> int:
             err("CET init.lua has unreplaced generated data marker")
         if "registerForEvent" not in code or "pcall" not in code:
             err("CET init.lua must register events and pcall-wrap optional hooks")
+        for token in ("MF.compatProbe", "MF.compatHandoffWaypoint", "MF.compatSyncCrystalCoat",
+                      "MF.compatParseCoat", "MF.compatEncodeCoat", "COMPAT", "GetMod"):
+            if token not in code:
+                err(f"CET init.lua missing optional compat bridge {token!r}")
         if "Game.AddToInventory" in code and "pcall(function()" not in code:
             err("optional base-mod hooks must be pcall-wrapped")
 
@@ -335,7 +368,8 @@ def main() -> int:
         if not (ROOT / f).exists():
             err(f"missing deliverable {f}")
     for f in ("docs/REACTOR_MODEL.md", "docs/TEARDOWN_SCHEMA.md", "docs/SUBSYSTEM_MODEL.md",
-              "docs/BaseModHooks.md", "docs/AssetManifest.md"):
+              "docs/BaseModHooks.md", "docs/AssetManifest.md",
+              "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md"):
         if not (ROOT / f).exists():
             err(f"missing doc {f}")
     examples = list((ROOT / "docs/integration").glob("*.example*"))

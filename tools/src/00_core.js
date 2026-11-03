@@ -51,6 +51,10 @@ function defaults() {
     installed: ["bus_standard", "loop_standard", "structure_standard", "signature_standard",
       "ew_standard", "sensors_standard", "actuators_standard", "reactor_standard"],
     shape: clone(DATA.chassis.presets.biped),
+    coat: clone(DATA.compat.crystalCoat.fields),
+    pilotSeed: DATA.compat.pilot.terrain.seed,
+    pilotCamera: "CHASE",
+    pilotAutopilot: false,
     reactor: clone(presetById("vanguard_link_shard").params),
     reactorPresetId: "vanguard_link_shard",
     biome: "badlands",
@@ -91,6 +95,8 @@ function loadState() {
   if (!Array.isArray(out.customDesigns)) out.customDesigns = [];
   out.shape = Object.assign({}, d.shape, saved.shape || {});
   if (!out.shape || !out.shape.torsoW) out.shape = d.shape;
+  if (!out.coat || !out.coat.primary) out.coat = d.coat;
+  if (!Number.isFinite(out.pilotSeed)) out.pilotSeed = d.pilotSeed;
   if (!out.tdLayers) out.tdLayers = d.tdLayers;
   if (!out.tdFit) out.tdFit = d.tdFit;
   if (!out.tdFit.routes) out.tdFit.routes = {};
@@ -367,6 +373,7 @@ MF.setTab = function (name) {
   MF.save();
   MF.refresh();
   if (name === "combat" && MF.combat && MF.combat.onEnter) MF.combat.onEnter();
+  if (name === "pilot" && MF.pilot && MF.pilot.onEnter) MF.pilot.onEnter();
 };
 MF.renderStatus = function () {
   const d = MF.activeDesign();

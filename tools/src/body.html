@@ -17,8 +17,9 @@
   <button class="mf-tabbtn" data-tab="systems"><span class="n">04</span>INTERNAL SYSTEMS</button>
   <button class="mf-tabbtn" data-tab="forge"><span class="n">05</span>MECH FORGE</button>
   <button class="mf-tabbtn" data-tab="combat"><span class="n">06</span>COMBAT TEST</button>
-  <button class="mf-tabbtn" data-tab="dossier"><span class="n">07</span>DOSSIER</button>
-  <button class="mf-tabbtn" data-tab="settings"><span class="n">08</span>SETTINGS</button>
+  <button class="mf-tabbtn" data-tab="pilot"><span class="n">07</span>PILOT TEST</button>
+  <button class="mf-tabbtn" data-tab="dossier"><span class="n">08</span>DOSSIER</button>
+  <button class="mf-tabbtn" data-tab="settings"><span class="n">09</span>SETTINGS</button>
 </nav>
 
 <main>
@@ -77,6 +78,48 @@
         <div class="mf-hr"></div>
         <h3>EVENT LOG</h3>
         <div id="combat-log" class="mf-list short" style="max-height:190px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-pilot" class="mf-tab">
+    <div class="mf-combat-wrap">
+      <div>
+        <div class="mf-panel tight mb">
+          <div class="mf-row between">
+            <div class="mf-row">
+              <button class="mf-btn primary" data-act="pilot-start" id="pilot-start">START PILOT TEST</button>
+              <button class="mf-btn" data-act="pilot-stop" id="pilot-stop">STOP</button>
+              <button class="mf-btn" data-act="pilot-pause" id="pilot-pause">PAUSE</button>
+              <button class="mf-btn" data-act="pilot-autodrive" id="pilot-autodrive">AUTODRIVE (T)</button>
+              <button class="mf-btn" data-act="pilot-camera" id="pilot-camera">CAMERA (C)</button>
+            </div>
+            <div class="mf-row">
+              <span class="mf-pill">WAVE <b id="pilot-wave">0</b></span>
+              <span class="mf-pill amber">GENERATED: <b id="pilot-design">—</b></span>
+              <span class="mf-pill green">XP <b id="pilot-xp">0</b></span>
+              <span class="mf-pill violet">SALVAGE <b id="pilot-salvage">0</b></span>
+            </div>
+          </div>
+        </div>
+        <canvas id="pilot-canvas" class="mf-scan" aria-label="Procedural 3D pilot test canvas"></canvas>
+        <div class="mf-note">Fully generated 3D: mesh from <b>MF.shapeParts + MF.sigGeometry</b>, terrain from seeded
+          noise, gait from procedural joint rotation. WASD · mouse look · LMB fire · Shift dash · Space jump jets ·
+          Q/E/R abilities · V vent · <b>T AUTODRIVE</b> · <b>Y CRYSTAL COAT</b> · C camera · P pause · 1–4 orders.
+          Power, mass, heat, RCS, ECM and reactor instability still have live consequences.</div>
+      </div>
+      <div class="mf-panel cyan" id="pilot-side">
+        <h2>PROCEDURAL 3D PILOT · TELEMETRY</h2>
+        <div id="pilot-hud"></div>
+        <div class="mf-hr"></div>
+        <h3>CRYSTAL COAT (PROCEDURAL)</h3>
+        <div id="pilot-coat"></div>
+        <div class="mf-hr"></div>
+        <h3>COMPATIBILITY BRIDGES</h3>
+        <div id="pilot-compat"></div>
+        <div class="mf-hr"></div>
+        <h3>EVENT LOG</h3>
+        <div id="pilot-log" class="mf-list short" style="max-height:150px"></div>
       </div>
     </div>
   </section>

@@ -6,6 +6,7 @@ Reads the JSON data files at the repository root and emits:
   * test_build.html          — the playable, fully self-contained browser prototype
   * cet_mod/.../init.lua     — the CET-only CP2077 test mod (from tools/init.lua.template)
   * ROSTER.md                — the prefab/teardown library reference
+  * (compat.json is embedded into both the HTML data bundle and the CET Lua data)
   * docs/BaseModHooks.md     — appendix with generated roster/reactor identifiers
 
 The JSON files are authoritative: never hand-edit generated outputs, re-run this
@@ -24,7 +25,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 SRC = TOOLS / "src"
-DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.json", "components.json", "teardowns.json")
+DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.json",
+              "components.json", "teardowns.json", "compat.json")
 LUA_OUT = ROOT / "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua"
 
 # A stable stamp: derived from the data, not the wall clock, so --check is deterministic.
@@ -42,7 +44,7 @@ def data_bundle() -> dict:
         "build": BUILD_DATE,
         "generator": "tools/generate.py",
         "disclaimer": "Browser + CET prototype. No ripped assets, no base-mod files.",
-        "tabs": ["HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST", "DOSSIER", "SETTINGS"],
+        "tabs": ["HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST", "PROCEDURAL PILOT", "DOSSIER", "SETTINGS"],
     }
     return d
 
@@ -151,6 +153,21 @@ def lua_data(d: dict) -> dict:
         ],
         "coefficientDefaults": {k: v["value"] for k, v in d["simulation"]["coefficients"].items()},
         "biomes": {k: v["multiplier"] for k, v in d["reactors"]["biomes"].items()},
+        "compat": {
+            "autodrive": {
+                "modNames": d["compat"]["autodrive"]["modNames"],
+                "handoffMethods": d["compat"]["autodrive"]["handoffMethods"],
+                "key": d["compat"]["autodrive"]["key"],
+            },
+            "crystalCoat": {
+                "modNames": d["compat"]["crystalCoat"]["modNames"],
+                "syncMethods": d["compat"]["crystalCoat"]["syncMethods"],
+                "aspects": d["compat"]["crystalCoat"]["aspects"],
+                "codeExample": d["compat"]["crystalCoat"]["codeExample"],
+                "fields": d["compat"]["crystalCoat"]["fields"],
+            },
+            "coatings": d["compat"]["coatings"],
+        },
     }
 
 
@@ -192,6 +209,11 @@ def build_roster(d: dict) -> str:
               "of the study materials (cockpit pods, skull heads, missile racks, ether wings, reverse-joint "
               "legs, hover discs, blade arms, crests, shields). See `chassis.json → signatureParts` and "
               "`docs/AssetManifest.md`. No third-party geometry is imported.", ""]
+    lines += ["", "## Procedural 3D pilot and optional compatibility", "",
+              "The `PILOT TEST` tab triangulates these shapes into a playable procedural 3D mech "
+              "(mesh, terrain, gait and coating generated at runtime). `compat.json` defines the "
+              "optional Autodrive waypoint solver and Crystal-Coat-compatible CCP1 share codes. "
+              "See `docs/PROCEDURAL_PILOT.md` and `docs/COMPAT.md`.", ""]
     lines += ["", "## Shape parameters (source material for the modeling table)", "",
               "Every chassis carries a 20-parameter shape vector plus a `sig` signature-part composition that can be loaded into MECH FORGE:",
               "", "`" + ", ".join(c["shapeKeys"]) + "`", "",

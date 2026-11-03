@@ -20,6 +20,10 @@ library · ~10% combat test harness (it exists to prove custom builds work).
 | **`test_build.html`** | **Main playable prototype.** One self-contained file: inline CSS/JS, canvas graphics, inline JSON data. No CDN, no fonts, no images, no network. | Open it in any modern browser (double-click). Works inside a sandboxed iframe; `localStorage` failures fall back to in-memory state. |
 | **`cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua`** | **CET-only CP2077 test mod.** ImGui overlay with hangar, subsystem authoring, forge params, reactor lab and settings; live power / mass / heat / RCS / ECM bars. Generated from the same JSON files. | Copy the `cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/` folder into `Cyberpunk 2077/bin/x64/plugins/cyber_engine_tweaks/mods/`. Requires Cyber Engine Tweaks. Open the overlay with the CET hotkey binding **MECHFALL // FORGE 77**. |
 
+Optional **Autodrive** and **Crystal Coat** compatibility is a data-driven bridge (`compat.json`):
+procedural equivalents in the browser plus `pcall(GetMod)` detection in CET. No other mod is bundled,
+required, patched or redistributed.
+
 Redscript, TweakXL and ArchiveXL stay as **`.example` templates only** under `docs/integration/`.
 They are deliberately **not installed**: redscript compiles `r6/scripts` at launch and a syntax error
 breaks the user's game. The installable path is CET-only.
@@ -53,12 +57,26 @@ breaks the user's game. The installable path is CET-only.
 6. **COMBAT TEST** — `WASD` + mouse, `LMB` fire, `Q/E/R` abilities, `Shift` dash, `V` vent,
    `1–4` companion orders, `P` pause. Your baked silhouette fights. Brownouts, heat derates, mass
    inertia, RCS detection, ECM lock breaks and reactor surges are live consequences.
-7. **HANGAR**, **DOSSIER**, **SETTINGS** — prefab/teardown library with `UNLOCK ALL (TEST MODE)`,
+7. **PILOT TEST** — the **full playable procedural 3D test**: a mech mesh triangulated from your
+   shape vector + signature parts, seeded-noise terrain, procedural gait, six body plans, chase /
+   cockpit / orbit cameras, waves and bosses, jump jets, XP/salvage and all six telemetry
+   consequences. `T` engages **AUTODRIVE**; the side panel edits a **CRYSTAL COAT**-compatible
+   procedural coating with CCP1 share codes. Everything is generated at runtime — no meshes, rigs,
+   textures or animation files. See `docs/PROCEDURAL_PILOT.md` and `docs/COMPAT.md`.
+8. **HANGAR**, **DOSSIER**, **SETTINGS** — prefab/teardown library with `UNLOCK ALL (TEST MODE)`,
    full engineering dossier, and all simulation exponents as editable config.
 
 ### Signature parts — distinct shapes, no ripped assets
 
 Original procedural **signature-part library** (`chassis.json → signatureParts`, 7 slots / 59 part types). Each of the 30 prefabs and 7 shape presets ships a unique `shape.sig` composition, and MECH FORGE lets the player mix them: cockpit pods, cranial skulls, reverse-joint and splayed legs, tetrapod skirts, ether wings, booster fins, missile racks, blade arms, shields, crests, hover discs, tracked siege hulls and legless flight frames. These are original **component TYPES** drawn with canvas geometry — no ripped models, textures, traced silhouettes or base-mod files. The library is data-driven: `MF.sigGeometry()` in `tools/src/20_render.js` turns each slot into procedural geometry, and the same composition drives HANGAR thumbnails, MECH FORGE, TEARDOWN and the baked COMBAT sprite. `USE AS TEMPLATE` loads a prefab's part mix straight into the Forge.
+
+### Full playable test — and what it still is not
+
+`PILOT TEST` is a real, playable 3D mech generated entirely from numbers: `MF.mesh3d.fromShape()`
+triangulates the shape/signature descriptors, `MF.mesh3d.pose()` generates a walk cycle, and
+`MF.mesh3d.render()` is a software perspective rasterizer with procedural Crystal-Coat shading.
+**This is still a browser prototype.** A pilotable mech inside Cyberpunk 2077 needs real meshes, rigs,
+animations, VO, the game itself and private base-mod APIs — none of which are shipped or claimed.
 
 Everything persists to `localStorage` (with an in-memory fallback). **SETTINGS → EXPORT ALL STATE
 JSON** / **IMPORT ALL STATE** moves designs and subsystems between machines. `GENERATE CET LUA`
@@ -147,9 +165,12 @@ cd tools && npm install && npm test # optional: jsdom browser smoke test + Lua p
 
 ## 6. Honest disclaimer
 
-The browser prototype + CET UI are **testable**: the simulation, authoring tools, teardown catalogue
-and combat harness actually run. A full 3D pilotable-mech release would need original meshes, rigs,
-animations, VO, the game itself and private base-mod APIs. This repo does **not** contain those.
+The browser prototype + CET UI are **testable**: the simulation, authoring tools, teardown catalogue,
+2D combat harness and the **full procedural 3D pilot test** actually run. The 3D pilot is generated
+from numbers at runtime — it is not an in-game mech. Making a mech pilotable inside Cyberpunk 2077
+would still need original meshes, rigs, animations, VO, the game itself and private base-mod APIs.
+This repo does **not** contain those. Autodrive / Crystal Coat compatibility means shared concepts,
+key names, share codes and optional `pcall(GetMod)` detection — not bundled or controlled mods.
 `NEXUS_PAGE.md` is a **DRAFT** and must not be published until base-mod permission is settled.
 
 ---

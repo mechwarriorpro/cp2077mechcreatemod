@@ -99,7 +99,7 @@ function call(name) {
 call('onInit');
 // Open the overlay then exercise every ImGui tab.
 lauxlib.luaL_loadstring(L, enc('MF.visible = true')); lua.lua_pcall(L,0,0,0);
-for (let tab=1; tab<=5; tab++) {
+for (let tab=1; tab<=6; tab++) {
   lauxlib.luaL_loadstring(L, enc('MF.tab = ' + tab)); lua.lua_pcall(L,0,0,0);
   call('onDraw');
 }
@@ -111,7 +111,10 @@ const checks = [
   ['local t=MF.compute("bt7274"); return string.format("%.2f|%.0f|%.2f|%.2f|%d",t.powerMargin,t.totalMass,t.rcsFront,t.jamStrength,#t.validation)', 'compute(bt7274)'],
   ['local t=MF.compute("my_frame_01"); return string.format("%.2f|%.0f",t.powerMargin,t.totalMass)', 'compute(custom)'],
   ['local r=MF.reactorModel(MF.reactor); return string.format("%.2f|%.3f",r.netOutput,r.instability)', 'reactorModel'],
-  ['MF.optionalLinkShard(); MF.optionalRestartQuest(); MF.optionalTitanPoints(); return "hooks-ok"', 'optional hooks']
+  ['MF.optionalLinkShard(); MF.optionalRestartQuest(); MF.optionalTitanPoints(); return "hooks-ok"', 'optional hooks'],
+  ['local c=MF.compatEncodeCoat(); return tostring(string.sub(c,1,5))', 'CCP1 share code'],
+  ['local c=MF.compatParseCoat("CCP1;P=C81E3C;S=202024;L=200;N=Night Runner"); return tostring(c.primary).."|"..tostring(c.name)', 'parse CCP1 example'],
+  ['MF.compatHandoffWaypoint(40,10); MF.compatSyncCrystalCoat(); MF.compatProbe(); return "compat-ok"', 'compat bridges']
 ];
 for (const [code,label] of checks) {
   const s1 = lauxlib.luaL_loadstring(L, enc(code));

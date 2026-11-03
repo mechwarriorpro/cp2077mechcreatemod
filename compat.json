@@ -1,0 +1,211 @@
+{
+  "meta": {
+    "name": "FORGE 77 optional compatibility layer",
+    "version": "0.1.4-test",
+    "note": "Procedural browser-side equivalents plus pcall-wrapped CET bridges. No third-party mod files are bundled, edited or redistributed. Detection never makes the prototype depend on another mod."
+  },
+  "autodrive": {
+    "note": "Cyberpunk 2077 2.3 added vanilla Auto Drive (drive to a tracked map pin, V key). The community 'Auto drive' / 'Auto Drive Enhanced' mods by nobo (Nexus 14680 / 23157) and the 'Auto Drive CET hotkey for Wander' add-on (Nexus 19309) expose related behaviour. FORGE 77 ships its own procedural autopilot for the mech test, and an optional CET bridge that detects these mods via GetMod and hands off a waypoint when they expose a compatible function.",
+    "vanillaSince": "2.3",
+    "key": "V",
+    "probe": "GetMod",
+    "modNames": [
+      "AutoDriveEnhanced",
+      "AutoDrive",
+      "Autodrive",
+      "AutoDriveWander"
+    ],
+    "sources": [
+      "Nexus 14680 — Auto drive (nobo)",
+      "Nexus 23157 — Auto Drive Enhanced (nobo)",
+      "Nexus 19309 — Auto Drive CET hotkey for Wander"
+    ],
+    "handoffMethods": [
+      "SetDestination",
+      "DriveTo",
+      "SetWaypoint",
+      "StartAutoDrive",
+      "Wander"
+    ],
+    "params": {
+      "cruiseSpeed": 0.55,
+      "waypointRadius": 6,
+      "avoidance": 0.75,
+      "obstacleMargin": 3.2,
+      "resumeOnManualInput": true,
+      "maxSteer": 1.4
+    },
+    "browserFallback": "MF.compat.autodrive.steer() runs a deterministic steering/obstacle-avoidance solver in the procedural pilot test. It works with no mods installed."
+  },
+  "crystalCoat": {
+    "note": "CrystalCoat is Cyberpunk 2077's native dynamic vehicle paint (2.2+): a Primary colour, a Secondary colour, a light hue and paint aspects such as metallic / glossy, opened by holding Y while seated. 'Crystal Coat Picker — Hex Codes and Color Library' (Nexus 35571) adds exact hex entry and one-line share codes. Mechs are not vehicles, so FORGE 77 implements a procedural Crystal-Coat-compatible parameter set on its generated mesh and reads/writes the same share-code format; the CET bridge optionally detects the picker mod and reports its status.",
+    "vanillaSince": "2.2",
+    "holdKey": "Y",
+    "probe": "GetMod",
+    "modNames": [
+      "CrystalCoatPicker",
+      "Crystal Coat Picker",
+      "CrystalCoat"
+    ],
+    "sources": [
+      "Nexus 35571 — Crystal Coat Picker",
+      "wiki.redmodding.org — CrystalCoat guide"
+    ],
+    "syncMethods": [
+      "GetCurrentColors",
+      "GetColors",
+      "GetPrimaryColor",
+      "GetColorSet"
+    ],
+    "aspects": [
+      "metallic",
+      "glossy",
+      "matte",
+      "crystal"
+    ],
+    "codeFormat": "CCP1;P=RRGGBB;S=RRGGBB;L=hhh;N=name;A=aspect;M=metallic;R=roughness;F=flake;W=wear;E=emission;D=seed",
+    "codeExample": "CCP1;P=C81E3C;S=202024;L=200;N=Night Runner",
+    "fields": {
+      "primary": "#3AA9C9",
+      "secondary": "#1B2733",
+      "lightHue": 190,
+      "lightsBrightness": 0.85,
+      "aspect": "metallic",
+      "metallic": 0.72,
+      "roughness": 0.34,
+      "flake": 0.35,
+      "wear": 0.18,
+      "emission": 0.45,
+      "patternSeed": 7717,
+      "name": "Vanguard Stock"
+    },
+    "browserFallback": "MF.compat.crystalCoat shades every procedurally generated triangle from these fields (Lambert + metallic specular + flake + wear + emissive light bands). No textures, no assets."
+  },
+  "coatings": [
+    {
+      "id": "vanguard_stock",
+      "name": "Vanguard Stock",
+      "primary": "#3AA9C9",
+      "secondary": "#1B2733",
+      "lightHue": 190,
+      "lightsBrightness": 0.85,
+      "aspect": "metallic",
+      "metallic": 0.72,
+      "roughness": 0.34,
+      "flake": 0.35,
+      "wear": 0.18,
+      "emission": 0.45,
+      "patternSeed": 7717
+    },
+    {
+      "id": "night_runner",
+      "name": "Night Runner",
+      "primary": "#C81E3C",
+      "secondary": "#202024",
+      "lightHue": 200,
+      "lightsBrightness": 0.9,
+      "aspect": "glossy",
+      "metallic": 0.85,
+      "roughness": 0.18,
+      "flake": 0.5,
+      "wear": 0.1,
+      "emission": 0.7,
+      "patternSeed": 2077
+    },
+    {
+      "id": "corite_burn",
+      "name": "Corite Burn",
+      "primary": "#E0762A",
+      "secondary": "#241812",
+      "lightHue": 32,
+      "lightsBrightness": 0.95,
+      "aspect": "crystal",
+      "metallic": 0.6,
+      "roughness": 0.26,
+      "flake": 0.8,
+      "wear": 0.32,
+      "emission": 0.9,
+      "patternSeed": 1601
+    },
+    {
+      "id": "ram_black",
+      "name": "RAM Black",
+      "primary": "#10171F",
+      "secondary": "#0A0F14",
+      "lightHue": 210,
+      "lightsBrightness": 0.35,
+      "aspect": "matte",
+      "metallic": 0.25,
+      "roughness": 0.88,
+      "flake": 0.05,
+      "wear": 0.45,
+      "emission": 0.12,
+      "patternSeed": 35041
+    },
+    {
+      "id": "ether_white",
+      "name": "Ether White",
+      "primary": "#DCE9EF",
+      "secondary": "#4E6473",
+      "lightHue": 175,
+      "lightsBrightness": 1.0,
+      "aspect": "glossy",
+      "metallic": 0.78,
+      "roughness": 0.14,
+      "flake": 0.62,
+      "wear": 0.08,
+      "emission": 0.85,
+      "patternSeed": 8802
+    },
+    {
+      "id": "maxtac_police",
+      "name": "MaxTac Police",
+      "primary": "#22405C",
+      "secondary": "#E8EDF2",
+      "lightHue": 15,
+      "lightsBrightness": 1.0,
+      "aspect": "metallic",
+      "metallic": 0.8,
+      "roughness": 0.3,
+      "flake": 0.3,
+      "wear": 0.22,
+      "emission": 0.95,
+      "patternSeed": 4401
+    }
+  ],
+  "pilot": {
+    "note": "Everything in the pilot test is generated at runtime from numbers: the mech mesh comes from MF.shapeParts() + MF.sigGeometry(), the terrain from a seeded value-noise heightfield, hostiles from other roster sig compositions, and the gait from procedural joint rotation. No meshes, rigs, textures or animations are loaded.",
+    "terrain": {
+      "seed": 7717,
+      "size": 320,
+      "cell": 16,
+      "amplitude": 2.6,
+      "roughness": 0.55,
+      "obstacles": 22
+    },
+    "physics": {
+      "walkSpeed": 9,
+      "dashSpeed": 23,
+      "gravity": 22,
+      "jumpImpulse": 11,
+      "turnRate": 1.9,
+      "bob": 0.12,
+      "gait": 2.1
+    },
+    "camera": {
+      "distance": 12.5,
+      "height": 6.2,
+      "fov": 1.02,
+      "near": 0.6,
+      "far": 460
+    },
+    "waves": {
+      "baseHostiles": 3,
+      "perWave": 2,
+      "maxHostiles": 9,
+      "bossEvery": 3
+    },
+    "controls": "WASD move · mouse look · LMB fire · Shift dash · Space jump jets · Q core burst · E shield · R missiles · V vent · T AUTODRIVE · C camera · P pause · 1–4 companion orders · Y Crystal Coat panel"
+  },
+  "disclaimer": "Compatibility means: the prototype uses the same public concepts, key names and share-code format, and CET optionally detects the other mods with pcall-wrapped GetMod calls. It does NOT ship, patch, require or claim to control those mods, and it does not make a 3D mech driveable inside Cyberpunk 2077. In-game piloting still needs meshes, rigs, animations, VO, the game itself and private base-mod APIs."
+}

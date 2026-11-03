@@ -53,3 +53,12 @@ hostile/boss placeholder designs. The code, JSON data, docs and procedural graph
 3. Do not add `.reds`, TweakXL YAML or ArchiveXL files to the installable path until they are
    validated against the target game patch. A syntax error in `r6/scripts` breaks the user's game.
 4. Keep Donation Points off if any base-mod derived asset is ever involved.
+
+## Optional mod compatibility
+
+`compat.json` references Auto drive / Auto Drive Enhanced (Nexus 14680 / 23157) and
+Crystal Coat Picker (Nexus 35571) as **public compatibility concepts only**. We use their documented
+key names, colour fields and share-code shape in our own procedural implementations, and CET probes
+for them with `pcall(GetMod)`. No files, code, textures, models or assets from those mods — or from
+the optional BT-7274 base mod — are bundled, edited, redistributed or required. Detection is
+optional and never gates the prototype.

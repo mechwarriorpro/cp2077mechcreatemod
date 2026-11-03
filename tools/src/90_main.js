@@ -6,6 +6,7 @@
   // Render every tab lazily on first visit; the initial tab is rendered now.
   MF.refresh();
   if (MF.state.tab === "combat") MF.combat.onEnter();
+  if (MF.state.tab === "pilot" && MF.pilot) MF.pilot.onEnter();
   MF.toast("FORGE 77 online · INTERNAL SYSTEMS LAB is the emphasis — author a subsystem, then build your frame.", "ok");
 
   let lastTick = 0, resizeTimer = null;
@@ -15,6 +16,7 @@
       lastTick = ts;
     }
     MF.combat.loop(ts);
+    if (MF.pilot && MF.pilot.loop) MF.pilot.loop(ts);
     if (window.requestAnimationFrame) window.requestAnimationFrame(frame);
     else setTimeout(() => frame(ts + 16), 16);
   }

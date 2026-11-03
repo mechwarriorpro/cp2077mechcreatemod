@@ -6,8 +6,9 @@
 
   WHAT IT IS: an ImGui overlay for hangar, subsystem authoring, forge params,
   reactor lab and settings, with live power / mass / heat / RCS / ECM bars.
-  WHAT IT IS NOT: a pilotable 3D mech. The browser test_build.html owns the
-  visual modeling table and the combat harness. The CET UI is a test surface.
+  WHAT IT IS NOT: an IN-GAME pilotable 3D mech. The browser test_build.html owns
+  the procedural 3D pilot test, the visual modeling table and the combat harness.
+  The CET UI is a test surface plus optional, pcall-wrapped compat bridges.
 
   NO base-mod files are bundled, edited or redistributed. Optional hooks are
   pcall-wrapped, user-triggered and never required. No ripped franchise assets.
@@ -18,7 +19,7 @@
 local MF = {}
 MF.visible = false
 MF.tab = 1
-MF.tabs = { "HANGAR", "INTERNAL SYSTEMS", "MECH FORGE", "REACTOR LAB", "SETTINGS" }
+MF.tabs = { "HANGAR", "INTERNAL SYSTEMS", "MECH FORGE", "REACTOR LAB", "SETTINGS", "COMPAT" }
 MF.rosterIndex = 1
 MF.subIndex = 1
 MF.log = { "FORGE 77 CET overlay ready." }
@@ -2026,6 +2027,150 @@ return {
     ["ether_rift"] = 2.2,
     ["indoors"] = 0.25,
     ["orbit"] = 0.1
+  },
+  ["compat"] = {
+    ["autodrive"] = {
+      ["modNames"] = {
+        "AutoDriveEnhanced",
+        "AutoDrive",
+        "Autodrive",
+        "AutoDriveWander"
+      },
+      ["handoffMethods"] = {
+        "SetDestination",
+        "DriveTo",
+        "SetWaypoint",
+        "StartAutoDrive",
+        "Wander"
+      },
+      ["key"] = "V"
+    },
+    ["crystalCoat"] = {
+      ["modNames"] = {
+        "CrystalCoatPicker",
+        "Crystal Coat Picker",
+        "CrystalCoat"
+      },
+      ["syncMethods"] = {
+        "GetCurrentColors",
+        "GetColors",
+        "GetPrimaryColor",
+        "GetColorSet"
+      },
+      ["aspects"] = {
+        "metallic",
+        "glossy",
+        "matte",
+        "crystal"
+      },
+      ["codeExample"] = "CCP1;P=C81E3C;S=202024;L=200;N=Night Runner",
+      ["fields"] = {
+        ["primary"] = "#3AA9C9",
+        ["secondary"] = "#1B2733",
+        ["lightHue"] = 190,
+        ["lightsBrightness"] = 0.85,
+        ["aspect"] = "metallic",
+        ["metallic"] = 0.72,
+        ["roughness"] = 0.34,
+        ["flake"] = 0.35,
+        ["wear"] = 0.18,
+        ["emission"] = 0.45,
+        ["patternSeed"] = 7717,
+        ["name"] = "Vanguard Stock"
+      }
+    },
+    ["coatings"] = {
+      {
+        ["id"] = "vanguard_stock",
+        ["name"] = "Vanguard Stock",
+        ["primary"] = "#3AA9C9",
+        ["secondary"] = "#1B2733",
+        ["lightHue"] = 190,
+        ["lightsBrightness"] = 0.85,
+        ["aspect"] = "metallic",
+        ["metallic"] = 0.72,
+        ["roughness"] = 0.34,
+        ["flake"] = 0.35,
+        ["wear"] = 0.18,
+        ["emission"] = 0.45,
+        ["patternSeed"] = 7717
+      },
+      {
+        ["id"] = "night_runner",
+        ["name"] = "Night Runner",
+        ["primary"] = "#C81E3C",
+        ["secondary"] = "#202024",
+        ["lightHue"] = 200,
+        ["lightsBrightness"] = 0.9,
+        ["aspect"] = "glossy",
+        ["metallic"] = 0.85,
+        ["roughness"] = 0.18,
+        ["flake"] = 0.5,
+        ["wear"] = 0.1,
+        ["emission"] = 0.7,
+        ["patternSeed"] = 2077
+      },
+      {
+        ["id"] = "corite_burn",
+        ["name"] = "Corite Burn",
+        ["primary"] = "#E0762A",
+        ["secondary"] = "#241812",
+        ["lightHue"] = 32,
+        ["lightsBrightness"] = 0.95,
+        ["aspect"] = "crystal",
+        ["metallic"] = 0.6,
+        ["roughness"] = 0.26,
+        ["flake"] = 0.8,
+        ["wear"] = 0.32,
+        ["emission"] = 0.9,
+        ["patternSeed"] = 1601
+      },
+      {
+        ["id"] = "ram_black",
+        ["name"] = "RAM Black",
+        ["primary"] = "#10171F",
+        ["secondary"] = "#0A0F14",
+        ["lightHue"] = 210,
+        ["lightsBrightness"] = 0.35,
+        ["aspect"] = "matte",
+        ["metallic"] = 0.25,
+        ["roughness"] = 0.88,
+        ["flake"] = 0.05,
+        ["wear"] = 0.45,
+        ["emission"] = 0.12,
+        ["patternSeed"] = 35041
+      },
+      {
+        ["id"] = "ether_white",
+        ["name"] = "Ether White",
+        ["primary"] = "#DCE9EF",
+        ["secondary"] = "#4E6473",
+        ["lightHue"] = 175,
+        ["lightsBrightness"] = 1,
+        ["aspect"] = "glossy",
+        ["metallic"] = 0.78,
+        ["roughness"] = 0.14,
+        ["flake"] = 0.62,
+        ["wear"] = 0.08,
+        ["emission"] = 0.85,
+        ["patternSeed"] = 8802
+      },
+      {
+        ["id"] = "maxtac_police",
+        ["name"] = "MaxTac Police",
+        ["primary"] = "#22405C",
+        ["secondary"] = "#E8EDF2",
+        ["lightHue"] = 15,
+        ["lightsBrightness"] = 1,
+        ["aspect"] = "metallic",
+        ["metallic"] = 0.8,
+        ["roughness"] = 0.3,
+        ["flake"] = 0.3,
+        ["wear"] = 0.22,
+        ["emission"] = 0.95,
+        ["patternSeed"] = 4401
+      }
+    }
   }
 }
 
@@ -2033,6 +2178,138 @@ end)() or {}
 
 MF.data = MF_DATA
 MF.biomes = MF_DATA.biomes or {}
+
+local function clog(msg)
+  table.insert(MF.log, 1, tostring(msg))
+  while #MF.log > 20 do table.remove(MF.log) end
+  print("[MECHFALL] " .. tostring(msg))
+end
+
+-- Optional compat bridges: Autodrive + Crystal Coat -------------------------
+-- Detection is pcall-wrapped and NEVER required. No other mod's files are
+-- bundled, edited or redistributed. All behaviour falls back to FORGE 77's
+-- own procedural autopilot / procedural coating.
+MF.compat = {
+  coat = {}, code = "", autopilot = false, autopilotLink = false,
+  autodriveMod = nil, autodriveName = nil,
+  crystalCoatMod = nil, crystalCoatName = nil,
+  lastProbe = "not probed"
+}
+MF.compatPresetIndex = 1
+local cf = ((MF_DATA.compat or {}).crystalCoat or {}).fields or {}
+for k, v in pairs(cf) do MF.compat.coat[k] = v end
+
+local function probeMod(names)
+  if type(GetMod) ~= "function" then return nil, nil end
+  for _, n in ipairs(names or {}) do
+    local ok, m = pcall(function() return GetMod(n) end)
+    if ok and type(m) == "table" then return m, n end
+  end
+  return nil, nil
+end
+
+MF.compatProbe = function()
+  local ad = (MF_DATA.compat or {}).autodrive or {}
+  local cc = (MF_DATA.compat or {}).crystalCoat or {}
+  MF.compat.autodriveMod, MF.compat.autodriveName = probeMod(ad.modNames)
+  MF.compat.crystalCoatMod, MF.compat.crystalCoatName = probeMod(cc.modNames)
+  MF.compat.lastProbe = "AutoDrive=" .. tostring(MF.compat.autodriveName or "absent") ..
+    " / CrystalCoat=" .. tostring(MF.compat.crystalCoatName or "absent")
+  clog("Compat probe: " .. MF.compat.lastProbe)
+  return MF.compat.lastProbe
+end
+
+MF.compatEncodeCoat = function()
+  local c = MF.compat.coat
+  local function hex(v, fallback)
+    local h = tostring(v or fallback):gsub("#", "")
+    if #h ~= 6 then h = fallback end
+    return string.upper(h)
+  end
+  local function n(v, f) return tonumber(v) or f end
+  return string.format("CCP1;P=%s;S=%s;L=%d;N=%s;A=%s;M=%.2f;R=%.2f;F=%.2f;W=%.2f;E=%.2f;D=%d;B=%.2f",
+    hex(c.primary, "3AA9C9"), hex(c.secondary, "1B2733"), math.floor(n(c.lightHue, 0)),
+    tostring(c.name or "UNTITLED"):gsub("[;=]", " "), tostring(c.aspect or "metallic"),
+    n(c.metallic, 0.72), n(c.roughness, 0.34), n(c.flake, 0.35), n(c.wear, 0.18),
+    n(c.emission, 0.45), math.floor(n(c.patternSeed, 7717)), n(c.lightsBrightness, 0.85))
+end
+
+MF.compatParseCoat = function(code)
+  if type(code) ~= "string" or string.sub(code, 1, 5) ~= "CCP1;" then return nil end
+  local c = {}
+  for k, v in pairs(MF.compat.coat) do c[k] = v end
+  for pair in string.gmatch(code, "[^;]+") do
+    local eq = string.find(pair, "=")
+    if eq then
+      local k = string.upper(string.sub(pair, 1, eq - 1))
+      local v = string.sub(pair, eq + 1)
+      if k == "P" and #v == 6 then c.primary = "#" .. string.upper(v)
+      elseif k == "S" and #v == 6 then c.secondary = "#" .. string.upper(v)
+      elseif k == "N" then c.name = v
+      elseif k == "A" then c.aspect = v
+      elseif k == "L" then c.lightHue = tonumber(v) or c.lightHue
+      elseif k == "M" then c.metallic = tonumber(v) or c.metallic
+      elseif k == "R" then c.roughness = tonumber(v) or c.roughness
+      elseif k == "F" then c.flake = tonumber(v) or c.flake
+      elseif k == "W" then c.wear = tonumber(v) or c.wear
+      elseif k == "E" then c.emission = tonumber(v) or c.emission
+      elseif k == "D" then c.patternSeed = tonumber(v) or c.patternSeed
+      elseif k == "B" then c.lightsBrightness = tonumber(v) or c.lightsBrightness
+      end
+    end
+  end
+  MF.compat.coat = c
+  MF.compat.code = MF.compatEncodeCoat()
+  return c
+end
+
+MF.compatHandoffWaypoint = function(x, z)
+  local m = MF.compat.autodriveMod
+  if not m then
+    clog("Autodrive: no CET mod detected — FORGE 77's procedural autopilot is authoritative")
+    return false
+  end
+  local names = ((MF_DATA.compat or {}).autodrive or {}).handoffMethods or {}
+  for _, n in ipairs(names) do
+    if type(m[n]) == "function" then
+      local ok, err = pcall(function() m[n](x, z) end)
+      if ok then
+        clog("Autodrive waypoint handed to " .. tostring(MF.compat.autodriveName) .. "." .. n)
+        return true
+      end
+      clog("Autodrive handoff " .. n .. " failed: " .. tostring(err))
+    end
+  end
+  clog("Autodrive mod detected but exposes no known waypoint method — nothing was called")
+  return false
+end
+
+MF.compatSyncCrystalCoat = function()
+  local m = MF.compat.crystalCoatMod
+  if not m then
+    clog("Crystal Coat: no CET picker detected — procedural coat is authoritative")
+    return false
+  end
+  local names = ((MF_DATA.compat or {}).crystalCoat or {}).syncMethods or {}
+  for _, n in ipairs(names) do
+    if type(m[n]) == "function" then
+      local ok, res = pcall(function() return m[n]() end)
+      if ok and type(res) == "table" then
+        local c = MF.compat.coat
+        if res.primary or res.P then c.primary = res.primary or res.P end
+        if res.secondary or res.S then c.secondary = res.secondary or res.S end
+        if res.lightHue or res.L then c.lightHue = tonumber(res.lightHue or res.L) or c.lightHue end
+        c.name = res.name or res.N or c.name
+        clog("Crystal Coat colours read from " .. tostring(MF.compat.crystalCoatName) .. "." .. n)
+        MF.compat.code = MF.compatEncodeCoat()
+        return true
+      end
+    end
+  end
+  clog("Crystal Coat picker detected but exposes no known colour getter — nothing changed")
+  return false
+end
+
 MF.biomeKeys = {}
 for k, _ in pairs(MF.biomes) do table.insert(MF.biomeKeys, k) end
 table.sort(MF.biomeKeys)
@@ -2570,11 +2847,57 @@ local function drawSettings()
   ImGui.EndChild()
 end
 
+local function drawCompat()
+  ImGui.Text("OPTIONAL COMPATIBILITY · AUTODRIVE + CRYSTAL COAT")
+  ImGui.Separator()
+  ImGui.Text("AutoDrive: " .. tostring(MF.compat.autodriveName or "not detected — procedural autopilot"))
+  ImGui.Text("Crystal Coat: " .. tostring(MF.compat.crystalCoatName or "not detected — procedural coat"))
+  ImGui.Text("Vanilla Auto Drive is CP2077 2.3 (V key); CrystalCoat is 2.2+ (hold Y).")
+  local v, ch = ImGui.Checkbox("AUTODRIVE LINK (state only)", MF.compat.autopilot)
+  if ch then MF.compat.autopilot = v end
+  if ImGui.Button("PROBE GetMod") then MF.compatProbe() end
+  ImGui.SameLine()
+  if ImGui.Button("HANDOFF WAYPOINT") then MF.compatHandoffWaypoint(40, 10) end
+  ImGui.SameLine()
+  if ImGui.Button("SYNC CRYSTAL COAT") then MF.compatSyncCrystalCoat() end
+  ImGui.Separator()
+  ImGui.Text("PROCEDURAL CRYSTAL COAT (primary / secondary / light hue / aspect)")
+  for _, k in ipairs({ "metallic", "roughness", "flake", "wear", "emission", "lightsBrightness" }) do
+    local val = { tonumber(MF.compat.coat[k]) or 0 }
+    local nv, c = ImGui.SliderFloat(k .. "##cc", val[1], 0, 1, "%.2f")
+    if c then MF.compat.coat[k] = nv end
+  end
+  local hue = { tonumber(MF.compat.coat.lightHue) or 0 }
+  local nh, hc = ImGui.SliderFloat("lightHue##cc", hue[1], 0, 359, "%.0f")
+  if hc then MF.compat.coat.lightHue = nh end
+  local names, coats = {}, (MF_DATA.compat or {}).coatings or {}
+  for i, p in ipairs(coats) do names[i] = p.name end
+  local idx, cc = ImGui.Combo("COAT PRESET##cc", MF.compatPresetIndex - 1, names, #names)
+  if cc then
+    MF.compatPresetIndex = idx + 1
+    local p = coats[MF.compatPresetIndex]
+    if p then
+      for k, val in pairs(p) do if k ~= "id" then MF.compat.coat[k] = val end end
+      log("Coat preset: " .. tostring(p.name))
+    end
+  end
+  ImGui.Separator()
+  MF.compat.code = MF.compatEncodeCoat()
+  ImGui.Text("SHARE CODE " .. MF.compat.code)
+  if ImGui.Button("APPLY EXAMPLE CCP1 CODE") then
+    MF.compatParseCoat("CCP1;P=C81E3C;S=202024;L=200;N=Night Runner")
+    log("Applied Crystal Coat Picker example share code")
+  end
+  ImGui.Separator()
+  textWrapped("Compatibility means shared public concepts, key names and CCP1 share codes, plus pcall-wrapped GetMod detection. It does not ship, patch, require or control those mods, and it does not make a 3D mech driveable inside Cyberpunk 2077. In-game piloting still needs meshes, rigs, animations, VO, the game itself and private base-mod APIs.")
+end
+
 registerForEvent("onInit", function()
   MF.visible = false
   log("MECHFALL // FORGE 77 loaded · " .. tostring(#(MF_DATA.roster or {})) .. " prefabs, " ..
     tostring(#MF.subsystems) .. " subsystem templates")
   log("Open the overlay with the CET hotkey binding: MECHFALL // FORGE 77")
+  pcall(MF.compatProbe)
 end)
 
 registerForEvent("onDraw", function()
@@ -2595,7 +2918,8 @@ registerForEvent("onDraw", function()
   elseif MF.tab == 2 then drawSystems(t)
   elseif MF.tab == 3 then drawForge(t)
   elseif MF.tab == 4 then drawReactor(t)
-  else drawSettings() end
+  elseif MF.tab == 5 then drawSettings()
+  else drawCompat() end
   ImGui.End()
 end)
 

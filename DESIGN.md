@@ -18,7 +18,7 @@ The five non-negotiable, first-class, visible, editable and consequential quanti
 | # | Requirement | Where |
 |---|---|---|
 | R1 | Optional companion layer for BT-7274 (Nexus 35041); never bundles/edits its files | `README.md`, `PERMISSIONS.md`, `docs/BaseModHooks.md` |
-| R2 | Fully custom chassis + limbs: parametric editor, **mixable signature-part library (7 slots)**, six distinct body plans, front/side/drag-to-orbit wireframe, baked combat silhouette; both prefab lists and full modeling table | `MECH FORGE`, `tools/src/20_render.js`, `70_ui_forge.js`, `chassis.json → signatureParts` |
+| R2 | Fully custom chassis + limbs: parametric editor, **mixable signature-part library (7 slots)**, six distinct body plans, front/side/drag-to-orbit wireframe, baked combat silhouette, **procedural 3D pilot mesh + gait**; both prefab lists and full modeling table | `MECH FORGE`, `PILOT TEST`, `tools/src/20_render.js`, `25_mesh3d.js`, `70_ui_forge.js`, `chassis.json → signatureParts` |
 | R3 | Blank-slate subsystem authoring, saved as reusable component; six attributes | `INTERNAL SYSTEMS`, `subsystems.json`, `10_sim.js` |
 | R4 | Power / mass+CoM+inertia / heat / RCS by aspect / ECM with gauges, warnings, consequences | `10_sim.js`, `60_ui_systems.js`, `85_combat.js` |
 | R5 | Mana reactor: F, G, A, η, S, Q, C, W, L; bigger crystal = more power, more unstable; biome ambient mana | `REACTOR LAB`, `reactors.json`, `docs/REACTOR_MODEL.md` |
@@ -94,6 +94,15 @@ sandboxed-iframe fallback.
 ### Signature parts
 
 Original procedural **signature-part library** (`chassis.json → signatureParts`, 7 slots / 59 part types). Each of the 30 prefabs and 7 shape presets ships a unique `shape.sig` composition, and MECH FORGE lets the player mix them: cockpit pods, cranial skulls, reverse-joint and splayed legs, tetrapod skirts, ether wings, booster fins, missile racks, blade arms, shields, crests, hover discs, tracked siege hulls and legless flight frames. These are original **component TYPES** drawn with canvas geometry — no ripped models, textures, traced silhouettes or base-mod files.
+
+### Procedural 3D pilot + optional compatibility
+
+`tools/src/25_mesh3d.js` triangulates `MF.shapeParts()` into a genuine 3D mesh, generates a seeded-noise
+world and animates a procedural gait; `tools/src/87_pilot.js` is the full playable test with waves,
+bosses, three cameras and live power/mass/heat/RCS/ECM consequences. `tools/src/86_compat.js` +
+`compat.json` provide a dependency-free Autodrive steering solver and a Crystal-Coat-compatible
+procedural coating with CCP1 share codes. `tools/init.lua.template` adds `COMPAT` as an optional
+`pcall(GetMod)` detection tab. See `docs/PROCEDURAL_PILOT.md` and `docs/COMPAT.md`.
 
 The CET `init.lua` is generated from the same JSON and mirrors the telemetry math; the browser owns
 the visual modeling table and combat canvas, while CET provides an in-game ImGui test surface.

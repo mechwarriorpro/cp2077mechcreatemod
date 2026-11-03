@@ -1,5 +1,35 @@
 # CHANGELOG.md
 
+## 2026-11-03 — procedural 3D pilot test + Autodrive / Crystal Coat compatibility (0.1.4-test)
+
+- **New `PILOT TEST` tab (09 tabs total): a full playable procedural 3D mech test.**
+  `tools/src/25_mesh3d.js` triangulates the existing `MF.shapeParts()` / `MF.sigGeometry()`
+  descriptors into a real 3D mesh (chamfered rings, domes, blades, torus rings, cell racks, joints,
+  nozzle cones), generates a seeded-noise heightfield with obstacles and skyline, and renders it with
+  a software perspective rasterizer (painter depth sort, per-face Lambert + metallic specular + rim
+  light + flake + wear + emissive + fog). No WebGL, meshes, textures or external assets.
+- **Procedural animation**: `MF.mesh3d.pose()` generates a gait (hip/shoulder swing, torso sway, head
+  tracking, recoil) with variants for quad, hover, tank and flyer body plans. No rigs or clips.
+- **Playable**: WASD + mouse look, dash, jump jets with plumes, fire/Q/E/R abilities, vent, three
+  cameras (CHASE / COCKPIT / ORBIT), waves and bosses, waypoints, XP/salvage, Protocol 3 eject, and
+  live brownout / heat derate / mass inertia / RCS detection / ECM lock-break / reactor telemetry.
+- **Autodrive compatibility**: `compat.json` records the CP2077 2.3 vanilla Auto Drive + `V` key and
+  the community mods (Nexus 14680 / 23157 / 19309). `MF.compat.autodrive.steer()` is a
+  dependency-free waypoint/obstacle-avoidance solver used by the `T` autopilot; CET probes `GetMod`
+  with `pcall` and only hands off a waypoint when a known method exists.
+- **Crystal Coat compatibility**: procedural CrystalCoat-equivalent fields (primary, secondary, light
+  hue, paint aspect, metallic/roughness/flake/wear/emission) shade every generated triangle;
+  `CCP1;P=…;S=…;L=…;N=…` share codes round-trip, six presets ship, and the CET `COMPAT` tab parses,
+  encodes and optionally syncs colours. Mechs are not vehicles — this is a compatible parameter set,
+  not a claim of in-game CrystalCoat support.
+- CET `init.lua` gains a 6th `COMPAT` tab, `MF.compatProbe()`, `MF.compatHandoffWaypoint()`,
+  `MF.compatSyncCrystalCoat()`, `MF.compatParseCoat()` / `MF.compatEncodeCoat()`; all optional and
+  `pcall`-wrapped. Verified under a stub where `GetMod` returns `nil`.
+- `tools/generate.py` embeds `compat.json` (8 data sections); validator, smoke tests, Lua runtime
+  test, docs (`docs/PROCEDURAL_PILOT.md`, `docs/COMPAT.md`) and the test package were updated.
+- **Still honest**: browser prototype only. In-game piloting needs meshes, rigs, animations, VO, the
+  game itself and private base-mod APIs. No other mod's files are bundled or redistributed.
+
 ## 2026-11-03 — signature-part silhouettes + player mixing (0.1.3-test)
 
 - **The 30 prefabs no longer share one generic biped.** Added `chassis.json → signatureParts`: 7 slots /
