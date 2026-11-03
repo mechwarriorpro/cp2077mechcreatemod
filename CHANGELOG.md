@@ -1,5 +1,29 @@
 # CHANGELOG.md
 
+## 2026-11-03 — sleek mech wireframe + fit/transfer balancing (0.1.2-test)
+
+- **Replaced the boxy wireframe with a sleek procedural mech wireframe.** `MF.shapeParts()` now
+  generates tapered octagonal hulls (waisted torso, flared shoulders, sloped canopy), chamfered
+  rings, joint rings, swept armour/radiator fins, RAM vent panels and flared nozzle bells with
+  exhaust cones. No more "group of boxes". HANGAR thumbnails and MECH FORGE use the same geometry.
+- **Internals now show where components physically mount.** `MF.draw.mech()` draws a labelled
+  mounting bay per part, exploded step-by-step, and highlights the selected bay.
+- **Power / heat transfer is the core of TEARDOWN.** Three toggleable layers (`WIREFRAME`,
+  `INTERNALS FIT`, `POWER / HEAT FLOW`), routed bus trunks with branch stubs, heat runs to the
+  nearest radiator and a green coolant return loop. `MF.sim.fitBalance()` computes per-bay draw,
+  line loss (`draw × k × distance`), effective dissipation, thermal margin and flags
+  `BUS OVERDRAW` / `COOLANT SATURATION` / `HOT SPOT` / `TRANSFER LOSS` / `UNROUTED NODE`.
+- New controls: `AUTO ROUTE`, `STRESS FIT`, `RESET FIT`, `APPLY FIT → FORGE` (writes a consequential
+  freeform subsystem), plus `BUS CAPACITY` and `COOLANT FLOW` sliders and a routing table.
+- **New mech parts:** vector thrusters, jump jet pods, jet packs, radiator banks, capacitor banks,
+  coolant manifolds, power bus spines, sensors, vent/RAM panels, arm actuators. 9 new internals
+  assemblies (20 total) and 12 new assembly components (38 total), all with the six attributes.
+- **20 shape parameters**: added `thrusterSize` and `jumpJetCount` to every preset and all 30
+  roster shapes; new `FULL MODELING TABLE` sliders and a new `MECH FORGE` heading.
+- `teardowns.json` gains `view.modes`, `view.geometry`, `view.fit` and new explode directions;
+  `simulation.json` gains 5 fit validation states, 2 transfer equations and a trade-off.
+- Docs, validator and smoke test rewritten for the new renderer, fit simulation and parts.
+
 ## 2026-11-03 — initial test build (0.1.0-test)
 
 **From zero project code to a playable prototype + CET-only test mod.**
@@ -15,7 +39,7 @@
   `SEND TO FORGE`.
 - **REACTOR LAB**: mana equations, 6 teardown presets, 6 biomes, live 30 s chart, crystal-size vs
   power vs stability curve, configurable exponents, surges / forced vents / containment failure.
-- **MECH FORGE**: 18 shape sliders, 5 styles, 6 shape presets, front + side + drag-to-orbit 3D
+- **MECH FORGE**: 20 shape sliders, 5 styles, 7 shape presets, front + side + drag-to-orbit 3D
   wireframes with grid and dimension labels, `RANDOMIZE` / `RESET` / `BAKE SHAPE`, prefab assembly
   mode, subsystem hookup, internals tree.
 - **TEARDOWN TABLE**: exploded procedural wireframe, step-through separation, clickable parts,

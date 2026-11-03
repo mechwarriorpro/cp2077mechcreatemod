@@ -23,9 +23,11 @@ Therefore this project:
 
 Titanfall, Armored Core, BattleTech, Mecha Break and Knights & Magic are referenced as **study
 material only**. Names are canonical textual references with aliases recorded (see `ROSTER.md`).
-No models, textures, audio, logos or other assets from those works are used. All silhouettes,
-thumbnails, exploded wireframes, thermal maps, polar plots and combat sprites are generated
-procedurally with the HTML canvas 2D API at runtime.
+No models, textures, audio, logos or other assets from those works are used. All graphics are
+generated procedurally with the HTML canvas 2D API at runtime: tapered hulls, chamfered rings,
+joint rings, swept fins, radiators and nozzle bells. Nothing is imported, traced or extracted from
+another game. Within the prototype the only limits on what you build are **balancing power/heat
+transfer** and **player imagination** — there are no shape restrictions.
 
 Spelling variations resolved: Earlcumber/Erlecumber, Tzendolg/Tzendolimble, Toybox/Toy Box.
 `Ikaruga` is the canonical ether/mana reactor lore reference; `Corite`/`Corixium`, `Coral`,

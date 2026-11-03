@@ -17,7 +17,7 @@ dissipation, radar cross section and ECM** — then deploy your build into a com
 
 ### Highlights (draft copy)
 
-- **Fully custom chassis**: 18 shape parameters, front/side elevations and a drag-to-orbit 3D
+- **Fully custom chassis**: 20 shape parameters (including thruster size and jump jet count), front/side elevations and a drag-to-orbit 3D
   wireframe. Bake your silhouette and watch *your* shape fight.
 - **Player-designed internals**: blank-slate authoring for power buses, thermal loops, mass and
   structure, signature/RCS, ECM/EW, sensors, actuators, mana reactors and freeform components.
@@ -25,8 +25,12 @@ dissipation, radar cross section and ECM** — then deploy your build into a com
   ECM self-detection, mana starvation, lattice overflow, crystal resonance, containment failure.
 - **Mana reactor**: flow, growth, atmospheric mana, crystal efficiency/size/grade, containment and
   biome. Bigger crystal = more power, much more instability.
-- **Teardown table**: 30 example frames / 6 factions, exploded wireframes, INTERNALS trees with
-  six attributes per sub-component, salvage, blueprints and reactor telemetry.
+- **Teardown table**: 30 chassis / 6 factions as **sleek mech wireframes** with tapered hulls,
+  joints, swept fins and nozzle bells. See **where every internal mounts**, then route and balance
+  **power bus and coolant/heat transfer** between those parts. `AUTO ROUTE`, `STRESS FIT`,
+  `APPLY FIT → FORGE`, INTERNALS trees with six attributes per sub-component, salvage, blueprints
+  and reactor telemetry. Thrusters, jump jets, radiators, capacitors, coolant manifolds, power
+  buses, sensors and vent panels are all first-class parts.
 - **Two test surfaces**: one self-contained `test_build.html` (no install) and a CET-only ImGui
   overlay for in-game telemetry.
 

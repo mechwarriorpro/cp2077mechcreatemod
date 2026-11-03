@@ -135,12 +135,48 @@ setTimeout(() => {
     click('[data-act="rx-save"]');
     must(MF.state.subsystems.some(x => x.custom && x.category === 'mana_reactor'), 'reactor saved as subsystem');
 
-    // TEARDOWN
+    // TEARDOWN — sleek mech wireframe, internals fit, power/heat transfer balance
     MF.setTab('teardown');
+    must(MF.state.tdLayers.wireframe && MF.state.tdLayers.internals && MF.state.tdLayers.flows,
+      'TEARDOWN defaults to wireframe + internals + flow layers');
+    must(typeof MF.draw.mech === 'function' && MF.draw.matrix === undefined,
+      'sleek mech renderer replaces the abstract matrix');
+    must(MF.teardown.hit.length > 20 && Number.isFinite(MF.teardown.hit[0].rect.w),
+      'all mounting bays are hit-testable');
+    must(w.document.getElementById('tab-teardown').innerHTML.indexOf('SLEEK MECH WIREFRAME') >= 0,
+      'TEARDOWN shows the sleek mech wireframe');
+    must(w.document.getElementById('td-fit').innerHTML.indexOf('BUS') >= 0,
+      'FIT & TRANSFER BALANCE panel renders');
+    must(typeof MF.sim.fitBalance === 'function' && typeof MF.sim.autoRoute === 'function',
+      'fit balance and auto-routing simulation exist');
+    const fb = MF.sim.fitBalance(MF.activeDesign(), MF.tdParts(MF.activeDesign()), MF.state.tdFit);
+    must(fb.nodes.length > 20 && Array.isArray(fb.flags) && Number.isFinite(fb.totals.totalLoss),
+      'fit balance produces routed nodes, flags and transfer losses');
+    must(fb.nodes.every(n => Number.isFinite(n.draw) && Number.isFinite(n.margin)),
+      'every bay has finite power draw and thermal margin');
+    click('[data-act="td-layer"][data-v="flows"]');
+    must(MF.state.tdLayers.flows === false, 'POWER / HEAT FLOW layer toggles off');
+    click('[data-act="td-layer"][data-v="flows"]');
+    must(MF.state.tdLayers.flows === true, 'POWER / HEAT FLOW layer toggles on');
+    click('[data-act="td-autoroute"]');
+    must(Object.keys(MF.state.tdFit.routes).length > 20, 'AUTO ROUTE assigns every bay a bus + loop');
+    click('[data-act="td-stress"]');
+    must(MF.state.tdFit.bus === 55 && MF.state.tdFit.coolant === 55, 'STRESS FIT cuts bus + coolant');
+    click('[data-act="td-fitreset"]');
+    must(MF.state.tdFit.bus === 100, 'RESET FIT restores nominal capacity');
+    click('[data-act="td-apply"]');
+    const fitSub = MF.state.subsystems.find(x => x.custom && x.name.indexOf('PHYSICAL FIT') === 0);
+    must(!!fitSub && Number.isFinite(fitSub.params.powerDraw), 'APPLY FIT creates a consequential freeform subsystem');
+    MF.state.installed = MF.state.installed.filter(x => x !== fitSub.id);
     click('[data-act="td-next"]');
     click('[data-act="td-scan"]');
-    click('[data-act="td-part"][data-i="2"]');
+    click('[data-act="td-part"][data-i="3"]');
     must(w.document.getElementById('td-internals').innerHTML.indexOf('Servo motor') >= 0, 'INTERNALS tree lists sub-components');
+    must(MF.DATA.teardowns.internalsCatalog.thruster && MF.DATA.teardowns.internalsCatalog.jump_jet,
+      'thruster and jump jet assemblies are in the internals catalogue');
+    must(MF.DATA.components.parts.some(x => x.type === 'jumpjet'), 'jump jets are assembly parts');
+    must(MF.shapeParts(MF.state.shape).some(b => b.anchor === 'jumpJet'), 'jump jet geometry exists');
+    must(MF.DATA.chassis.shapeKeys.length === 20, 'modeling table has 20 parameters');
     click('[data-act="td-extract"]');
     must(MF.state.blueprints.length > 0 && MF.state.salvage > 0, 'EXTRACT yields blueprints + salvage');
     click('[data-act="td-compare"]');
@@ -167,6 +203,8 @@ setTimeout(() => {
     click('[data-act="hangar-filter"][data-v="CUSTOM"]');
     must(MF.state.hangarFilter === 'CUSTOM', 'hangar filter works');
     click('[data-act="hangar-filter"][data-v="ALL"]');
+    must(typeof MF.draw.mech === 'function' && MF.DATA.teardowns.defaultViewMode === 'wireframe',
+      'HANGAR thumbnails are sleek mech wireframes');
     click('[data-act="hangar-unlock"]');
     must(MF.state.unlockAll === false, 'UNLOCK ALL toggle works');
     click('[data-act="hangar-unlock"]');

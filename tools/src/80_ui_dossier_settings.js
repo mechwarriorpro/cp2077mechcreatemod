@@ -44,7 +44,7 @@ MF.tabs.dossier = (function () {
       "It is testable: the simulation, authoring tools and combat harness run in your browser, and the ImGui " +
       "overlay runs in Cyberpunk 2077. A full 3D pilotable-mech release would need original meshes, rigs, " +
       "animations, VO, the game itself and private base-mod APIs. No base-mod files are bundled or edited; " +
-      "no franchise models or ripped assets are used. Optional hooks are pcall-wrapped and never required.</div>" +
+      "no third-party models, textures or ripped assets are used — all geometry is drawn procedurally. Optional hooks are pcall-wrapped and never required.</div>" +
       '<div class="mf-hr"></div><div class="mf-row">' +
       MF.ui.btn("EXPORT DOSSIER JSON", "ds-json") +
       MF.ui.btn("EXPORT DOSSIER TEXT", "ds-text") +

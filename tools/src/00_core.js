@@ -68,6 +68,8 @@ function defaults() {
     subsystemFilter: "ALL",
     selectedSubsystemId: "bus_standard",
     teardownId: "bt7274",
+    tdLayers: { wireframe: true, internals: true, flows: true },
+    tdFit: { bus: 100, coolant: 100, routes: {} },
     xp: 0,
     salvage: 0,
     blueprints: [],
@@ -87,7 +89,11 @@ function loadState() {
   if (!Array.isArray(out.subsystems) || !out.subsystems.length) out.subsystems = d.subsystems;
   if (!Array.isArray(out.installed)) out.installed = d.installed;
   if (!Array.isArray(out.customDesigns)) out.customDesigns = [];
+  out.shape = Object.assign({}, d.shape, saved.shape || {});
   if (!out.shape || !out.shape.torsoW) out.shape = d.shape;
+  if (!out.tdLayers) out.tdLayers = d.tdLayers;
+  if (!out.tdFit) out.tdFit = d.tdFit;
+  if (!out.tdFit.routes) out.tdFit.routes = {};
   if (!out.reactor || !Number.isFinite(out.reactor.F)) out.reactor = d.reactor;
   return out;
 }
@@ -390,7 +396,7 @@ MF.handleRange = function (el) {
   const out = document.querySelector('[data-out="' + scope + ":" + key + '"]');
   if (out) out.textContent = fmt(v, Number(el.step) < 1 ? 2 : 0) + (out.dataset.unit || "");
   if (scope === "shape") {
-    if (key === "jetCount") MF.state.shape[key] = Math.round(v);
+    if (key === "jetCount" || key === "jumpJetCount") MF.state.shape[key] = Math.round(v);
     else MF.state.shape[key] = v;
     MF.save();
   } else if (scope === "reactor") {
@@ -406,6 +412,8 @@ MF.handleRange = function (el) {
     MF.state.reactorCoeffs[key] = v; MF.save();
   } else if (scope === "teardown") {
     if (MF.teardown) MF.teardown.step = v;
+  } else if (scope === "fit") {
+    if (MF.state.tdFit) { MF.state.tdFit[key] = v; MF.save(); }
   }
   MF.refreshLive();
 };

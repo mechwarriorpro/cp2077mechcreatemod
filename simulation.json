@@ -238,6 +238,31 @@
       "code": "HARDPOINT OVERFLOW",
       "severity": "warning",
       "detail": "More hardpoints than the frame can brace."
+    },
+    {
+      "code": "BUS OVERDRAW",
+      "severity": "critical",
+      "detail": "Part power draw plus transfer loss exceeds the routed bus capacity — brownouts at the node."
+    },
+    {
+      "code": "COOLANT SATURATION",
+      "severity": "critical",
+      "detail": "Routed heat generation exceeds coolant loop capacity — the part derates and vents."
+    },
+    {
+      "code": "HOT SPOT",
+      "severity": "warning",
+      "detail": "A single mounting bay generates more heat than its local dissipation plus loop share."
+    },
+    {
+      "code": "TRANSFER LOSS",
+      "severity": "warning",
+      "detail": "Long bus/coolant runs waste power as heat; shorten routes or add capacitors."
+    },
+    {
+      "code": "UNROUTED NODE",
+      "severity": "warning",
+      "detail": "A mounted part has no bus or coolant route assigned."
     }
   ],
   "keyBindings": {
@@ -315,6 +340,18 @@
       "id": "selfEmissions",
       "label": "Self emissions",
       "formula": "selfEmissions = jammerPower * (LPI ? 0.25 : 1.0)   // jamming makes you visible"
+    },
+    {
+      "id": "bus_transfer",
+      "label": "Bus transfer loss",
+      "formula": "loss_i = draw_i * k * distance_i ; delivered_i = draw_i + loss_i",
+      "note": "k is view.fit.transferLossPerUnit; distance is from the reactor core to the mounting bay."
+    },
+    {
+      "id": "loop_balance",
+      "label": "Coolant loop balance",
+      "formula": "effectiveDiss_i = diss_i * (coolantPct/100) * (1 - k * distance_i) ; margin_i = effectiveDiss_i - heatGen_i",
+      "note": "A negative node margin is a HOT SPOT."
     }
   ],
   "tradeoffs": [
@@ -353,6 +390,10 @@
     {
       "left": "ECM jamming",
       "effect": "breaks locks but paints you as a target"
+    },
+    {
+      "left": "Fit / transfer routing",
+      "effect": "Longer bus + coolant runs ↑ transfer loss and heat; clustering hot parts near radiators ↓ loop loss but ↑ local RCS"
     }
   ]
 }

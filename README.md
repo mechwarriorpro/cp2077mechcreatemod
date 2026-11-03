@@ -36,11 +36,17 @@ breaks the user's game. The installable path is CET-only.
 3. **REACTOR LAB** — tune `manaFlow`, `manaGrowthRate`, `rawAtmosphericManaInput`, efficiency,
    `crystalSize`, grade, containment, coolant and filtration. Bigger crystal = more power, much more
    instability. Run the 30 s sim. **SEND TO FORGE**.
-4. **MECH FORGE** — `FULL MODELING TABLE`: 18 shape parameters, front + side elevations and a
+4. **MECH FORGE** — `FULL MODELING TABLE`: 20 shape parameters (incl. thruster size + jump jet
+   count), front + side elevations and a
    drag-to-orbit 3D wireframe with grid and dimension labels. `RANDOMIZE`, `RESET`, `BAKE SHAPE`.
    `PREFAB ASSEMBLY` is the alternative mode (pick a frame/limb set). Hook up your subsystems.
-5. **TEARDOWN** — explode any of the 30 prefabs step by step, click a part, **SCAN INTERNALS** to see
-   every sub-component's six attributes, **EXTRACT TO INVENTORY**, **USE AS TEMPLATE**, **COMPARE**.
+5. **TEARDOWN** — a **sleek mech wireframe** built from tapered octagonal hulls, chamfered rings,
+   joint rings, swept fins, radiators and nozzle bells. Toggle **WIREFRAME**, **INTERNALS FIT**
+   (physical mounting bays showing where every sub-component sits) and **POWER / HEAT FLOW**
+   (routed bus trunks, heat runs to radiators, coolant return loop). Fit and balance are the point:
+   `AUTO ROUTE`, bus/coolant sliders, `STRESS FIT`, `APPLY FIT → FORGE`, plus **SCAN INTERNALS**,
+   **EXTRACT TO INVENTORY**, **USE AS TEMPLATE**, **COMPARE**. Every part and sub-component shows
+   all six attributes; long bus/coolant runs cost transfer losses and hot bays flag overloads.
 6. **COMBAT TEST** — `WASD` + mouse, `LMB` fire, `Q/E/R` abilities, `Shift` dash, `V` vent,
    `1–4` companion orders, `P` pause. Your baked silhouette fights. Brownouts, heat derates, mass
    inertia, RCS detection, ECM lock breaks and reactor surges are live consequences.

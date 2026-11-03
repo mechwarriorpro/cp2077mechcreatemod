@@ -56,6 +56,8 @@ return {
         ["legStance"] = 1.3,
         ["armorFlare"] = 0.51,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -96,6 +98,8 @@ return {
         ["legStance"] = 1.3,
         ["armorFlare"] = 0.49,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -136,6 +140,8 @@ return {
         ["legStance"] = 1.31,
         ["armorFlare"] = 0.49,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -176,6 +182,8 @@ return {
         ["legStance"] = 0.98,
         ["armorFlare"] = 0.36,
         ["jetCount"] = 4,
+        ["thrusterSize"] = 1.01,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -216,6 +224,8 @@ return {
         ["legStance"] = 1.01,
         ["armorFlare"] = 0.37,
         ["jetCount"] = 4,
+        ["thrusterSize"] = 1.01,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -256,6 +266,8 @@ return {
         ["legStance"] = 1.63,
         ["armorFlare"] = 0.61,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -296,6 +308,8 @@ return {
         ["legStance"] = 1.52,
         ["armorFlare"] = 0.58,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -336,6 +350,8 @@ return {
         ["legStance"] = 1.34,
         ["armorFlare"] = 0.53,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -376,6 +392,8 @@ return {
         ["legStance"] = 1.67,
         ["armorFlare"] = 1.11,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 2,
         ["style"] = "knight"
       },
       ["subsystems"] = {
@@ -416,6 +434,8 @@ return {
         ["legStance"] = 1.55,
         ["armorFlare"] = 1,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 2,
         ["style"] = "knight"
       },
       ["subsystems"] = {
@@ -456,6 +476,8 @@ return {
         ["legStance"] = 1.62,
         ["armorFlare"] = 1.09,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 2,
         ["style"] = "knight"
       },
       ["subsystems"] = {
@@ -496,6 +518,8 @@ return {
         ["legStance"] = 1.88,
         ["armorFlare"] = 1.29,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 2,
         ["style"] = "knight"
       },
       ["subsystems"] = {
@@ -536,6 +560,8 @@ return {
         ["legStance"] = 3.05,
         ["armorFlare"] = 0.72,
         ["jetCount"] = 7,
+        ["thrusterSize"] = 1.43,
+        ["jumpJetCount"] = 3,
         ["style"] = "tetrapod"
       },
       ["subsystems"] = {
@@ -576,6 +602,8 @@ return {
         ["legStance"] = 0.96,
         ["armorFlare"] = 0.34,
         ["jetCount"] = 4,
+        ["thrusterSize"] = 1.01,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -616,6 +644,8 @@ return {
         ["legStance"] = 3.09,
         ["armorFlare"] = 0.76,
         ["jetCount"] = 7,
+        ["thrusterSize"] = 1.43,
+        ["jumpJetCount"] = 3,
         ["style"] = "tetrapod"
       },
       ["subsystems"] = {
@@ -656,6 +686,8 @@ return {
         ["legStance"] = 1.29,
         ["armorFlare"] = 0.51,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -696,6 +728,8 @@ return {
         ["legStance"] = 1.07,
         ["armorFlare"] = 0.38,
         ["jetCount"] = 4,
+        ["thrusterSize"] = 1.01,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -736,6 +770,8 @@ return {
         ["legStance"] = 1.45,
         ["armorFlare"] = 0.55,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -776,6 +812,8 @@ return {
         ["legStance"] = 2.78,
         ["armorFlare"] = 0.37,
         ["jetCount"] = 4,
+        ["thrusterSize"] = 1.01,
+        ["jumpJetCount"] = 3,
         ["style"] = "spider"
       },
       ["subsystems"] = {
@@ -816,6 +854,8 @@ return {
         ["legStance"] = 1.05,
         ["armorFlare"] = 0.38,
         ["jetCount"] = 4,
+        ["thrusterSize"] = 1.01,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -856,6 +896,8 @@ return {
         ["legStance"] = 2.95,
         ["armorFlare"] = 0.69,
         ["jetCount"] = 7,
+        ["thrusterSize"] = 1.43,
+        ["jumpJetCount"] = 3,
         ["style"] = "tetrapod"
       },
       ["subsystems"] = {
@@ -896,6 +938,8 @@ return {
         ["legStance"] = 1.48,
         ["armorFlare"] = 0.57,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -936,6 +980,8 @@ return {
         ["legStance"] = 2.42,
         ["armorFlare"] = 0.32,
         ["jetCount"] = 4,
+        ["thrusterSize"] = 1.01,
+        ["jumpJetCount"] = 3,
         ["style"] = "spider"
       },
       ["subsystems"] = {
@@ -976,6 +1022,8 @@ return {
         ["legStance"] = 1.75,
         ["armorFlare"] = 0.67,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -1016,6 +1064,8 @@ return {
         ["legStance"] = 1.43,
         ["armorFlare"] = 0.54,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -1056,6 +1106,8 @@ return {
         ["legStance"] = 0.87,
         ["armorFlare"] = 0.32,
         ["jetCount"] = 4,
+        ["thrusterSize"] = 1.01,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -1096,6 +1148,8 @@ return {
         ["legStance"] = 1.52,
         ["armorFlare"] = 0.6,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "angular"
       },
       ["subsystems"] = {
@@ -1136,6 +1190,8 @@ return {
         ["legStance"] = 1.55,
         ["armorFlare"] = 0.25,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 1,
         ["style"] = "rounded"
       },
       ["subsystems"] = {
@@ -1176,6 +1232,8 @@ return {
         ["legStance"] = 1.5,
         ["armorFlare"] = 0.98,
         ["jetCount"] = 2,
+        ["thrusterSize"] = 0.73,
+        ["jumpJetCount"] = 2,
         ["style"] = "knight"
       },
       ["subsystems"] = {
@@ -1216,6 +1274,8 @@ return {
         ["legStance"] = 2.57,
         ["armorFlare"] = 0.34,
         ["jetCount"] = 4,
+        ["thrusterSize"] = 1.01,
+        ["jumpJetCount"] = 3,
         ["style"] = "spider"
       },
       ["subsystems"] = {

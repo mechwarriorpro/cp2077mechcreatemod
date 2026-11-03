@@ -53,7 +53,7 @@
 
 Every chassis carries a full 18-parameter shape vector that can be loaded into MECH FORGE:
 
-`torsoW, torsoH, torsoD, headScale, shoulderW, shoulderH, upperArm, foreArm, upperLeg, lowerLeg, hipW, footL, weaponX, weaponY, legStance, armorFlare, jetCount, style`
+`torsoW, torsoH, torsoD, headScale, shoulderW, shoulderH, upperArm, foreArm, upperLeg, lowerLeg, hipW, footL, weaponX, weaponY, legStance, armorFlare, jetCount, thrusterSize, jumpJetCount, style`
 
 Spelling variations resolved: Earlcumber/Erlecumber, Tzendolg/Tzendolimble, Toybox/Toy Box.
 See `HANDOVER.md` §3.6 and `PERMISSIONS.md` for IP carve-outs.

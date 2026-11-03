@@ -67,7 +67,7 @@ MF.tabs.hangar = (function () {
       MF.ui.stat("INSTABILITY", fmt(t.reactor.instability, 2), "", t.reactor.instability > 0.95 ? "red" : "") +
       "</div>" +
       '<h3>VALIDATION</h3><div class="mf-chips">' + MF.ui.validChips(t) + "</div>" +
-      '<div class="mf-grid2"><div><h3>SHAPE VECTOR (18 PARAMS)</h3><div class="mf-scroll" style="max-height:230px">' +
+      '<div class="mf-grid2"><div><h3>SHAPE VECTOR (20 PARAMS)</h3><div class="mf-scroll" style="max-height:230px">' +
       '<table class="mf-table"><tbody>' + shapeRows + "</tbody></table></div></div>" +
       '<div><h3>INSTALLED INTERNALS (' + (d.subsystemIds || []).length + ")</h3>" +
       MF.ui.sixTable((d.subsystemIds || []).map((id) => {
@@ -102,7 +102,10 @@ MF.tabs.hangar = (function () {
         '<span class="k">INVENTORY</span><span>' + MF.state.inventory.length + "</span>" +
         '<span class="k">WAVES CLEARED</span><span>' + MF.state.wavesCleared + "</span></div>" +
         '<div class="mf-note">Hostile mechs, boss waves and salvage/XP progression exist only as the combat test harness. ' +
-        "Famous frames are prefabs: tear them down, mine parts, then build your own.</div>", "amber") +
+        "Famous frames are prefabs: tear them down, mine parts, then build your own.</div>" +
+        '<div class="mf-note">Every thumbnail is a <b>sleek procedural mech wireframe</b> — tapered hulls, ' +
+        "joint rings, swept fins and nozzle bells from the parametric shape table. Player-authored custom " +
+        "frames and prefabs use the same original geometry.</div>", "amber") +
       "</div>" +
       '<div id="hangar-detail" class="mf-panel cyan"></div></div>';
     const list = $("hangar-list");
@@ -116,7 +119,8 @@ MF.tabs.hangar = (function () {
     }).join("");
     sec.querySelectorAll("canvas[data-shape]").forEach((cv) => {
       const x = MF.getDesign(cv.dataset.shape);
-      if (x) MF.draw.shapeOn(cv, x.shape, { view: "front", filled: true, gridStep: 12, alpha: 0.20 });
+      if (!x) return;
+      MF.draw.shapeOn(cv, x.shape, { view: "front", filled: true, gridStep: 12, alpha: 0.20, ribs: false });
     });
     $("hangar-detail").innerHTML = detailHTML(d);
     sec.onclick = function (e) {

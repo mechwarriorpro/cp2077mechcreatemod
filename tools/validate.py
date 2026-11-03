@@ -20,11 +20,13 @@ DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.js
 SIX = ("powerDraw", "mass", "heatGen", "heatDiss", "rcs", "ecm")
 SHAPE_KEYS = ("torsoW", "torsoH", "torsoD", "headScale", "shoulderW", "shoulderH", "upperArm",
               "foreArm", "upperLeg", "lowerLeg", "hipW", "footL", "weaponX", "weaponY",
-              "legStance", "armorFlare", "jetCount", "style")
-ANCHORS = {"torso", "head", "backpack", "reactor", "shoulderL", "shoulderR", "upperArmL", "upperArmR",
-           "foreArmL", "foreArmR", "weaponL", "weaponR", "hip", "upperLegL", "upperLegR",
-           "lowerLegL", "lowerLegR", "footL", "footR", "jetL", "jetR", "flareL", "flareR",
-           "extraLegL", "extraLegR", "crest", "shield"}
+              "legStance", "armorFlare", "jetCount", "thrusterSize", "jumpJetCount", "style")
+ANCHORS = {"torso", "head", "sensor", "backpack", "reactor", "bus", "capacitor", "coolant",
+           "shoulderL", "shoulderR", "upperArmL", "upperArmR", "foreArmL", "foreArmR",
+           "weaponL", "weaponR", "hip", "upperLegL", "upperLegR", "lowerLegL", "lowerLegR",
+           "footL", "footR", "jetL", "jetR", "flareL", "flareR", "extraLegL", "extraLegR",
+           "crest", "shield", "thrusterL", "thrusterR", "jumpJet", "radiatorL", "radiatorR",
+           "ventL", "ventR", "jointL", "jointR", "kneeL", "kneeR"}
 TABS = ("HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST",
         "DOSSIER", "SETTINGS")
 
@@ -72,8 +74,8 @@ def main() -> int:
             err(f"simulation.json missing {key}")
     if [a["key"] for a in sim.get("sixAttributes", [])] != list(SIX):
         err("simulation.json sixAttributes must be exactly the six first-class attributes")
-    if len(sim.get("validationStates", [])) != 12:
-        err("simulation.json must define all 12 validation states")
+    if len(sim.get("validationStates", [])) < 12:
+        err("simulation.json must define at least the 12 core validation states")
     for k, c in sim.get("coefficients", {}).items():
         check_num(c, ("min", "max", "step", "value"), f"simulation.coefficients.{k}")
         if c.get("min") >= c.get("max"):
@@ -148,11 +150,11 @@ def main() -> int:
     if len(set(ids)) != len(ids) or len(set(names)) != len(names):
         err("duplicate chassis id or canonical name")
     if tuple(ch.get("shapeKeys", ())) != SHAPE_KEYS:
-        err("chassis.shapeKeys must be the 18 canonical shape parameters")
+        err("chassis.shapeKeys must be the 20 canonical shape parameters")
     for c in roster:
         where = f"chassis {c['id']}"
         if set(c.get("shape", {})) != set(SHAPE_KEYS):
-            err(f"{where}: shape must have all 18 parameters")
+            err(f"{where}: shape must have all 20 parameters")
         if c.get("shape", {}).get("style") not in ch.get("styles", []):
             err(f"{where}: unknown style")
         if c.get("reactorId") not in pids:
@@ -166,7 +168,7 @@ def main() -> int:
             err(f"{where}: unknown internalsProfile")
     for a, preset in ch.get("presets", {}).items():
         if set(preset) != set(SHAPE_KEYS):
-            err(f"shape preset {a} must have all 18 parameters")
+            err(f"shape preset {a} must have all 20 parameters")
 
     # ---------------------------------------------------------------- components
     comp = d["components"]
@@ -178,8 +180,12 @@ def main() -> int:
     # ---------------------------------------------------------------- teardowns
     td = d["teardowns"]
     catalog = td.get("internalsCatalog", {})
-    if len(catalog) < 8:
-        err("teardowns.json needs at least 8 internals assemblies")
+    if len(catalog) < 18:
+        err("teardowns.json needs at least 18 internals assemblies")
+    for key in ("thruster", "jump_jet", "radiator_bank", "capacitor_bank", "coolant_loop",
+                "power_bus", "arm_actuator", "sensor_suite", "vent_panel"):
+        if key not in catalog:
+            err(f"teardowns.internalsCatalog missing mech part assembly {key}")
     for key, asm in catalog.items():
         for i, internal in enumerate(asm.get("internals", [])):
             check_num(internal, SIX, f"internalsCatalog.{key}[{i}] {internal.get('name')}")
@@ -196,6 +202,31 @@ def main() -> int:
     for act in ("TEAR DOWN", "SCAN INTERNALS", "EXTRACT TO INVENTORY", "USE AS TEMPLATE", "COMPARE", "REASSEMBLE"):
         if act not in td.get("actions", []):
             err(f"teardowns.json missing action {act}")
+    # Sleek mech wireframe + internals fit + power/heat transfer balancing.
+    if td.get("defaultViewMode") != "wireframe":
+        err("teardowns.defaultViewMode must be 'wireframe'")
+    view = td.get("view", {})
+    modes = {m.get("id") for m in view.get("modes", [])}
+    if not {"wireframe", "internals", "flows"}.issubset(modes):
+        err("teardowns.view.modes must include wireframe, internals and flows")
+    geo = view.get("geometry", {})
+    if len(geo.get("primitives", [])) < 6:
+        err("teardowns.view.geometry.primitives must list the sleek hull primitives")
+    fitcfg = view.get("fit", {})
+    for k in ("buses", "loops", "busCapacityPct", "coolantFlowPct",
+              "transferLossPerUnit", "hotSpotTolerance"):
+        if k not in fitcfg:
+            err(f"teardowns.view.fit missing {k}")
+    if "balance" not in view.get("note", "").lower():
+        warn("teardowns.view.note should state that balance is the only design limit")
+    new_states = {v["code"] for v in d["simulation"].get("validationStates", [])}
+    for code in ("BUS OVERDRAW", "COOLANT SATURATION", "HOT SPOT", "TRANSFER LOSS"):
+        if code not in new_states:
+            err(f"simulation.validationStates missing fit flag {code}")
+    ckeys = {x["id"] for x in d["components"]["parts"]}
+    for x in ("thruster_vector", "jumpjet_burst", "radiator_fins", "capacitor_stack", "sensor_lidar"):
+        if x not in ckeys:
+            err(f"components.json missing mech part {x}")
 
     # ---------------------------------------------------------------- generated outputs
     gen = subprocess.run([sys.executable, str(ROOT / "tools/generate.py"), "--check"],
@@ -220,6 +251,13 @@ def main() -> int:
         for token in ("<canvas", "<style>", "application/json", "powerDraw", "heatDiss", "rcsPolar", "jamStrength"):
             if token not in text:
                 err(f"test_build.html missing expected content {token!r}")
+        for token in ("MF.draw.mech", "SLEEK MECH WIREFRAME", "FIT & TRANSFER BALANCE",
+                      "AUTO ROUTE", "APPLY FIT", "JUMP JET POD", "thrusterSize", "jumpJetCount",
+                      "BUS OVERDRAW", "COOLANT SATURATION"):
+            if token not in text:
+                err(f"test_build.html missing expected content {token!r}")
+        if "MF.draw.matrix" in text or "NO FRANCHISE GEOMETRY" in text:
+            err("test_build.html still contains the obsolete abstract-matrix restriction")
         if text.count("<script") < 2:
             err("test_build.html must contain the data script and the app script")
         print(f"  test_build.html: {len(text):,} bytes, self-contained")

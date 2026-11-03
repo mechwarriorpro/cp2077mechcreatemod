@@ -405,6 +405,14 @@ MF.sim.equations = function (t) {
     lockBreak: fmt(t.lockBreak, 2) + " (jam " + fmt(t.jamStrength, 1) + " vs lock quality 8)",
     selfEmissions: fmt(t.selfEmissions, 1) + " (LPI ×0.25 / EMCON ×0.05)"
   };
+  try {
+    const d = MF.activeDesign();
+    const fb = MF.sim.fitBalance(d, MF.tdParts(d), MF.state.tdFit || { bus: 100, coolant: 100, routes: {} });
+    subs.bus_transfer = fmt(fb.totals.totalDraw, 1) + " kW drawn + " + fmt(fb.totals.totalLoss, 1) +
+      " kW line loss = " + fmt(fb.totals.totalDelivered, 1) + " kW delivered";
+    subs.loop_balance = fmt(fb.totals.totalDiss, 1) + " kW effective diss - " +
+      fmt(fb.totals.totalGen, 1) + " kW gen = " + fmt(fb.totals.heatMargin, 1) + " kW margin";
+  } catch (e) { /* teardown module not loaded yet: leave blank */ }
   return DATA.simulation.equations.map((e) => ({ id: e.id, label: e.label, formula: e.formula, live: subs[e.id] || "" }));
 };
 
@@ -460,4 +468,89 @@ MF.sim.luaForDesign = function (d) {
     "    subsystemIds = " + JSON.stringify(d.subsystemIds || []) + ",",
     "    hardpoints = " + (d.hardpoints || 6), "  }");
   return lines.join("\n");
+};
+
+/* ------------------------------------------------------------------ TEARDOWN FIT / TRANSFER BALANCE
+   Physical mounting bays are real loads: each part draws power from a routed bus and dumps heat
+   into a coolant loop. Long runs cost transfer losses. Power, heat, RCS and ECM stay first-class. */
+MF.sim.fitBalance = function (design, parts, opts) {
+  const o = opts || {};
+  const cfg = DATA.teardowns.view.fit;
+  const busPct = o.bus === undefined ? cfg.busCapacityPct : o.bus;
+  const coolPct = o.coolant === undefined ? cfg.coolantFlowPct : o.coolant;
+  const routes = o.routes || {};
+  const buses = cfg.buses, loops = cfg.loops, k = cfg.transferLossPerUnit;
+  const shape = design.shape || MF.state.shape;
+  const geo = {};
+  (MF.shapeParts ? MF.shapeParts(shape) : []).forEach((b) => { geo[b.anchor] = b; });
+  const rc = geo.reactor || { x: 0, y: 0, z: 0 };
+  const r = MF.sim.reactor(design.reactor || MF.state.reactor);
+  const nodes = parts.map((p, i) => {
+    const b = geo[p.anchor] || { x: 0, y: 0, z: 0 };
+    const dist = Math.hypot(b.x - rc.x, b.y - rc.y, b.z - rc.z);
+    const six = p.six || {};
+    const draw = Math.max(0, Number(six.powerDraw) || 0);
+    const gen = Math.max(0, Number(six.heatGen) || 0);
+    const diss = Math.max(0, Number(six.heatDiss) || 0);
+    const rt = routes[p.anchor] || {};
+    const bus = rt.bus || buses[i % buses.length];
+    const loop = rt.loop || loops[i % loops.length];
+    const loss = draw * k * dist;
+    const delivered = draw + loss;
+    const effDiss = diss * (coolPct / 100) * Math.max(0, 1 - k * dist * 0.5);
+    const margin = effDiss - gen;
+    return { anchor: p.anchor, name: p.name, bus, loop, dist, draw, gen, diss, loss,
+      delivered, effDiss, margin, mass: Number(six.mass) || 0,
+      rcs: Number(six.rcs) || 0, ecm: Number(six.ecm) || 0,
+      hot: margin < -(cfg.hotSpotTolerance || 1.5), routed: !!routes[p.anchor] };
+  });
+  const busRows = buses.map((name) => {
+    const load = nodes.filter((n) => n.bus === name).reduce((a, n) => a + n.delivered, 0);
+    return { name, load, capacity: Math.max(1, r.netOutput * (busPct / 100) / buses.length) };
+  });
+  const loopRows = loops.map((name) => {
+    const load = nodes.filter((n) => n.loop === name).reduce((a, n) => a + n.gen, 0);
+    const diss = nodes.filter((n) => n.loop === name).reduce((a, n) => a + n.effDiss, 0);
+    return { name, load, diss, margin: diss - load };
+  });
+  const totalDraw = nodes.reduce((a, n) => a + n.draw, 0);
+  const totalLoss = nodes.reduce((a, n) => a + n.loss, 0);
+  const totalDelivered = nodes.reduce((a, n) => a + n.delivered, 0);
+  const totalGen = nodes.reduce((a, n) => a + n.gen, 0);
+  const totalDiss = nodes.reduce((a, n) => a + n.effDiss, 0);
+  const busCapacity = r.netOutput * (busPct / 100);
+  const flags = [];
+  if (busRows.some((b) => b.load > b.capacity + 0.01)) flags.push("BUS OVERDRAW");
+  if (totalGen > totalDiss + 0.01) flags.push("COOLANT SATURATION");
+  if (nodes.some((n) => n.hot)) flags.push("HOT SPOT");
+  if (totalLoss > 8) flags.push("TRANSFER LOSS");
+  if (o.strictRoutes && nodes.some((n) => !n.routed)) flags.push("UNROUTED NODE");
+  return { nodes, busRows, loopRows, flags, reactor: { netOutput: r.netOutput },
+    totals: { totalDraw, totalLoss, totalDelivered, totalGen, totalDiss, busCapacity,
+      powerMargin: busCapacity - totalDelivered, heatMargin: totalDiss - totalGen,
+      mass: nodes.reduce((a, n) => a + n.mass, 0),
+      rcs: nodes.reduce((a, n) => a + n.rcs, 0), ecm: nodes.reduce((a, n) => a + n.ecm, 0) } };
+};
+
+MF.sim.autoRoute = function (design, parts) {
+  const cfg = DATA.teardowns.view.fit;
+  const shape = design.shape || MF.state.shape;
+  const geo = {};
+  (MF.shapeParts ? MF.shapeParts(shape) : []).forEach((b) => { geo[b.anchor] = b; });
+  const rc = geo.reactor || { x: 0, y: 0, z: 0 };
+  const buses = cfg.buses.map((n) => ({ name: n, load: 0 }));
+  const loops = cfg.loops.map((n) => ({ name: n, load: 0 }));
+  const routes = {};
+  parts.slice().sort((a, b) => Math.max(0, (b.six.powerDraw || 0) + (b.six.heatGen || 0)) -
+    Math.max(0, (a.six.powerDraw || 0) + (a.six.heatGen || 0))).forEach((p) => {
+    const g = geo[p.anchor] || rc;
+    const dist = Math.hypot(g.x - rc.x, g.y - rc.y, g.z - rc.z);
+    const draw = Math.max(0, p.six.powerDraw || 0), gen = Math.max(0, p.six.heatGen || 0);
+    const bus = buses.slice().sort((a, b) => a.load - b.load)[0];
+    const loop = loops.slice().sort((a, b) => a.load - b.load)[0];
+    bus.load += draw * (1 + cfg.transferLossPerUnit * dist);
+    loop.load += gen;
+    routes[p.anchor] = { bus: bus.name, loop: loop.name };
+  });
+  return routes;
 };

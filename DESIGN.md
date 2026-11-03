@@ -22,7 +22,7 @@ The five non-negotiable, first-class, visible, editable and consequential quanti
 | R3 | Blank-slate subsystem authoring, saved as reusable component; six attributes | `INTERNAL SYSTEMS`, `subsystems.json`, `10_sim.js` |
 | R4 | Power / mass+CoM+inertia / heat / RCS by aspect / ECM with gauges, warnings, consequences | `10_sim.js`, `60_ui_systems.js`, `85_combat.js` |
 | R5 | Mana reactor: F, G, A, η, S, Q, C, W, L; bigger crystal = more power, more unstable; biome ambient mana | `REACTOR LAB`, `reactors.json`, `docs/REACTOR_MODEL.md` |
-| R6 | Teardown: exploded wireframe, step-through, INTERNALS tree with six attributes, salvage/blueprints/telemetry | `TEARDOWN`, `teardowns.json`, `40_ui_teardown.js` |
+| R6 | Teardown: **sleek mech wireframe** (tapered hulls / joints / fins / nozzles), physical internals fit, power + heat transfer routing/balancing, step-through separation, INTERNALS tree with six attributes, salvage/blueprints/telemetry | `TEARDOWN`, `teardowns.json`, `20_render.js`, `40_ui_teardown.js` |
 | R7 | ~30 chassis / 6 factions as examples, teardown sources, templates; `UNLOCK ALL (TEST MODE)` | `chassis.json`, `HANGAR`, `ROSTER.md` |
 | R8 | Hostiles, boss waves, hangar selector, salvage/XP — test harness only | `85_combat.js`, `30_ui_hangar.js` |
 | R9 | 8 tabs: HANGAR · TEARDOWN · REACTOR LAB · INTERNAL SYSTEMS · MECH FORGE · COMBAT TEST · DOSSIER · SETTINGS | `tools/src/body.html`, `90_main.js` |
@@ -32,7 +32,7 @@ The five non-negotiable, first-class, visible, editable and consequential quanti
 
 ## Data model
 
-- A **design** = `{ shape (18 params), subsystemIds, reactor params, hardpoints, origin }`.
+- A **design** = `{ shape (20 params), subsystemIds, reactor params, hardpoints, origin }`.
 - A **subsystem** = `{ name, category, params }` → derived `{ powerDraw, mass, heatGen,
   heatDiss, rcs, ecm }` plus category-specific outputs (brownoutThreshold, surgeTolerance,
   transmissionLoss, thermalMass, hotspots, rcsMultiplier, jamStrength, lockBreak, selfEmissions,
@@ -79,7 +79,13 @@ All constants/exponents are in `simulation.json` / `reactors.json` and editable 
 `tools/src/*.js` + `app.css` + `body.html` are concatenated by `tools/generate.py` into one
 `<script>`/`<style>` pair inside `test_build.html`, with all six JSON files embedded as an inline
 `<script type="application/json">`. No build step is needed by the end user. Canvas is the only
-rendering surface. `MF.sim` is the pure simulation core; `MF.draw` owns procedural wireframes;
+rendering surface. `MF.shapeParts` builds **sleek procedural mech geometry** — tapered octagonal
+hulls with waisted profiles, chamfered rings, joint rings, swept armour/radiator fins and flared
+nozzle bells — from the 20 shape parameters. `MF.draw.mech` adds exploded separation, physical
+internals mounting bays and routed bus/heat/coolant lines. `MF.sim.fitBalance` turns each bay's six
+attributes into real power draw, transfer loss, heat generation and effective dissipation, with
+`BUS OVERDRAW`, `COOLANT SATURATION`, `HOT SPOT` and `TRANSFER LOSS` flags. `APPLY FIT → FORGE`
+writes the fit into a freeform subsystem so it changes the deployable build. `MF.sim` is the pure simulation core; `MF.draw` owns procedural wireframes;
 `MF.tabs.*` are the eight UI panels; `MF.combat` is the harness; `MF.store` is persistence with a
 sandboxed-iframe fallback.
 

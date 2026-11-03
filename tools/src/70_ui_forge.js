@@ -7,7 +7,8 @@ const SHAPE_RANGE = {
   upperArm: [0.6, 3.2, 0.05], foreArm: [0.6, 3.4, 0.05], upperLeg: [0.8, 3.8, 0.05],
   lowerLeg: [0.8, 4.0, 0.05], hipW: [0.6, 3.4, 0.05], footL: [0.4, 2.8, 0.05],
   weaponX: [0.4, 3.6, 0.05], weaponY: [0.4, 3.8, 0.05], legStance: [0.5, 3.2, 0.05],
-  armorFlare: [0, 1.8, 0.05], jetCount: [0, 8, 1]
+  armorFlare: [0, 1.8, 0.05], jetCount: [0, 8, 1],
+  thrusterSize: [0.3, 1.8, 0.05], jumpJetCount: [1, 4, 1]
 };
 MF.SHAPE_RANGE = SHAPE_RANGE;
 
@@ -15,9 +16,9 @@ MF.tabs.forge = (function () {
   function modelHTML() {
     const s = MF.state.shape;
     const keys = Object.keys(SHAPE_RANGE);
-    return '<h3>FULL MODELING TABLE · 18 PARAMETERS</h3>' +
+    return '<h3>FULL MODELING TABLE · 20 PARAMETERS</h3>' +
       '<div class="mf-slider-grid">' + keys.map((k) => MF.ui.slider(k, k, SHAPE_RANGE[k][0], SHAPE_RANGE[k][1],
-        SHAPE_RANGE[k][2], s[k], "shape", { unit: k === "jetCount" ? "" : "", help: "Shape parameter " + k })).join("") + "</div>" +
+        SHAPE_RANGE[k][2], s[k], "shape", { unit: (k === "jetCount" || k === "jumpJetCount") ? "" : "", help: "Shape parameter " + k })).join("") + "</div>" +
       '<label class="mf-field">STYLE / SILHOUETTE FAMILY</label>' +
       MF.ui.select("fg-style", DATA.chassis.styles, s.style, (x) => x.toUpperCase(), (x) => x) +
       '<h3>SHAPE PRESETS (TEMPLATES, NOT THE HEADLINE)</h3><div class="mf-chips">' +
@@ -146,7 +147,7 @@ MF.tabs.forge = (function () {
         Object.keys(SHAPE_RANGE).forEach((k) => {
           const r = SHAPE_RANGE[k];
           const v = r[0] + Math.random() * (r[1] - r[0]);
-          MF.state.shape[k] = k === "jetCount" ? Math.round(v) : Math.round(v / r[2]) * r[2];
+          MF.state.shape[k] = (k === "jetCount" || k === "jumpJetCount") ? Math.round(v) : Math.round(v / r[2]) * r[2];
         });
         MF.state.shape.style = DATA.chassis.styles[Math.floor(Math.random() * DATA.chassis.styles.length)];
         MF.save(); render(sec);
