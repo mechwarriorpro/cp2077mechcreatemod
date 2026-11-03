@@ -40,6 +40,19 @@ Spelling variations resolved: Earlcumber/Erlecumber, Tzendolg/Tzendolimble, Toyb
 `Clan XL Fusion`, `Militech RTG` and `Vanguard Link Shard` are **reactor preset names derived from
 teardown telemetry**, not shipped game assets.
 
+## Vanilla game entity references (in-game pilot)
+
+`compat.json → ingamePilot` lists TweakDB record ids and `.ent` depot paths that **already exist in
+the player's own Cyberpunk 2077 installation** (`Character.q003_militech_mech`, Arasaka mech records,
+drone/android/spiderbot/turret records, and three `base\gameplay\devices\...` templates). CET
+spawns, moves and despawns them at runtime via `exEntitySpawner`; **no game file is extracted,
+modified, embedded, re-uploaded or redistributed**. No `.archive`, `.mesh`, `.rig`, `.anims`,
+texture or animation is added to this repo or to the installable CET folder. These are references to
+CD Projekt Red's own game content used at runtime on the player's machine, not shipped assets.
+
+This does **not** grant permission for derivative use of the optional BT-7274 base mod or of any
+third-party franchise asset. The rules above still apply to everything else in the project.
+
 ## Original content
 
 Night City frames ("Militech Behemoth", "Arasaka Oni", "MaxTac RAM") are original, permission-free

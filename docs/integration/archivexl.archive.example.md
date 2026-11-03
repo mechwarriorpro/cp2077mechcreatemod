@@ -14,5 +14,7 @@ A real release would require:
 5. A compile/validation test before shipping, because a broken archive or manifest can break the
    user's game.
 
-Until then, all visuals in this project are procedural canvas wireframes in `test_build.html`, and
-the in-game surface is an ImGui overlay. See `docs/AssetManifest.md` and `PERMISSIONS.md`.
+Until then, all browser visuals are procedural canvas wireframes in `test_build.html`, and the
+CET-only in-game pilot spawns/moves **vanilla game entities by record reference** (see
+`docs/INGAME_PILOT.md`). No custom mesh or archive is shipped. See `docs/AssetManifest.md`,
+`docs/integration/custom_mech_entity.example.md` and `PERMISSIONS.md`.

@@ -217,7 +217,7 @@ def main() -> int:
 
     # ---------------------------------------------------------------- compat / procedural pilot
     cp = d["compat"]
-    for key in ("meta", "autodrive", "crystalCoat", "coatings", "pilot", "disclaimer"):
+    for key in ("meta", "autodrive", "crystalCoat", "coatings", "pilot", "ingamePilot", "disclaimer"):
         if key not in cp:
             err(f"compat.json missing {key}")
     ad, cc = cp.get("autodrive", {}), cp.get("crystalCoat", {})
@@ -239,6 +239,37 @@ def main() -> int:
             err(f"compat.pilot missing {k}")
     if not cp.get("disclaimer") or "private base-mod APIs" not in cp["disclaimer"]:
         err("compat.disclaimer must state the in-game piloting limitation")
+
+    # ---------------------------------------------------------------- in-game CET pilot
+    ig = cp.get("ingamePilot", {})
+    for key in ("note", "since", "requirements", "sources", "coreRecords", "partRecords",
+                "entityTemplates", "controls", "physics", "cameraModes", "disclaimer"):
+        if key not in ig:
+            err(f"compat.ingamePilot missing {key}")
+    if len(ig.get("coreRecords", [])) < 3:
+        err("compat.ingamePilot.coreRecords must list at least 3 vanilla in-game mech records")
+    if not any("q003_militech_mech" in x.get("id", "") for x in ig.get("coreRecords", [])):
+        err("compat.ingamePilot must reference the vanilla Militech Minotaur record")
+    if len(ig.get("partRecords", [])) < 5:
+        err("compat.ingamePilot.partRecords must populate the signature-part anchors")
+    slots = {x.get("slot") for x in ig.get("partRecords", [])}
+    if not {"sigHead", "sigArmL", "sigArmR"}.issubset(slots):
+        err("compat.ingamePilot.partRecords must map to signature-part anchors")
+    actions = {x.get("action") for x in ig.get("controls", [])}
+    for a in ("deploy", "reset", "forward", "back", "left", "right", "jump", "vent", "fire", "autodrive"):
+        if a not in actions:
+            err(f"compat.ingamePilot.controls missing action {a}")
+    slugs = [x.get("slug") for x in ig.get("controls", [])]
+    if len(slugs) != len(set(slugs)):
+        err("compat.ingamePilot.controls has duplicate CET binding slugs")
+    for k in ("spawnDistance", "updateHz", "maxParts", "walkSpeed", "turnRate", "jumpImpulse",
+              "gravity", "cockpitHeight", "chaseDistance", "threatInterval", "maxHostiles"):
+        if not isinstance(ig.get("physics", {}).get(k), (int, float)):
+            err(f"compat.ingamePilot.physics.{k} must be numeric")
+    if "no meshes" not in ig.get("disclaimer", "").lower() and "does not add" not in ig.get("disclaimer", "").lower():
+        err("compat.ingamePilot.disclaimer must state that no custom mesh/rig is shipped")
+    if not (ROOT / "tools/lua_ingame.part").exists():
+        err("tools/lua_ingame.part (CET in-game pilot module) missing")
 
     # ---------------------------------------------------------------- components
     comp = d["components"]
@@ -328,7 +359,10 @@ def main() -> int:
                       "Legless flight frame", "SIGNATURE PART COMPOSITION",
                       "PROCEDURAL 3D PILOT", "MF.mesh3d.fromShape", "MF.mesh3d.render",
                       "MF.compat.autodrive", "MF.compat.encodeCoat", "AUTODRIVE (T)",
-                      "CRYSTAL COAT (PROCEDURAL)", "CCP1", "NEW TERRAIN SEED"):
+                      "CRYSTAL COAT (PROCEDURAL)", "CCP1", "NEW TERRAIN SEED",
+                      "IN-GAME PILOT (CET)", "MF.ingame.luaSnippet", "MF.ingame.checklistHTML",
+                      "exEntitySpawner.SpawnRecord", "Character.q003_militech_mech",
+                      "GENERATE IN-GAME CET LUA", "DEPLOY CHECKLIST", "EMERGENCY UNDEPLOY"):
             if token not in text:
                 err(f"test_build.html missing expected content {token!r}")
         if "MF.draw.matrix" in text or "NO FRANCHISE GEOMETRY" in text:
@@ -350,8 +384,16 @@ def main() -> int:
                       "MF.compatParseCoat", "MF.compatEncodeCoat", "COMPAT", "GetMod"):
             if token not in code:
                 err(f"CET init.lua missing optional compat bridge {token!r}")
+        for token in ("IN-GAME PILOT", "function IG.deploy", "function IG.undeploy", "function IG.update",
+                      "registerInput", "onUpdate", "SpawnRecord", "exEntitySpawner.Despawn",
+                      "Game.FindEntityByID", "SetWorldTransform", "SetOrientationEuler",
+                      "Game.GetTeleportationFacility", "WorldTransform.new", "Character.q003_militech_mech"):
+            if token not in code:
+                err(f"CET init.lua missing in-game pilot API {token!r}")
         if "Game.AddToInventory" in code and "pcall(function()" not in code:
             err("optional base-mod hooks must be pcall-wrapped")
+        if code.count("pcall") < 20:
+            err("in-game pilot game calls must be pcall-wrapped")
 
     # Installable path must be CET-only.
     mod_dir = ROOT / "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge"
@@ -369,7 +411,7 @@ def main() -> int:
             err(f"missing deliverable {f}")
     for f in ("docs/REACTOR_MODEL.md", "docs/TEARDOWN_SCHEMA.md", "docs/SUBSYSTEM_MODEL.md",
               "docs/BaseModHooks.md", "docs/AssetManifest.md",
-              "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md"):
+              "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md"):
         if not (ROOT / f).exists():
             err(f"missing doc {f}")
     examples = list((ROOT / "docs/integration").glob("*.example*"))

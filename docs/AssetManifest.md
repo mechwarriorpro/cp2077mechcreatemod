@@ -36,3 +36,14 @@ the generated Lua table. Canonical spelling chosen per chassis, aliases recorded
 ## Signature-part library
 
 Original procedural **signature-part library** (`chassis.json → signatureParts`, 7 slots / 59 part types). Each of the 30 prefabs and 7 shape presets ships a unique `shape.sig` composition, and MECH FORGE lets the player mix them: cockpit pods, cranial skulls, reverse-joint and splayed legs, tetrapod skirts, ether wings, booster fins, missile racks, blade arms, shields, crests, hover discs, tracked siege hulls and legless flight frames. These are original **component TYPES** drawn with canvas geometry — no ripped models, textures, traced silhouettes or base-mod files.
+
+
+## In-game CET pilot (0.1.5-test)
+
+`docs/INGAME_PILOT.md` is the authoritative manifest for the in-game layer. It ships **no files**:
+`compat.json → ingamePilot` contains TweakDB record ids and `.ent` depot paths that already exist
+in the player's Cyberpunk 2077 installation. `tools/lua_ingame.part` spawns/moves/despawns those
+entities at runtime with CET's `exEntitySpawner`, `WorldTransform`, `registerInput`, `onUpdate` and
+`Game.GetTeleportationFacility`. No mesh, rig, texture, animation, VO, `.archive`, base-mod file or
+ripped franchise asset is added. Honest limitation: scripted pilot over vanilla entities, not a new
+custom mech asset; verified only by Lua/JS tests, not in-game.

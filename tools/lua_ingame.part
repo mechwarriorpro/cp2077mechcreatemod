@@ -1,0 +1,611 @@
+-- ===========================================================================
+-- IN-GAME PILOT — CET-only, optional, and 100% pcall-wrapped.
+-- ---------------------------------------------------------------------------
+-- This is the piece that answers "create in-game pilotable mechs". It does NOT
+-- invent new meshes: it references entity records that ALREADY EXIST in the
+-- player's own Cyberpunk 2077 installation. The headline core is the vanilla
+-- Militech Minotaur (Character.q003_militech_mech); drones / androids /
+-- spiderbots / turrets become the procedural signature parts. Nothing is
+-- bundled, extracted, edited or redistributed.
+--
+-- CET APIs used (all optional; see compat.json -> ingamePilot.sources):
+--   exEntitySpawner.SpawnRecord(record, WorldTransform, appearance)
+--   exEntitySpawner.Spawn(path, WorldTransform, appearance)
+--   exEntitySpawner.Despawn(entity)  /  Game.FindEntityByID(id)
+--   WorldTransform.new() :SetPosition(Vector4) :SetOrientationEuler(EulerAngles)
+--   entity:GetWorldTransform() / entity:SetWorldTransform(transform)
+--   Game.GetTeleportationFacility():Teleport(player, position, euler)
+--   registerInput(slug, label, cb(keypress)) + registerForEvent("onUpdate", cb)
+--   Game.GetPlayer():GetWorldPosition / :GetWorldYaw / :GetWorldForward
+--
+-- Every game call is inside pcall. If a record or API is unavailable the pilot
+-- degrades to PHANTOM (cockpit-only) mode and says so. Emergency undeploy
+-- despawns everything it spawned and releases the cockpit lock.
+-- ===========================================================================
+
+MF.ingame = {
+  active = false, phantom = false, status = "STANDBY", spawner = "not probed",
+  api = {}, cfg = {}, ph = {},
+  coreId = nil, core = nil, coreName = "", usedTemplates = false,
+  parts = {}, hostiles = {}, templateIds = {},
+  pos = { x = 0, y = 0, z = 0 }, baseZ = 0, yaw = 0, vy = 0, gait = 0,
+  keys = {}, clock = 0, lastTeleport = -1, lastThreat = 0, lastTelemetry = -1,
+  telemetry = nil, heat = 0.34, kills = 0, venting = 0,
+  cameraMode = "CHASE", coreIndex = 1, partCount = 6,
+  cockpitLock = true, autopilot = false, showThreats = true,
+  waypoint = { x = 40, y = 10 }, lastError = nil, logLines = {}
+}
+local IG = MF.ingame
+local IGC = (MF_DATA.compat or {}).ingamePilot or {}
+IG.cfg = {
+  coreRecords = IGC.coreRecords or {},
+  partRecords = IGC.partRecords or {},
+  entityTemplates = IGC.entityTemplates or {},
+  controls = IGC.controls or {},
+  cameraModes = IGC.cameraModes or { "COCKPIT", "CHASE", "ORBIT" },
+  requirements = IGC.requirements or {},
+  sources = IGC.sources or {},
+  disclaimer = IGC.disclaimer or "",
+  hostileRecord = "Character.kurtz_base_drone_wyvern"
+}
+local function pnum(k, d)
+  local v = tonumber((IGC.physics or {})[k])
+  if v == nil then return d end
+  return v
+end
+IG.ph = {
+  spawnDistance = pnum("spawnDistance", 7), spawnHeight = pnum("spawnHeight", 0.2),
+  updateHz = pnum("updateHz", 30), maxParts = pnum("maxParts", 8),
+  walkSpeed = pnum("walkSpeed", 7.5), dashSpeed = pnum("dashSpeed", 16),
+  turnRate = pnum("turnRate", 1.8), jumpImpulse = pnum("jumpImpulse", 9.5),
+  gravity = pnum("gravity", 20), cockpitHeight = pnum("cockpitHeight", 3.2),
+  chaseDistance = pnum("chaseDistance", 9), chaseHeight = pnum("chaseHeight", 4.5),
+  orbitRadius = pnum("orbitRadius", 14), orbitHeight = pnum("orbitHeight", 6),
+  partSpread = pnum("partSpread", 2.1), gaitRate = pnum("gaitRate", 2),
+  gaitAmplitude = pnum("gaitAmplitude", 0.22), threatInterval = pnum("threatInterval", 14),
+  threatDistance = pnum("threatDistance", 30), maxHostiles = pnum("maxHostiles", 3),
+  telemetryHz = pnum("telemetryHz", 2), maxFrameDt = pnum("maxFrameDt", 0.1)
+}
+IG.coreRecord = (IG.cfg.coreRecords[1] and IG.cfg.coreRecords[1].id) or "Character.q003_militech_mech"
+IG.coreName = (IG.cfg.coreRecords[1] and IG.cfg.coreRecords[1].name) or "MILITECH MINOTAUR (VANILLA)"
+IG.partCount = math.min(IG.ph.maxParts, #IG.cfg.partRecords)
+
+local function iglog(msg)
+  table.insert(IG.logLines, 1, tostring(msg))
+  while #IG.logLines > 24 do table.remove(IG.logLines) end
+  log("[INGAME] " .. tostring(msg))
+end
+IG.log = iglog
+
+-- Special type constructors, with ToVector4 / ToEulerAngles fallbacks. -------
+local function vec(x, y, z)
+  if type(Vector4) == "table" and type(Vector4.new) == "function" then
+    local ok, v = pcall(function() return Vector4.new(x, y, z, 1.0) end)
+    if ok and v then return v end
+  end
+  if type(ToVector4) == "function" then
+    local ok, v = pcall(function() return ToVector4 { x = x, y = y, z = z, w = 1 } end)
+    if ok and v then return v end
+  end
+  return { x = x, y = y, z = z, w = 1 }
+end
+local function euler(yawDeg)
+  local d = yawDeg or 0
+  if type(EulerAngles) == "table" and type(EulerAngles.new) == "function" then
+    local ok, v = pcall(function() return EulerAngles.new(0, 0, d) end)
+    if ok and v then return v end
+  end
+  if type(ToEulerAngles) == "function" then
+    local ok, v = pcall(function() return ToEulerAngles { roll = 0, pitch = 0, yaw = d } end)
+    if ok and v then return v end
+  end
+  return { roll = 0, pitch = 0, yaw = d }
+end
+local function yawDeg(rad) return (rad or 0) * 180 / math.pi end
+-- WorldTransform for spawning; falls back to a copy of the player's transform.
+local function worldTransform(x, y, z, deg)
+  local made = nil
+  if type(WorldTransform) == "table" and type(WorldTransform.new) == "function" then
+    pcall(function()
+      local tr = WorldTransform.new()
+      tr:SetPosition(vec(x, y, z))
+      if type(tr.SetOrientationEuler) == "function" then tr:SetOrientationEuler(euler(deg)) end
+      made = tr
+    end)
+  end
+  if made then return made end
+  pcall(function()
+    local p = Game.GetPlayer()
+    if not p then return end
+    local tr = p:GetWorldTransform()
+    tr:SetPosition(vec(x, y, z))
+    if type(tr.SetOrientationEuler) == "function" then tr:SetOrientationEuler(euler(deg)) end
+    made = tr
+  end)
+  return made
+end
+
+-- Probe: report exactly which CET APIs this game build exposes. ---------------
+function IG.probe()
+  local a = {}
+  a.game = type(Game) == "table"
+  a.player = false
+  if a.game then pcall(function() a.player = Game.GetPlayer() ~= nil end) end
+  a.ex = type(exEntitySpawner) == "table"
+  a.spawnRecord = a.ex and type(exEntitySpawner.SpawnRecord) == "function" or false
+  a.spawn = a.ex and type(exEntitySpawner.Spawn) == "function" or false
+  a.find = a.game and type(Game.FindEntityByID) == "function" or false
+  a.teleport = a.game and type(Game.GetTeleportationFacility) == "function" or false
+  a.worldTransform = type(WorldTransform) == "table" and type(WorldTransform.new) == "function" or false
+  a.vector4 = type(Vector4) == "table" and type(Vector4.new) == "function" or false
+  a.euler = type(EulerAngles) == "table" and type(EulerAngles.new) == "function" or false
+  a.registerInput = type(registerInput) == "function"
+  a.static = a.game and type(Game.GetStaticEntitySystem) == "function" or false
+  IG.api = a
+  if a.spawnRecord then IG.spawner = "exEntitySpawner.SpawnRecord + Spawn + Despawn"
+  elseif a.spawn then IG.spawner = "exEntitySpawner.Spawn (path templates only)"
+  elseif a.static then IG.spawner = "Game.GetStaticEntitySystem (Codeware)"
+  else IG.spawner = "UNAVAILABLE — PHANTOM cockpit-only mode" end
+  return a
+end
+
+local function inPlay()
+  local ok, yes = pcall(function()
+    if type(Game) ~= "table" or type(Game.GetPlayer) ~= "function" then return false end
+    if not Game.GetPlayer() then return false end
+    if type(Game.GetSystemRequestsHandler) == "function" then
+      local r = Game.GetSystemRequestsHandler()
+      if r then
+        if type(r.IsPreGame) == "function" and r:IsPreGame() then return false end
+        if type(r.IsGamePaused) == "function" and r:IsGamePaused() then return false end
+      end
+    end
+    return true
+  end)
+  return ok and yes == true
+end
+IG.inPlay = inPlay
+
+-- Entity helpers ------------------------------------------------------------
+local function spawnRecord(rec, x, y, z, deg)
+  local tr = worldTransform(x, y, z, deg)
+  if not tr then return nil end
+  local id = nil
+  if IG.api.spawnRecord then
+    pcall(function() id = exEntitySpawner.SpawnRecord(rec, tr, "") end)
+  end
+  return id
+end
+local function spawnPath(path, x, y, z, deg)
+  local tr = worldTransform(x, y, z, deg)
+  if not tr or not IG.api.spawn then return nil end
+  local id = nil
+  pcall(function() id = exEntitySpawner.Spawn(path, tr, "") end)
+  return id
+end
+local function resolve(id)
+  if not id then return nil end
+  local e = nil
+  pcall(function() if IG.api.find then e = Game.FindEntityByID(id) end end)
+  return e
+end
+local function moveEntity(e, x, y, z, deg)
+  if not e then return false end
+  local ok = pcall(function()
+    local tr = e:GetWorldTransform()
+    tr:SetPosition(vec(x, y, z))
+    if type(tr.SetOrientationEuler) == "function" then tr:SetOrientationEuler(euler(deg)) end
+    e:SetWorldTransform(tr)
+  end)
+  return ok
+end
+local function despawn(id, e)
+  e = e or resolve(id)
+  if e and type(exEntitySpawner) == "table" and type(exEntitySpawner.Despawn) == "function" then
+    pcall(function() exEntitySpawner.Despawn(e) end)
+  end
+end
+
+-- Rotated signature-part offsets around the core chassis. --------------------
+local function partOffset(i, total)
+  local a = (i - 1) * (2 * math.pi / math.max(1, total))
+  local r = IG.ph.partSpread
+  return { x = math.cos(a) * r, y = math.sin(a) * r,
+           z = 1.4 + (i % 3) * 0.75, phase = a }
+end
+local function rotated(off, yaw)
+  local c, s = math.cos(yaw), math.sin(yaw)
+  return { x = off.x * c - off.y * s, y = off.x * s + off.y * c, z = off.z }
+end
+
+-- Deploy / undeploy ---------------------------------------------------------
+function IG.deploy()
+  IG.probe()
+  if not inPlay() then
+    IG.status = "BLOCKED — load a save in the open world first"
+    iglog(IG.status)
+    return false
+  end
+  if IG.active then IG.undeploy() end
+  local pos, fwd, deg = nil, nil, 0
+  pcall(function()
+    local p = Game.GetPlayer()
+    if not p then return end
+    pos = p:GetWorldPosition()
+    if type(p.GetWorldForward) == "function" then fwd = p:GetWorldForward() end
+    local o = nil
+    if type(p.GetWorldOrientation) == "function" then
+      o = p:GetWorldOrientation()
+      if o and type(o.ToEulerAngles) == "function" then deg = (o:ToEulerAngles().yaw) or 0 end
+    end
+    if deg == 0 and type(p.GetWorldYaw) == "function" then
+      local wy = p:GetWorldYaw()
+      if wy then deg = wy * 180 / math.pi end
+    end
+  end)
+  if not pos then
+    IG.status = "BLOCKED — player position unavailable"
+    iglog(IG.status)
+    return false
+  end
+  if not fwd then fwd = { x = math.sin(math.rad(deg)), y = math.cos(math.rad(deg)), z = 0 } end
+  IG.baseZ = (pos.z or 0) + IG.ph.spawnHeight
+  IG.pos = {
+    x = (pos.x or 0) + (fwd.x or 0) * IG.ph.spawnDistance,
+    y = (pos.y or 0) + (fwd.y or 0) * IG.ph.spawnDistance,
+    z = IG.baseZ
+  }
+  IG.yaw = math.rad(deg or 0)
+  IG.vy = 0; IG.gait = 0; IG.heat = 0.34; IG.kills = 0; IG.venting = 0
+  IG.clock = 0; IG.lastTeleport = -1; IG.lastThreat = 0
+  IG.lastTelemetry = 1 / math.max(0.2, IG.ph.telemetryHz)  -- recompute on the first frame
+  IG.parts = {}; IG.hostiles = {}; IG.templateIds = {}
+  IG.core = nil; IG.coreId = nil; IG.usedTemplates = false
+  IG.active = true; IG.phantom = false
+
+  local d = yawDeg(IG.yaw)
+  IG.coreId = spawnRecord(IG.coreRecord, IG.pos.x, IG.pos.y, IG.pos.z, d)
+  if not IG.coreId and IG.api.spawn then
+    for _, t in ipairs(IG.cfg.entityTemplates) do
+      local id = spawnPath(t.path, IG.pos.x + (t.slot == "reactor" and 0.6 or 0),
+        IG.pos.y, IG.pos.z + (t.slot == "bus" and 1.2 or 0), d)
+      if id then
+        table.insert(IG.templateIds, id)
+        iglog("Fallback .ent template spawned: " .. tostring(t.name))
+      end
+    end
+    IG.usedTemplates = #IG.templateIds > 0
+  end
+  if not IG.coreId and not IG.usedTemplates then
+    IG.phantom = true
+    IG.status = "PHANTOM — no spawner / no record; cockpit-only flight"
+    iglog("Spawn unavailable or record rejected. " .. IG.status)
+  else
+    IG.status = "DEPLOYED — " .. tostring(IG.coreName) ..
+      (IG.usedTemplates and " (.ent template fallback)" or " (vanilla record)")
+    iglog(IG.status .. " · record " .. tostring(IG.coreRecord))
+  end
+  local n = math.min(IG.partCount, IG.ph.maxParts, #IG.cfg.partRecords)
+  for i = 1, n do
+    local pr = IG.cfg.partRecords[i]
+    local off = rotated(partOffset(i, n), IG.yaw)
+    local id = spawnRecord(pr.id, IG.pos.x + off.x, IG.pos.y + off.y, IG.pos.z + off.z, d)
+    table.insert(IG.parts, { id = id, entity = nil, off = partOffset(i, n), rec = pr.id, slot = pr.slot, name = pr.name })
+  end
+  iglog(tostring(n) .. " in-game signature part records queued (" .. tostring(#IG.cfg.partRecords) .. " configured)")
+  pcall(function() IG.telemetry = MF.compute(MF.activeDesignId) end)
+  if IG.cockpitLock then iglog("Cockpit lock ENGAGED — " .. IG.cameraMode .. " camera, F7 emergency undeploy") end
+  return true
+end
+
+function IG.undeploy()
+  despawn(IG.coreId, IG.core)
+  for _, p in ipairs(IG.parts or {}) do despawn(p.id, p.entity) end
+  for _, h in ipairs(IG.hostiles or {}) do despawn(h.id, h.entity) end
+  for _, id in ipairs(IG.templateIds or {}) do despawn(id, nil) end
+  local n = #(IG.parts or {}) + #(IG.hostiles or {}) + #(IG.templateIds or {}) + (IG.coreId and 1 or 0)
+  IG.coreId = nil; IG.core = nil; IG.parts = {}; IG.hostiles = {}; IG.templateIds = {}
+  IG.active = false; IG.phantom = false; IG.usedTemplates = false
+  IG.keys = {}; IG.vy = 0; IG.autopilot = false
+  IG.status = "STANDBY"
+  iglog("UNDEPLOYED — " .. tostring(n) .. " spawned entities despawned, cockpit lock released")
+  return true
+end
+IG.emergency = function() return IG.undeploy() end
+
+-- Consequences: RCS / ECM actually spawn or break in-world locks. -----------
+function IG.spawnHostile()
+  if #IG.hostiles >= IG.ph.maxHostiles then return false end
+  local a = IG.gait * 0.37 + #IG.hostiles * 2.1
+  local x = IG.pos.x + math.cos(a) * IG.ph.threatDistance
+  local y = IG.pos.y + math.sin(a) * IG.ph.threatDistance
+  local id = spawnRecord(IG.cfg.hostileRecord, x, y, IG.pos.z + 1, yawDeg(IG.yaw) + 180)
+  if not id then return false end
+  table.insert(IG.hostiles, { id = id, entity = nil, x = x, y = y })
+  iglog("RCS / EMISSION LOCK — in-game drone acquired you (" .. tostring(#IG.hostiles) .. " active)")
+  return true
+end
+function IG.breakLock()
+  local h = table.remove(IG.hostiles or {}, 1)
+  if not h then return false end
+  despawn(h.id, h.entity)
+  IG.kills = IG.kills + 1
+  iglog("ECM / SALVO — lock broken, hostile despawned (" .. tostring(IG.kills) .. " total)")
+  return true
+end
+IG.fire = function() return IG.breakLock() end
+IG.vent = function()
+  IG.heat = math.max(0.34, IG.heat - 0.38)
+  IG.venting = 3.0
+  iglog("VENT — heat dumped; emissive bloom temporarily raises detection risk")
+end
+IG.jump = function()
+  if IG.pos.z <= IG.baseZ + 0.05 then
+    IG.vy = IG.ph.jumpImpulse
+    iglog("JUMP JETS — vertical thrust engaged")
+  end
+end
+IG.setWaypoint = function(x, y)
+  IG.waypoint = { x = tonumber(x) or 40, y = tonumber(y) or 10 }
+  iglog("AUTODRIVE waypoint set: " .. f(IG.waypoint.x, 1) .. ", " .. f(IG.waypoint.y, 1))
+  if MF.compat.autopilot then pcall(MF.compatHandoffWaypoint, IG.waypoint.x, IG.waypoint.y) end
+end
+function IG.toggleAutopilot()
+  IG.autopilot = not IG.autopilot
+  iglog("AUTODRIVE " .. (IG.autopilot and "ENGAGED — procedural steering" or "DISENGAGED"))
+  if IG.autopilot and MF.compat.autopilot then
+    pcall(MF.compatHandoffWaypoint, IG.waypoint.x, IG.waypoint.y)
+  end
+  return IG.autopilot
+end
+function IG.cycleCamera()
+  local modes = IG.cfg.cameraModes
+  local idx = 1
+  for i, m in ipairs(modes) do if m == IG.cameraMode then idx = i end end
+  IG.cameraMode = modes[(idx % #modes) + 1] or "CHASE"
+  iglog("CAMERA " .. IG.cameraMode)
+  return IG.cameraMode
+end
+IG.setCamera = function(m)
+  for _, x in ipairs(IG.cfg.cameraModes) do if x == m then IG.cameraMode = m; return m end end
+  return IG.cameraMode
+end
+
+-- Continuous input ----------------------------------------------------------
+function IG.input(action, pressed)
+  IG.keys[action] = pressed and true or false
+  if not pressed then return end
+  if action == "deploy" then if IG.active then IG.undeploy() else IG.deploy() end
+  elseif action == "reset" then IG.undeploy()
+  elseif action == "jump" then IG.jump()
+  elseif action == "vent" then IG.vent()
+  elseif action == "fire" then IG.fire()
+  elseif action == "camera" then IG.cycleCamera()
+  elseif action == "autodrive" then IG.toggleAutopilot()
+  elseif action == "forward" or action == "back" then IG.autopilot = false
+  end
+end
+
+-- Camera target for the cockpit lock (x/y are ground plane, z is height). ----
+local function cameraTarget()
+  local s, c = math.sin(IG.yaw), math.cos(IG.yaw)
+  local x, y, z = IG.pos.x, IG.pos.y, IG.pos.z
+  if IG.cameraMode == "COCKPIT" then
+    return x + s * 0.8, y + c * 0.8, z + IG.ph.cockpitHeight
+  elseif IG.cameraMode == "ORBIT" then
+    return x + c * IG.ph.orbitRadius, y - s * IG.ph.orbitRadius, z + IG.ph.orbitHeight
+  end
+  return x - s * IG.ph.chaseDistance, y - c * IG.ph.chaseDistance, z + IG.ph.chaseHeight
+end
+
+-- Per-frame update: read keys, apply engineering consequences, move entities,
+-- lock V to the cockpit, and let RCS/ECM spawn or break real in-world locks.
+function IG.update(delta)
+  if not IG.active then return end
+  if not inPlay() then IG.undeploy(); return end
+  local dt = clamp(tonumber(delta) or 0.016, 0, IG.ph.maxFrameDt)
+  if dt <= 0 then return end
+  IG.clock = IG.clock + dt
+  IG.lastTelemetry = IG.lastTelemetry + dt
+  IG.venting = math.max(0, IG.venting - dt)
+
+  if IG.lastTelemetry >= 1 / math.max(0.2, IG.ph.telemetryHz) then
+    IG.lastTelemetry = 0
+    pcall(function() IG.telemetry = MF.compute(MF.activeDesignId) end)
+  end
+  local t = IG.telemetry or {}
+  local powerMargin = tonumber(t.powerMargin) or 0
+  local temp = tonumber(t.temperature) or 0.34
+  local netHeat = tonumber(t.netHeat) or 0
+  local rcs = tonumber(t.rcsFront) or 10
+  local jam = tonumber(t.jamStrength) or 0
+  local emissions = tonumber(t.selfEmissions) or 0
+  local speed = tonumber(t.speed) or IG.ph.walkSpeed
+  local brownout = powerMargin < 0 and 0.45 or 1
+  local derate = temp > 0.72 and 0.6 or 1
+  IG.heat = clamp(IG.heat + netHeat * dt * 0.0015, 0.2, 1.6)
+
+  -- steering: manual keys or procedural autodrive toward a waypoint
+  local steer = (IG.keys.right and 1 or 0) - (IG.keys.left and 1 or 0)
+  local throttle = 0
+  if IG.autopilot then
+    local dx, dy = IG.pos.x - IG.waypoint.x, IG.pos.y - IG.waypoint.y
+    if (dx * dx + dy * dy) < 36 then
+      IG.autopilot = false
+      iglog("AUTODRIVE — waypoint reached")
+    else
+      local want = math.atan2(-dx, -dy)
+      local diff = want - IG.yaw
+      while diff > math.pi do diff = diff - 2 * math.pi end
+      while diff < -math.pi do diff = diff + 2 * math.pi end
+      steer = clamp(diff * 1.6, -1, 1)
+      throttle = 0.55 * (1 - math.min(0.6, math.abs(diff) / math.pi))
+    end
+  else
+    if IG.keys.forward then throttle = throttle + 1 end
+    if IG.keys.back then throttle = throttle - 0.6 end
+  end
+  IG.yaw = IG.yaw + steer * IG.ph.turnRate * dt * brownout
+  local sp = speed * brownout * derate * throttle * (IG.keys.dash and (IG.ph.dashSpeed / math.max(1, speed)) or 1)
+  IG.pos.x = IG.pos.x + math.sin(IG.yaw) * sp * dt
+  IG.pos.y = IG.pos.y + math.cos(IG.yaw) * sp * dt
+  IG.vy = IG.vy - IG.ph.gravity * dt
+  IG.pos.z = math.max(IG.baseZ, IG.pos.z + IG.vy * dt)
+  if IG.pos.z <= IG.baseZ then IG.vy = 0 end
+  IG.gait = IG.gait + dt * IG.ph.gaitRate * (math.abs(sp) > 0.2 and 1 or 0.2)
+  local d = yawDeg(IG.yaw)
+
+  -- core chassis follows the pilot state
+  if IG.coreId and not IG.core then IG.core = resolve(IG.coreId) end
+  if IG.core then
+    local bob = math.sin(IG.gait) * IG.ph.gaitAmplitude * (math.abs(sp) > 0.2 and 1 or 0)
+    if not moveEntity(IG.core, IG.pos.x, IG.pos.y, IG.pos.z + bob, d) then IG.core = nil end
+  end
+  -- signature parts orbit / gait around the chassis
+  for i, p in ipairs(IG.parts or {}) do
+    if not p.entity then p.entity = resolve(p.id) end
+    if p.entity then
+      local off = rotated(p.off, IG.yaw)
+      local bob = math.sin(IG.gait + p.off.phase) * IG.ph.gaitAmplitude
+      if not moveEntity(p.entity, IG.pos.x + off.x, IG.pos.y + off.y,
+        IG.pos.z + off.z + bob, d + i * 11) then p.entity = nil end
+    end
+  end
+  for _, id in ipairs(IG.templateIds or {}) do
+    local e = resolve(id)
+    if e then moveEntity(e, IG.pos.x, IG.pos.y, IG.pos.z, d) end
+  end
+
+  -- cockpit lock: throttled Teleport so the game camera rides the mech
+  if IG.cockpitLock and IG.clock - IG.lastTeleport >= 1 / math.max(5, IG.ph.updateHz) then
+    IG.lastTeleport = IG.clock
+    local cx, cy, cz = cameraTarget()
+    local ok, err = pcall(function()
+      local p = Game.GetPlayer()
+      if not p then return end
+      local tp = Game.GetTeleportationFacility()
+      if tp then tp:Teleport(p, vec(cx, cy, cz), euler(d)) end
+    end)
+    if not ok then
+      IG.lastError = tostring(err)
+      IG.cockpitLock = false
+      iglog("Cockpit lock disabled after teleport error: " .. IG.lastError)
+    end
+  end
+
+  -- RCS / ECM / jamming consequences in the actual game world
+  if IG.showThreats and IG.clock - IG.lastThreat >= IG.ph.threatInterval then
+    IG.lastThreat = IG.clock
+    local risk = rcs / 14 + emissions / 30 + (IG.venting > 0 and 0.4 or 0) - jam / 40
+    if risk > 0.9 and IG.api.spawnRecord then
+      IG.spawnHostile()
+    elseif risk < 0.35 and #IG.hostiles > 0 then
+      IG.breakLock()
+    else
+      iglog("SIGNATURE " .. f(risk, 2) .. " · RCS " .. f(rcs, 1) .. " · ECM " .. f(jam, 1) ..
+        " · power " .. f(powerMargin, 1) .. " kW · heat " .. f(IG.heat, 2))
+    end
+  end
+end
+
+function IG.statusText()
+  local resolved = 0
+  for _, p in ipairs(IG.parts or {}) do if p.entity then resolved = resolved + 1 end end
+  return IG.status .. " · parts " .. tostring(resolved) .. "/" .. tostring(#(IG.parts or {})) ..
+    " · locks " .. tostring(#(IG.hostiles or {})) .. " · " .. IG.cameraMode ..
+    " · " .. (IG.cockpitLock and "COCKPIT LOCK ON" or "COCKPIT LOCK OFF")
+end
+IG.statusLine = IG.statusText
+
+-- ImGui: IN-GAME PILOT tab ---------------------------------------------------
+local function drawIngame(t)
+  ImGui.Text("IN-GAME PILOT · CET SPAWN / COCKPIT LOCK / VANILLA RECORDS")
+  ImGui.Separator()
+  ImGui.Text("STATUS " .. IG.statusText())
+  ImGui.Text("SPAWNER " .. IG.spawner)
+  ImGui.Text("CORE RECORD " .. tostring(IG.coreRecord) .. " · " .. tostring(IG.coreName))
+  if IG.usedTemplates then ImGui.TextColored(1, 0.75, 0.3, 1, ".ent template fallback active (record rejected)") end
+  if IG.phantom then ImGui.TextColored(1, 0.4, 0.4, 1, "PHANTOM MODE · no visible chassis, cockpit flight only") end
+  ImGui.Separator()
+  if ImGui.Button("DEPLOY") then IG.deploy() end
+  ImGui.SameLine()
+  if ImGui.Button("UNDEPLOY") then IG.undeploy() end
+  ImGui.SameLine()
+  if ImGui.Button("EMERGENCY RESET (F7)") then IG.undeploy() end
+  ImGui.SameLine()
+  if ImGui.Button("PROBE APIs") then IG.probe(); iglog("API probe: " .. IG.spawner) end
+  ImGui.Separator()
+  local names = {}
+  for i, r in ipairs(IG.cfg.coreRecords) do names[i] = r.name .. " [" .. r.role .. "]" end
+  local idx, ch = ImGui.Combo("CORE CHASSIS##ig", IG.coreIndex - 1, names, #names)
+  if ch then
+    IG.coreIndex = idx + 1
+    local r = IG.cfg.coreRecords[IG.coreIndex]
+    if r then IG.coreRecord, IG.coreName = r.id, r.name; iglog("Core chassis selected: " .. r.name) end
+  end
+  local pn = { IG.partCount }
+  local nv, pc = ImGui.SliderInt("SIGNATURE PARTS##ig", pn[1], 0, math.min(IG.ph.maxParts, #IG.cfg.partRecords))
+  if pc then IG.partCount = nv end
+  local cv, cch = ImGui.Checkbox("COCKPIT LOCK (teleport V)##ig", IG.cockpitLock)
+  if cch then IG.cockpitLock = cv end
+  local av, ach = ImGui.Checkbox("AUTODRIVE##ig", IG.autopilot)
+  if ach then IG.toggleAutopilot() end
+  local hv, hch = ImGui.Checkbox("RCS / ECM IN-WORLD LOCKS##ig", IG.showThreats)
+  if hch then IG.showThreats = hv end
+  ImGui.Separator()
+  if ImGui.Button("CAMERA (C)") then IG.cycleCamera() end
+  ImGui.SameLine()
+  if ImGui.Button("FIRE / BREAK LOCK") then IG.fire() end
+  ImGui.SameLine()
+  if ImGui.Button("VENT (V)") then IG.vent() end
+  ImGui.SameLine()
+  if ImGui.Button("JUMP JETS") then IG.jump() end
+  ImGui.SameLine()
+  if ImGui.Button("SET WAYPOINT") then IG.setWaypoint(40, 10) end
+  ImGui.Separator()
+  ImGui.Text("LIVE ENGINEERING CONSEQUENCES (from MF.compute)")
+  bar("POWER MARGIN", t.powerMargin, 100, "kW")
+  bar("TOTAL MASS", t.totalMass, 4000, "kg")
+  bar("HEAT", IG.heat, 1.5, "")
+  bar("RCS FRONT", t.rcsFront, 40, "m2")
+  bar("ECM / JAM", t.jamStrength, 80, "str")
+  bar("DETECT RANGE", t.detectRange, 900, "m")
+  ImGui.Text("Speed " .. f(t.speed, 2) .. " m/s · brownout/thermal derate " ..
+    ((t.powerMargin < 0 or t.temperature > 0.72) and "ACTIVE" or "nominal") ..
+    " · hostile locks " .. tostring(#(IG.hostiles or {})) .. " · kills " .. tostring(IG.kills))
+  ImGui.Separator()
+  ImGui.Text("CET BINDINGS (assign these in the CET overlay Bindings tab)")
+  for _, c in ipairs(IG.cfg.controls) do ImGui.Text("  " .. tostring(c.key) .. "  " .. tostring(c.label)) end
+  ImGui.Separator()
+  ImGui.Text("EVENT LOG")
+  ImGui.BeginChild("mf_ingame_log", -1, 110)
+  for _, line in ipairs(IG.logLines) do ImGui.Text(line) end
+  ImGui.EndChild()
+  ImGui.Separator()
+  textWrapped(IG.cfg.disclaimer)
+  textWrapped("No Redscript / TweakXL / ArchiveXL files are installed. No base-mod files. " ..
+    "See docs/INGAME_PILOT.md for the deployment checklist and honest limitations.")
+end
+
+-- Root-level registrations: all pcall-wrapped, never required. ---------------
+pcall(function()
+  if type(registerInput) ~= "function" then return end
+  for _, c in ipairs(IG.cfg.controls or {}) do
+    local action = c.action
+    pcall(function()
+      registerInput(c.slug, c.label, function(keypress)
+        pcall(IG.input, action, keypress == true)
+      end)
+    end)
+  end
+end)
+pcall(function()
+  registerHotkey("mechfall_ingame_deploy", "MECHFALL IN-GAME PILOT · DEPLOY / UNDEPLOY", function()
+    pcall(function() if IG.active then IG.undeploy() else IG.deploy() end end)
+  end)
+end)
+pcall(function()
+  registerForEvent("onUpdate", function(delta)
+    pcall(IG.update, delta)
+  end)
+end)

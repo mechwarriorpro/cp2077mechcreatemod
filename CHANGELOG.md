@@ -1,5 +1,43 @@
 # CHANGELOG.md
 
+## 2026-11-03 — in-game pilotable mechs via CET (0.1.5-test)
+
+- **New top-priority deliverable: a CET-only IN-GAME PILOT.** The browser procedural pilot is no
+  longer the only playable mech. `tools/lua_ingame.part` (injected into the generated `init.lua`)
+  spawns the vanilla **Militech Minotaur** (`Character.q003_militech_mech`) plus eight drone /
+  android / spiderbot / turret signature parts with `exEntitySpawner.SpawnRecord`, resolves them
+  asynchronously with `Game.FindEntityByID`, and moves them every frame via `WorldTransform`,
+  `SetPosition` / `SetOrientationEuler` and `entity:SetWorldTransform`.
+- **Continuous real controls**: 12 `registerInput` bindings + `registerForEvent("onUpdate")` drive
+  throttle, turn, dash, jump jets, vent, fire/lock-break, camera, autodrive, deploy (`F6`) and
+  emergency undeploy (`F7`). `Game.GetTeleportationFacility():Teleport` locks V into COCKPIT /
+  CHASE / ORBIT at a throttled 30 Hz, gated by `IsPreGame()` / `IsGamePaused()`.
+- **Engineering consequences in the game world**: `MF.compute()` telemetry drives speed, power
+  deficit brownout (45 % throttle), thermal derate (60 %), and RCS / self-emission / ECM risk that
+  spawns or breaks real in-game drone locks. Venting temporarily raises detection risk.
+- **Graceful degradation**: every game call is `pcall`-wrapped; missing `exEntitySpawner` or
+  rejected records fall back to three `.ent` templates, then PHANTOM cockpit-only mode. A failed
+  teleport disables cockpit lock instead of spamming the game. `F7` despawns everything spawned.
+- **7th CET ImGui tab `IN-GAME PILOT`**: PROBE APIs, deploy/undeploy, core record selector,
+  signature part count, camera mode, cockpit lock, autodrive, in-world locks, live engineering bars,
+  binding list and event log.
+- **Browser deploy console**: `PILOT TEST → IN-GAME PILOT (CET)` with a DEPLOY CHECKLIST modal,
+  `GENERATE IN-GAME CET LUA`, `COPY RECORD IDS`, core/signature/camera/cockpit selectors persisted
+  in state (`tools/src/88_ingame.js`, `body.html`, `87_pilot.js`, `00_core.js`).
+- **Data-driven**: `compat.json → ingamePilot` is the single source of truth (5 core records, 8
+  part records, 3 `.ent` fallbacks, 12 controls, physics/camera config, requirements, sources and
+  an honest disclaimer). `tools/generate.py` embeds a compact copy into the CET Lua and documents
+  the records in `ROSTER.md`.
+- **Docs/tests**: new `docs/INGAME_PILOT.md`; README / DESIGN (R13) / NEXUS_PAGE / PERMISSIONS /
+  AssetManifest / CET README updated. `tools/validate.py --strict` now checks the in-game data,
+  HTML tokens, CET Lua API tokens and doc presence; `tools/smoke_test.js` exercises the deploy
+  console; `tools/lua_test.js` stubs the CET game APIs and runs deploy → 40 onUpdate frames →
+  jump/vent/fire/camera/autodrive → RCS lock/ECM break → undeploy.
+- **Honest limit**: this is a scripted CET pilot over **vanilla game entities referenced by record
+  id**, not a new custom mesh, rig, animation set, VO, physics collider, vehicle seat or mount
+  system. No base-mod files or ripped franchise assets are bundled. Not verified inside the game
+  from this repo. Redscript / TweakXL / ArchiveXL remain `.example` templates only.
+
 ## 2026-11-03 — procedural 3D pilot test + Autodrive / Crystal Coat compatibility (0.1.4-test)
 
 - **New `PILOT TEST` tab (09 tabs total): a full playable procedural 3D mech test.**

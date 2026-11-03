@@ -39,7 +39,13 @@ dissipation, radar cross section and ECM** — then deploy your build into a com
   light hue, metallic/glossy/matte/crystal aspect) with `CCP1` hex share codes and six presets.
   Compatible concepts and optional detection only — no other mod is bundled or required.
 - **Three test surfaces**: one self-contained `test_build.html` (no install), the procedural 3D pilot
-  test inside it, and a CET-only ImGui overlay for telemetry + optional compat bridges.
+  test inside it, and a CET-only ImGui overlay with 7 tabs including **IN-GAME PILOT**.
+- **IN-GAME PILOT (EXPERIMENTAL)**: a CET-only layer spawns the vanilla **Militech Minotaur** and
+  drone/android/turret signature parts by TweakDB record id, moves them each frame, reads continuous
+  CET input, locks V into a cockpit/chase/orbit transform, and applies brownout / heat / RCS / ECM
+  consequences in the actual game world. `F6` deploy, `F7` emergency undeploy. **Vanilla record
+  references only — no custom mesh, rig, animation, VO, vehicle seat or base-mod file is shipped.**
+  Not verified in-game from this repo; see `docs/INGAME_PILOT.md`.
 
 ### Requirements (draft)
 
@@ -51,7 +57,8 @@ dissipation, radar cross section and ECM** — then deploy your build into a com
 
 1. Open `test_build.html` for the full prototype.
 2. For the in-game overlay, copy `cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/`
-   into your CET `mods` folder and bind the **MECHFALL // FORGE 77** hotkey.
+   into your CET `mods` folder, bind the **MECHFALL // FORGE 77** hotkey and the 12
+   **MECHFALL IN-GAME** bindings, load an open-world save, then press `F6` (deploy) / `F7` (reset).
 3. Never install the `.example` files under `docs/integration/` into `r6/scripts`.
 
 ### Permissions / credits (draft)
@@ -63,11 +70,16 @@ dissipation, radar cross section and ECM** — then deploy your build into a com
 
 ### Known limitations (draft — keep this section, do not soften)
 
-Browser prototype + CET UI only. The `PILOT TEST` is a **playable procedural 3D mech generated at
-runtime** — no shipped meshes, rigs, animation clips or textures. It is **not** an in-game pilotable
-mech: that would still need real meshes, rigs, animations, VO, private base-mod APIs and the game
-itself. Autodrive / Crystal Coat compatibility is optional detection and shared public formats,
-not bundled or controlled mods.
+Browser prototype + CET UI + an **experimental CET-only in-game pilot**. The `PILOT TEST` is a
+**playable procedural 3D mech generated at runtime** — no shipped meshes, rigs, animation clips or
+textures. The CET IN-GAME PILOT spawns and moves **vanilla game entities by record reference** and
+locks V to a cockpit transform, but it is **not a new custom mech asset**: no custom mesh, rig,
+animation set, VO, physics collider, vehicle seat, mount system or private base-mod integration is
+shipped. Spawned NPCs use normal game AI and may be hostile. It is verified only by Lua/JS tests in
+this repo, not by running Cyberpunk 2077. Autodrive / Crystal Coat compatibility is optional
+detection and shared public formats, not bundled or controlled mods. A production-grade mech still
+needs real meshes, rigs, animations, VO, ArchiveXL/TweakXL/Codeware/redscript work and possibly
+private base-mod APIs.
 
 ### Signature parts
 
@@ -75,9 +87,9 @@ Original procedural **signature-part library** (`chassis.json → signatureParts
 
 ### Compatibility scope
 
-See `docs/COMPAT.md`. Auto drive is vanilla CP2077 2.3 (`V` key) with community variants
+See `docs/COMPAT.md` and `docs/INGAME_PILOT.md`. Auto drive is vanilla CP2077 2.3 (`V` key) with community variants
 (Nexus 14680 / 23157 / 19309); CrystalCoat is native 2.2+ (hold `Y`) with the
 Crystal Coat Picker hex/share-code mod (Nexus 35571). FORGE 77 uses the same public fields,
 key names and share-code format in its own procedural implementations, and CET detects the mods with
-`pcall(GetMod)`. It does not ship, patch or control them. A pilotable mech inside CP2077 still needs
+`pcall(GetMod)`. It does not ship, patch or control them. A fully custom pilotable mech inside CP2077 still needs
 real meshes, rigs, animations, VO, the game itself and private base-mod APIs.

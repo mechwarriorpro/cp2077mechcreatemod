@@ -1,8 +1,8 @@
 {
   "meta": {
     "name": "FORGE 77 optional compatibility layer",
-    "version": "0.1.4-test",
-    "note": "Procedural browser-side equivalents plus pcall-wrapped CET bridges. No third-party mod files are bundled, edited or redistributed. Detection never makes the prototype depend on another mod."
+    "version": "0.1.5-test",
+    "note": "Procedural browser-side equivalents plus pcall-wrapped CET bridges, and a CET-only IN-GAME PILOT that references vanilla Cyberpunk 2077 entity records by TweakDB id. No third-party or base-mod files are bundled, edited or redistributed. Detection never makes the prototype depend on another mod, and every game call is optional."
   },
   "autodrive": {
     "note": "Cyberpunk 2077 2.3 added vanilla Auto Drive (drive to a tracked map pin, V key). The community 'Auto drive' / 'Auto Drive Enhanced' mods by nobo (Nexus 14680 / 23157) and the 'Auto Drive CET hotkey for Wander' add-on (Nexus 19309) expose related behaviour. FORGE 77 ships its own procedural autopilot for the mech test, and an optional CET bridge that detects these mods via GetMod and hands off a waypoint when they expose a compatible function.",
@@ -207,5 +207,217 @@
     },
     "controls": "WASD move · mouse look · LMB fire · Shift dash · Space jump jets · Q core burst · E shield · R missiles · V vent · T AUTODRIVE · C camera · P pause · 1–4 companion orders · Y Crystal Coat panel"
   },
-  "disclaimer": "Compatibility means: the prototype uses the same public concepts, key names and share-code format, and CET optionally detects the other mods with pcall-wrapped GetMod calls. It does NOT ship, patch, require or claim to control those mods, and it does not make a 3D mech driveable inside Cyberpunk 2077. In-game piloting still needs meshes, rigs, animations, VO, the game itself and private base-mod APIs."
+  "disclaimer": "Compatibility means: the prototype uses the same public concepts, key names and share-code format, and CET optionally detects the other mods with pcall-wrapped GetMod calls. It does NOT ship, patch, require or claim to control those mods. The CET-only IN-GAME PILOT spawns and moves vanilla game entities by reference, but it does not add custom meshes, rigs, animations, VO, vehicle seats or mount systems; those still need ArchiveXL/TweakXL/Codeware/redscript work and private base-mod APIs. Nothing here is verified inside the game from this repository. No base-mod files or ripped franchise assets are bundled.",
+  "ingamePilot": {
+    "note": "A CET-only attempt at a genuinely IN-GAME pilotable mech, with no shipped assets. It references entity records that already exist in Cyberpunk 2077 (the vanilla Militech Minotaur and Arasaka mech character records, plus drones / androids / spiderbots / turrets as signature parts). exEntitySpawner.SpawnRecord spawns them; WorldTransform + entEntity:SetWorldTransform move them each frame; registerInput + onUpdate read continuous controls; and Game.GetTeleportationFacility():Teleport locks V into a cockpit/chase/orbit transform. Every game call is pcall-wrapped and optional. If a record or API is missing the overlay reports it and drops to PHANTOM (cockpit-only) mode rather than breaking the game. No game files, meshes, rigs, textures, animations or base-mod files are bundled, edited or redistributed.",
+    "since": "0.1.5-test",
+    "requirements": [
+      "PC Cyberpunk 2077 2.5 / Phantom Liberty with Cyber Engine Tweaks (CET 1.38+ for patch 2.5)",
+      "A loaded save in the open world — not the main menu, not paused",
+      "CET Bindings: assign the MECHFALL IN-GAME PILOT keys under the CET overlay Bindings tab",
+      "No Redscript, TweakXL, ArchiveXL or Codeware needed for this CET-only path"
+    ],
+    "sources": [
+      "wiki.redmodding.org/cyber-engine-tweaks/patch-notes — exEntitySpawner.SpawnRecord / Spawn / Despawn, Game.FindEntityByID",
+      "wiki.redmodding.org/cyber-engine-tweaks/cet-functions/hotkeys/registerinput — continuous input with onUpdate",
+      "wiki.redmodding.org/cyber-engine-tweaks/functions/special-types — ToVector4 / ToEulerAngles / TeleportationFacility:Teleport",
+      "github.com/justarandomguyintheinternet/CP77_entSpawner — entity:GetWorldTransform(), transform:SetPosition / SetOrientationEuler, entity:SetWorldTransform(transform)",
+      "Nexus 34927 / 35346 and the Controllable Mechs project — Character.q003_militech_mech is the in-game Militech Minotaur"
+    ],
+    "coreRecords": [
+      {
+        "id": "Character.q003_militech_mech",
+        "name": "MILITECH MINOTAUR (VANILLA)",
+        "role": "biped",
+        "note": "The game's own biped mech record. Spawned by TweakDB id; no file is shipped."
+      },
+      {
+        "id": "Character.q113_top_atrium_arasaka_mech",
+        "name": "ARASAKA ATRIUM MECH",
+        "role": "heavy",
+        "note": "Vanilla heavy mech record, alternate chassis."
+      },
+      {
+        "id": "Character.q115_lobby_arasaka_mech",
+        "name": "ARASAKA LOBBY MECH",
+        "role": "heavy",
+        "note": "Vanilla heavy mech record, alternate chassis."
+      },
+      {
+        "id": "Character.q302_spidertank_kurt_soldier_melee_heavy",
+        "name": "SPIDER TANK",
+        "role": "spider",
+        "note": "Vanilla spider-tank record, four-leg body plan."
+      },
+      {
+        "id": "Character.q306_orbital_air_robot_guard",
+        "name": "ORBITAL AIR ROBOT GUARD",
+        "role": "flyer",
+        "note": "Vanilla aerial robot record, flight body plan."
+      }
+    ],
+    "partRecords": [
+      {
+        "id": "Character.kangtao_drone_octant_medium",
+        "slot": "sigBackL",
+        "name": "OCTANT GUNSHIP POD"
+      },
+      {
+        "id": "Character.kurtz_base_drone_wyvern",
+        "slot": "sigHead",
+        "name": "WYVERN SENSOR DRONE"
+      },
+      {
+        "id": "Character.q003_spiderbot_case",
+        "slot": "sigLegL",
+        "name": "SPIDERBOT LEG POD"
+      },
+      {
+        "id": "Character.militech_base_android",
+        "slot": "sigArmL",
+        "name": "MILITECH ACTUATOR ARM"
+      },
+      {
+        "id": "Character.ncpd_base_android",
+        "slot": "sigArmR",
+        "name": "NCPD ACTUATOR ARM"
+      },
+      {
+        "id": "AttachableObject.q304_tank_turret",
+        "slot": "sigExtra",
+        "name": "TANK TURRET HARDPOINT"
+      },
+      {
+        "id": "AttachableObject.vehicle_hmg_turret",
+        "slot": "sigExtra2",
+        "name": "HMG HARDPOINT"
+      },
+      {
+        "id": "Character.q301_skybridge_drone",
+        "slot": "sigExtra3",
+        "name": "SKYBRIDGE DRONE"
+      }
+    ],
+    "entityTemplates": [
+      {
+        "path": "base\\gameplay\\devices\\disposal\\disaposal_device_crate_one_side.ent",
+        "slot": "torso",
+        "name": "CRATE HULL (record fallback)"
+      },
+      {
+        "path": "base\\gameplay\\devices\\masters\\fuse_box\\generator.ent",
+        "slot": "reactor",
+        "name": "GENERATOR CORE (record fallback)"
+      },
+      {
+        "path": "base\\gameplay\\devices\\masters\\electric_box\\electric_box.ent",
+        "slot": "bus",
+        "name": "BUS MODULE (record fallback)"
+      }
+    ],
+    "controls": [
+      {
+        "slug": "mechfall_ig_deploy",
+        "label": "MECHFALL IN-GAME · DEPLOY / UNDEPLOY",
+        "action": "deploy",
+        "key": "F6"
+      },
+      {
+        "slug": "mechfall_ig_forward",
+        "label": "MECHFALL IN-GAME · FORWARD",
+        "action": "forward",
+        "key": "W"
+      },
+      {
+        "slug": "mechfall_ig_back",
+        "label": "MECHFALL IN-GAME · REVERSE",
+        "action": "back",
+        "key": "S"
+      },
+      {
+        "slug": "mechfall_ig_left",
+        "label": "MECHFALL IN-GAME · TURN LEFT",
+        "action": "left",
+        "key": "A"
+      },
+      {
+        "slug": "mechfall_ig_right",
+        "label": "MECHFALL IN-GAME · TURN RIGHT",
+        "action": "right",
+        "key": "D"
+      },
+      {
+        "slug": "mechfall_ig_dash",
+        "label": "MECHFALL IN-GAME · SPRINT / DASH",
+        "action": "dash",
+        "key": "SHIFT"
+      },
+      {
+        "slug": "mechfall_ig_jump",
+        "label": "MECHFALL IN-GAME · JUMP JETS",
+        "action": "jump",
+        "key": "SPACE"
+      },
+      {
+        "slug": "mechfall_ig_vent",
+        "label": "MECHFALL IN-GAME · VENT HEAT",
+        "action": "vent",
+        "key": "V"
+      },
+      {
+        "slug": "mechfall_ig_fire",
+        "label": "MECHFALL IN-GAME · FIRE / BREAK LOCK",
+        "action": "fire",
+        "key": "LMB"
+      },
+      {
+        "slug": "mechfall_ig_camera",
+        "label": "MECHFALL IN-GAME · CYCLE CAMERA",
+        "action": "camera",
+        "key": "C"
+      },
+      {
+        "slug": "mechfall_ig_autodrive",
+        "label": "MECHFALL IN-GAME · AUTODRIVE",
+        "action": "autodrive",
+        "key": "T"
+      },
+      {
+        "slug": "mechfall_ig_reset",
+        "label": "MECHFALL IN-GAME · EMERGENCY UNDEPLOY",
+        "action": "reset",
+        "key": "F7"
+      }
+    ],
+    "physics": {
+      "spawnDistance": 7.0,
+      "spawnHeight": 0.2,
+      "updateHz": 30,
+      "maxParts": 8,
+      "walkSpeed": 7.5,
+      "dashSpeed": 16.0,
+      "turnRate": 1.8,
+      "jumpImpulse": 9.5,
+      "gravity": 20.0,
+      "cockpitHeight": 3.2,
+      "chaseDistance": 9.0,
+      "chaseHeight": 4.5,
+      "orbitRadius": 14.0,
+      "orbitHeight": 6.0,
+      "partSpread": 2.1,
+      "gaitRate": 2.0,
+      "gaitAmplitude": 0.22,
+      "threatInterval": 14.0,
+      "threatDistance": 30.0,
+      "maxHostiles": 3,
+      "telemetryHz": 2.0,
+      "maxFrameDt": 0.1
+    },
+    "cameraModes": [
+      "COCKPIT",
+      "CHASE",
+      "ORBIT"
+    ],
+    "disclaimer": "This is a CET-only SCRIPTED pilot: it references vanilla game records by TweakDB id, moves existing entities and locks V to a cockpit / chase / orbit transform. It does NOT add a new custom mesh, skeleton, rig, animation set, VO, physics collider, vehicle seat or mount system. Spawned NPCs may use their normal game AI and can be hostile; deploy in a safe open-world area and press EMERGENCY UNDEPLOY (F7) to despawn everything. It cannot be verified inside the game from this repository. A production-grade in-game mech still needs custom .ent/.mesh/.rig/.anims resources, ArchiveXL/TweakXL/Codeware/redscript work and private base-mod APIs. No base-mod files or ripped franchise assets are bundled, edited or redistributed."
+  }
 }

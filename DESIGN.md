@@ -25,10 +25,11 @@ The five non-negotiable, first-class, visible, editable and consequential quanti
 | R6 | Teardown: **sleek mech wireframe** (signature hulls / domes / blades / rings / racks / joints / fins / nozzles), physical internals fit, power + heat transfer routing/balancing, step-through separation, INTERNALS tree with six attributes, salvage/blueprints/telemetry | `TEARDOWN`, `teardowns.json`, `20_render.js`, `40_ui_teardown.js` |
 | R7 | ~30 chassis / 6 factions as examples, teardown sources, templates; `UNLOCK ALL (TEST MODE)` | `chassis.json`, `HANGAR`, `ROSTER.md` |
 | R8 | Hostiles, boss waves, hangar selector, salvage/XP — test harness only | `85_combat.js`, `30_ui_hangar.js` |
-| R9 | 8 tabs: HANGAR · TEARDOWN · REACTOR LAB · INTERNAL SYSTEMS · MECH FORGE · COMBAT TEST · DOSSIER · SETTINGS | `tools/src/body.html`, `90_main.js` |
-| R10 | "Full test mod" = browser prototype + CET-only `init.lua`; redscript/TweakXL/ArchiveXL `.example` only | `test_build.html`, `cet_mod/.../init.lua`, `docs/integration/` |
+| R9 | 9 browser tabs: HANGAR · TEARDOWN · REACTOR LAB · INTERNAL SYSTEMS · MECH FORGE · COMBAT TEST · PILOT TEST · DOSSIER · SETTINGS; 7 CET ImGui tabs incl. IN-GAME PILOT | `tools/src/body.html`, `90_main.js`, `tools/init.lua.template` |
+| R10 | "Full test mod" = browser prototype + CET-only `init.lua` + **CET-only in-game pilot**; redscript/TweakXL/ArchiveXL `.example` only | `test_build.html`, `cet_mod/.../init.lua`, `tools/lua_ingame.part`, `docs/integration/` |
 | R11 | Local repo with README, `.gitignore`, Actions workflow, `push_to_github.sh`, `git bundle` | this repository |
 | R12 | No ripped IP assets, no base-mod files, honest disclaimer | `PERMISSIONS.md`, `README.md` §6 |
+| R13 | In-game pilotable mechs: spawn/move vanilla CP2077 entity records by TweakDB id, continuous CET input, cockpit lock, in-world RCS/ECM consequences, emergency undeploy | `compat.json → ingamePilot`, `tools/lua_ingame.part`, `tools/src/88_ingame.js`, `docs/INGAME_PILOT.md` |
 
 ## Data model
 
@@ -106,3 +107,16 @@ procedural coating with CCP1 share codes. `tools/init.lua.template` adds `COMPAT
 
 The CET `init.lua` is generated from the same JSON and mirrors the telemetry math; the browser owns
 the visual modeling table and combat canvas, while CET provides an in-game ImGui test surface.
+
+## In-game pilot (R13)
+
+`compat.json → ingamePilot` is the source of truth for the CET-only in-game pilot injected from
+`tools/lua_ingame.part`. It references **vanilla game records** (`Character.q003_militech_mech`, the
+Militech Minotaur; Arasaka mechs; spider tank; orbital robot) plus drone/android/turret signature
+parts. `exEntitySpawner.SpawnRecord` spawns them, `WorldTransform` + `entEntity:SetWorldTransform`
+move them each frame, `registerInput` + `onUpdate` read continuous controls, and
+`Game.GetTeleportationFacility():Teleport` locks V into COCKPIT / CHASE / ORBIT. `MF.compute()`
+drives brownout, thermal derate, speed and in-world RCS/ECM lock consequences. `F7` despawns
+everything. All calls are `pcall`-wrapped; PHANTOM mode degrades gracefully. **It is a scripted
+pilot over existing entities, not a new mesh/rig/animation asset** — see `docs/INGAME_PILOT.md`
+for the exact limitation. No base-mod files, ripped assets or unvalidated `.reds`/YAML are installed.

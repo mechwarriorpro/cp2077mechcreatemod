@@ -18,7 +18,15 @@ library · ~10% combat test harness (it exists to prove custom builds work).
 | Deliverable | What it is | How to run it |
 |---|---|---|
 | **`test_build.html`** | **Main playable prototype.** One self-contained file: inline CSS/JS, canvas graphics, inline JSON data. No CDN, no fonts, no images, no network. | Open it in any modern browser (double-click). Works inside a sandboxed iframe; `localStorage` failures fall back to in-memory state. |
-| **`cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua`** | **CET-only CP2077 test mod.** ImGui overlay with hangar, subsystem authoring, forge params, reactor lab and settings; live power / mass / heat / RCS / ECM bars. Generated from the same JSON files. | Copy the `cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/` folder into `Cyberpunk 2077/bin/x64/plugins/cyber_engine_tweaks/mods/`. Requires Cyber Engine Tweaks. Open the overlay with the CET hotkey binding **MECHFALL // FORGE 77**. |
+| **`cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua`** | **CET-only CP2077 test mod.** ImGui overlay with hangar, subsystem authoring, forge params, reactor lab, settings, compat bridges and an **IN-GAME PILOT** tab that spawns/moves vanilla mech entity records and locks V into a cockpit transform. Live power / mass / heat / RCS / ECM bars with in-world consequences. Generated from the same JSON files. | Copy the `cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/` folder into `Cyberpunk 2077/bin/x64/plugins/cyber_engine_tweaks/mods/`. Requires Cyber Engine Tweaks. Open the overlay with **MECHFALL // FORGE 77**, press `F6` to deploy, `F7` to emergency undeploy. |
+
+**`0.1.5-test`: an in-game pilotable mech layer.** CET spawns the vanilla **Militech Minotaur**
+(`Character.q003_militech_mech`) plus drone/android/turret signature parts by TweakDB record id,
+moves them every frame with `WorldTransform` / `SetWorldTransform`, reads continuous controls with
+`registerInput` + `onUpdate`, and locks V to a COCKPIT / CHASE / ORBIT transform with
+`Game.GetTeleportationFacility():Teleport`. No meshes, rigs, animations or base-mod files are
+bundled — every game call is `pcall`-wrapped and falls back to PHANTOM mode. See
+**`docs/INGAME_PILOT.md`** for the deploy checklist and the honest limits.
 
 Optional **Autodrive** and **Crystal Coat** compatibility is a data-driven bridge (`compat.json`):
 procedural equivalents in the browser plus `pcall(GetMod)` detection in CET. No other mod is bundled,
@@ -75,8 +83,14 @@ Original procedural **signature-part library** (`chassis.json → signatureParts
 `PILOT TEST` is a real, playable 3D mech generated entirely from numbers: `MF.mesh3d.fromShape()`
 triangulates the shape/signature descriptors, `MF.mesh3d.pose()` generates a walk cycle, and
 `MF.mesh3d.render()` is a software perspective rasterizer with procedural Crystal-Coat shading.
-**This is still a browser prototype.** A pilotable mech inside Cyberpunk 2077 needs real meshes, rigs,
-animations, VO, the game itself and private base-mod APIs — none of which are shipped or claimed.
+
+**The CET IN-GAME PILOT now goes further:** inside Cyberpunk 2077 it spawns and moves mech entities
+that already exist in the game by TweakDB record id, and locks V to a cockpit transform. That is a
+genuine in-game pilot layer, but it is a **scripted CET pilot over vanilla entities**, not a new
+custom mech asset. It adds no mesh, rig, animation set, VO, vehicle seat, mount system or private
+base-mod integration, and it cannot be verified in-game from this repo. A production-grade custom
+mech still needs real meshes, rigs, animations, VO, ArchiveXL/TweakXL/Codeware/redscript work and
+possibly private base-mod APIs — none of which are shipped or claimed. See `docs/INGAME_PILOT.md`.
 
 Everything persists to `localStorage` (with an in-memory fallback). **SETTINGS → EXPORT ALL STATE
 JSON** / **IMPORT ALL STATE** moves designs and subsystems between machines. `GENERATE CET LUA`
@@ -111,13 +125,15 @@ All coefficients and exponents (`S`, `F`, RCS, ECM falloff, `k1`, `k2`, …) are
 HANDOVER.md · README.md · LICENSE.md · DESIGN.md · NEXUS_PAGE.md (DRAFT)
 PERMISSIONS.md · CHANGELOG.md · ROSTER.md (generated)
 chassis.json · components.json · reactors.json · teardowns.json · subsystems.json · simulation.json
+compat.json (ingamePilot source of truth)
 test_build.html (generated, MAIN DELIVERABLE) · test_build.template.html
 tools/src/*.js · tools/src/app.css · tools/src/body.html
 tools/generate.py · tools/validate.py · tools/build_package.py · tools/init.lua.template
+tools/lua_ingame.part (injected CET in-game pilot module)
 tools/smoke_test.js · tools/lua_test.js · tools/package.json
 cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua (generated)
 docs/REACTOR_MODEL.md · docs/TEARDOWN_SCHEMA.md · docs/SUBSYSTEM_MODEL.md
-docs/BaseModHooks.md · docs/AssetManifest.md · docs/integration/*.example
+docs/BaseModHooks.md · docs/AssetManifest.md · docs/INGAME_PILOT.md · docs/integration/*.example
 .github/workflows/validate.yml · push_to_github.sh · .gitignore
 ```
 
@@ -129,7 +145,8 @@ docs/BaseModHooks.md · docs/AssetManifest.md · docs/integration/*.example
 ### Single source of truth
 
 **Do not hand-edit `test_build.html`, `ROSTER.md` or the generated `init.lua`.** Edit the JSON files
-or `tools/src/*` / `tools/init.lua.template`, then:
+(especially `compat.json → ingamePilot`), `tools/src/*`, `tools/init.lua.template` or
+`tools/lua_ingame.part`, then:
 
 ```bash
 python3 tools/generate.py          # regenerate html, lua, roster

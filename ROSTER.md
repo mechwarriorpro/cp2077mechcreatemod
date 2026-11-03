@@ -59,6 +59,21 @@ Each chassis composes original procedural parts inspired by the characteristic c
 The `PILOT TEST` tab triangulates these shapes into a playable procedural 3D mech (mesh, terrain, gait and coating generated at runtime). `compat.json` defines the optional Autodrive waypoint solver and Crystal-Coat-compatible CCP1 share codes. See `docs/PROCEDURAL_PILOT.md` and `docs/COMPAT.md`.
 
 
+## In-game CET pilot (vanilla record references)
+
+The CET-only `IN-GAME PILOT` tab spawns and moves entities that already exist in Cyberpunk 2077 by TweakDB record id — no meshes, rigs, textures, animations or base-mod files are shipped. `compat.json → ingamePilot` is the source of truth.
+
+| Role | Record | Name |
+|---|---|---|
+| biped | `Character.q003_militech_mech` | MILITECH MINOTAUR (VANILLA) |
+| heavy | `Character.q113_top_atrium_arasaka_mech` | ARASAKA ATRIUM MECH |
+| heavy | `Character.q115_lobby_arasaka_mech` | ARASAKA LOBBY MECH |
+| spider | `Character.q302_spidertank_kurt_soldier_melee_heavy` | SPIDER TANK |
+| flyer | `Character.q306_orbital_air_robot_guard` | ORBITAL AIR ROBOT GUARD |
+
+Signature-part anchors are populated from in-game drone / android / spiderbot / turret records; 8 part records and 3 `.ent` fallback templates are configured. Controls are `F6, W, S, A, D, SHIFT, SPACE, V, LMB, C, T, F7`. See `docs/INGAME_PILOT.md`.
+
+
 ## Shape parameters (source material for the modeling table)
 
 Every chassis carries a 20-parameter shape vector plus a `sig` signature-part composition that can be loaded into MECH FORGE:

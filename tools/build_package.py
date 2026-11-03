@@ -22,7 +22,7 @@ FILES = [
     "DESIGN.md", "ROSTER.md", "NEXUS_PAGE.md", "HANDOVER.md",
     "docs/REACTOR_MODEL.md", "docs/TEARDOWN_SCHEMA.md", "docs/SUBSYSTEM_MODEL.md",
     "docs/BaseModHooks.md", "docs/AssetManifest.md",
-    "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md",
+    "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
     "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua",
     "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/README.md",
 ]

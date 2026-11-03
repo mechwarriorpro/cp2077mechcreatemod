@@ -117,6 +117,32 @@ setTimeout(() => {
     must(MF.pilot.cameraMode === 'COCKPIT', 'camera cycles to cockpit');
     click('[data-act="pilot-seed"]');
     must(MF.pilot.active === true && MF.pilot.seed > 0, 'new terrain seed regenerates the world');
+
+    // IN-GAME PILOT (CET) deploy console
+    must(!!w.document.getElementById('pilot-ingame'), 'pilot side panel has an IN-GAME CET console');
+    const igPanel = w.document.getElementById('pilot-ingame').innerHTML;
+    must(/INGAME_PILOT|IN-GAME PILOT/i.test(igPanel) && /exEntitySpawner/.test(igPanel),
+      'in-game console names the CET spawner API');
+    must(!!w.document.getElementById('ingame-core') && !!w.document.getElementById('ingame-parts'),
+      'in-game console exposes core record + signature part selectors');
+    const igCfg = MF.ingame.config();
+    must(igCfg.core === MF.state.ingameCore && igCfg.parts >= 0 && igCfg.cockpit === true,
+      'in-game config reads persisted state');
+    change('#ingame-core', MF.DATA.compat.ingamePilot.coreRecords[2].id);
+    must(MF.state.ingameCore === MF.DATA.compat.ingamePilot.coreRecords[2].id,
+      'core record selector persists its choice');
+    input('#ingame-parts', 3);
+    must(MF.state.ingameParts === 3, 'signature part count slider persists');
+    const igLua = MF.ingame.luaSnippet();
+    must(/MF\.ingame\.coreRecord/.test(igLua) && /exEntitySpawner\.SpawnRecord/.test(igLua) &&
+      MF.DATA.compat.ingamePilot.coreRecords[2].id.indexOf('q115') > 0,
+      'GENERATE IN-GAME CET LUA emits a real config override');
+    must(/Character\.q003_militech_mech/.test(MF.ingame.recordsText()),
+      'record list includes the vanilla Militech Minotaur');
+    click('[data-act="ingame-checklist"]');
+    must(/EMERGENCY UNDEPLOY/.test(w.document.getElementById('mf-modal-body').innerHTML),
+      'deploy checklist includes emergency undeploy');
+    click('#mf-modal-close');
     MF.setTab('systems');
 
     // INTERNAL SYSTEMS: blank-slate authoring

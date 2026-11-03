@@ -34,7 +34,10 @@ structure loss triggers **Protocol 3 — eject**.
 
 ## Honest scope
 
-This is a **browser prototype**, not an in-game pilotable mech. It proves the geometry, gait,
-coating, autopilot and combat consequences can be generated procedurally. Making a 3D mech
-driveable *inside Cyberpunk 2077* still requires real meshes, rigs, animations, VO, the game itself
-and private base-mod APIs. No third-party or base-mod assets are used.
+This is a **browser prototype**, not a new in-game mech asset. It proves the geometry, gait,
+coating, autopilot and combat consequences can be generated procedurally. `0.1.5-test` adds a
+separate **CET-only IN-GAME PILOT** that spawns/moves vanilla Cyberpunk 2077 mech entity records
+and locks V into a cockpit transform — see `docs/INGAME_PILOT.md`. That in-game layer still ships
+no custom meshes, rigs, animations, VO, vehicle seat or mount system; a production-grade custom
+mech would need those plus ArchiveXL/TweakXL/Codeware/redscript work and possibly private base-mod
+APIs. No third-party or base-mod assets are used.

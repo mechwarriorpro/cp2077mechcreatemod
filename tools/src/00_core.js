@@ -55,6 +55,10 @@ function defaults() {
     pilotSeed: DATA.compat.pilot.terrain.seed,
     pilotCamera: "CHASE",
     pilotAutopilot: false,
+    ingameCore: DATA.compat.ingamePilot.coreRecords[0].id,
+    ingameParts: Math.min(DATA.compat.ingamePilot.physics.maxParts, DATA.compat.ingamePilot.partRecords.length),
+    ingameCamera: "CHASE",
+    ingameCockpit: true,
     reactor: clone(presetById("vanguard_link_shard").params),
     reactorPresetId: "vanguard_link_shard",
     biome: "badlands",
@@ -97,6 +101,10 @@ function loadState() {
   if (!out.shape || !out.shape.torsoW) out.shape = d.shape;
   if (!out.coat || !out.coat.primary) out.coat = d.coat;
   if (!Number.isFinite(out.pilotSeed)) out.pilotSeed = d.pilotSeed;
+  if (!out.ingameCore) out.ingameCore = d.ingameCore;
+  if (!Number.isFinite(out.ingameParts)) out.ingameParts = d.ingameParts;
+  if (!out.ingameCamera) out.ingameCamera = d.ingameCamera;
+  if (typeof out.ingameCockpit !== "boolean") out.ingameCockpit = d.ingameCockpit;
   if (!out.tdLayers) out.tdLayers = d.tdLayers;
   if (!out.tdFit) out.tdFit = d.tdFit;
   if (!out.tdFit.routes) out.tdFit.routes = {};

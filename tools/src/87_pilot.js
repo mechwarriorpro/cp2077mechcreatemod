@@ -315,7 +315,7 @@ MF.pilot = {
   },
   update(sec) { this.panels(); this.updateHUD(true); },
   panels() {
-    const hud = $("pilot-hud"), coatEl = $("pilot-coat"), comp = $("pilot-compat");
+    const hud = $("pilot-hud"), coatEl = $("pilot-coat"), comp = $("pilot-compat"), ingameEl = $("pilot-ingame");
     if (hud) hud.innerHTML = '<div id="pilot-hud-live"></div>' +
       '<div class="mf-hr"></div><div class="mf-row">' +
       '<button class="mf-btn small" data-act="pilot-seed">NEW TERRAIN SEED</button>' +
@@ -325,6 +325,7 @@ MF.pilot = {
       "Change the frame in MECH FORGE and BAKE, then re-enter this tab.</div>";
     if (coatEl) coatEl.innerHTML = this.coatHTML();
     if (comp) comp.innerHTML = this.compatHTML();
+    if (ingameEl && MF.ingame) ingameEl.innerHTML = MF.ingame.panelHTML();
     this.updateHUD(true);
   },
   coatHTML() {
@@ -423,6 +424,16 @@ MF.pilot = {
   },
   onInput(e) {
     const id = e.target.id, v = e.target.value;
+    if (id.indexOf("ingame-") === 0 && MF.ingame) {
+      if (id === "ingame-core") MF.state.ingameCore = v;
+      else if (id === "ingame-parts") {
+        MF.state.ingameParts = clamp(Number(v) || 0, 0, MF.ingame.maxParts());
+        const out = $("ingame-parts-v"); if (out) out.textContent = MF.state.ingameParts;
+      } else if (id === "ingame-camera") MF.state.ingameCamera = v;
+      else if (id === "ingame-cockpit") MF.state.ingameCockpit = !!e.target.checked;
+      else return;
+      MF.save(); return;
+    }
     if (id.indexOf("coat-") !== 0) return;
     const c = MF.compat.clampCoat(this.coat());
     if (id === "coat-preset") {
@@ -453,6 +464,9 @@ MF.pilot = {
     else if (a === "pilot-camera") { this.cameraMode = this.cameraMode === "CHASE" ? "COCKPIT" : this.cameraMode === "COCKPIT" ? "ORBIT" : "CHASE"; this.clog("CAMERA " + this.cameraMode); }
     else if (a === "pilot-seed") { this.seed = 1000 + Math.floor(Math.random() * 8999); this.start(); }
     else if (a === "pilot-lua" || a === "compat-lua") MF.copyText(MF.compat.luaSnippet(this.coat(), this.autopilot), "CET compat Lua");
+    else if (a === "ingame-lua") MF.copyText(MF.ingame.luaSnippet());
+    else if (a === "ingame-records") MF.copyText(MF.ingame.recordsText());
+    else if (a === "ingame-checklist") MF.modal("IN-GAME PILOT · DEPLOY CHECKLIST", MF.ingame.checklistHTML());
     else if (a === "pilot-export") MF.copyText(JSON.stringify({ seed: this.seed, coat: this.coat(), autopilot: this.autopilot, shape: MF.state.shape }, null, 2), "pilot state JSON");
     else if (a === "coat-apply") {
       const c = MF.compat.decodeCoat(($("coat-code") || {}).value || "");

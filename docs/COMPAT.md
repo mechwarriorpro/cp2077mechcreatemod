@@ -44,7 +44,9 @@ module loads cleanly when `GetMod` returns `nil`, and `tools/lua_test.js` verifi
 
 ## What compatibility does **not** mean
 
-It does not make a 3D mech driveable inside Cyberpunk 2077, does not apply real CrystalCoat materials
-to a game vehicle entity, does not call private base-mod APIs, and does not ship, modify or
-redistribute anyone else's files. In-game piloting still needs meshes, rigs, animations, VO, the
-game itself and private base-mod APIs.
+The compatibility layer itself does not make a 3D mech driveable inside Cyberpunk 2077, does not
+apply real CrystalCoat materials to a game vehicle entity, does not call private base-mod APIs, and
+does not ship, modify or redistribute anyone else's files. The **separate** CET-only IN-GAME PILOT
+(`docs/INGAME_PILOT.md`) spawns/moves vanilla game entity records, but it still ships no custom
+meshes, rigs, animations, VO, vehicle seat or mount system. A production-grade custom mech needs
+those plus ArchiveXL/TweakXL/Codeware/redscript work and possibly private base-mod APIs.
