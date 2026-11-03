@@ -113,3 +113,10 @@ Every chassis carries a 20-parameter shape vector plus a `sig` signature-part co
 
 Spelling variations resolved: Earlcumber/Erlecumber, Tzendolg/Tzendolimble, Toybox/Toy Box.
 See `HANDOVER.md` §3.6 and `PERMISSIONS.md` for IP carve-outs.
+
+
+
+## Generated identifiers (for CET snippets)
+
+- Chassis ids: `bt7274`, `ion`, `tone`, `northstar`, `ronin`, `scorch`, `legion`, `monarch`, `ikaruga`, `toybox`, `kaldatoah`, `tyrantor`, `tzendolg`, `falcon`, `tricera`, `narukami`, `panther`, `welkin`, `stego`, `raven_rj`, `tetrapod_ac`, `balteus`, `ibis`, `atlas`, `timber_wolf`, `jenner`, `marauder`, `behemoth`, `oni`, `maxtac_ram`
+- Reactor preset ids: `ikaruga_twin_ether`, `corite_corixium`, `coral_reactor`, `clan_xl_fusion`, `militech_rtg`, `vanguard_link_shard`

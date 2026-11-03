@@ -93,6 +93,7 @@ MF.pilot = {
   /* ------------------------------------------------------------ simulation */
   update(dt) {
     const p = this.player, C = DATA.compat.pilot.physics, t = this.telemetry();
+    MF.damage.tick(MF.damage.ensure(), dt);
     this.t += dt;
     const massFactor = Math.max(0.4, Math.min(1.6, 2200 / Math.max(600, t.totalMass)));
     const brownout = t.powerMargin < 0 ? 0.55 : 1;
@@ -179,8 +180,9 @@ MF.pilot = {
         const dx = p.x - b.x, dz = p.z - b.z;
         if (dx * dx + dz * dz < 4) {
           b.life = 0;
-          p.hp -= p.shield > 0 ? b.damage * 0.25 : b.damage;
-          MF.damage.incoming(MF.damage.ensure(), 0, Math.min(0.18, b.damage / 300));
+          const mit = MF.damage.absorb(MF.damage.ensure(), b.damage);
+          p.hp -= p.shield > 0 ? mit.remaining * 0.25 : mit.remaining;
+          MF.damage.incoming(MF.damage.ensure(), 0, Math.min(0.18, mit.remaining / 300));
           this.shake = 0.25;
         }
       }
@@ -209,12 +211,13 @@ MF.pilot = {
     if (wp && this.autopilot) this.effects.push({ x: wp.x, y: this.terrain.height(wp.x, wp.z) + 6, z: wp.z, r: 9, rgb: [130, 255, 160] });
   },
   fire() {
-    const p = this.player, t = this.telemetry();
+    const p = this.player, t = this.telemetry(), wp = MF.weapons.combatProfile();
     if (t.powerMargin < -8) { this.clog("BROWNOUT · weapon bus offline"); p.fireCd = 0.6; return; }
     this.bullets.push({ x: p.x, z: p.z, y: 2.4,
       vx: Math.sin(p.yaw) * 60, vz: Math.cos(p.yaw) * 60, life: 1.4, hostile: false,
-      damage: 18 + (p.charging ? 16 : 0) });
-    p.fireCd = 0.22; p.temp += 0.045;
+      damage: 18 + (p.charging ? 16 : 0) + wp.fireDamage * 0.12 });
+    p.fireCd = 0.22 / clamp(0.6 + wp.fireRate / 120, 0.6, 2.2);
+    p.temp += 0.045 + wp.heatPerShot * 0.01;
   },
 
   /* ------------------------------------------------------------ rendering */
@@ -423,7 +426,7 @@ MF.pilot = {
     else if (key === "c") { this.cameraMode = this.cameraMode === "CHASE" ? "COCKPIT" : this.cameraMode === "COCKPIT" ? "ORBIT" : "CHASE"; this.clog("CAMERA " + this.cameraMode); }
     else if (key === "y") { MF.toast("Crystal Coat panel is on the right — hex, aspect and CCP1 share code", "ok"); }
     else if (key === "e" && this.player) { this.player.shield = 2.4; this.player.temp += 0.12; this.clog("VORTEX SHIELD UP"); }
-    else if (key === "r" && this.player) { this.player.missileCd = 0; this.bullets.push({ x: this.player.x, z: this.player.z, y: 2.5, vx: Math.sin(this.player.yaw) * 60, vz: Math.cos(this.player.yaw) * 60, life: 1.6, hostile: false, damage: 42 }); this.clog("MISSILE SALVO"); }
+    else if (key === "r" && this.player) { this.player.missileCd = 0; const wp = MF.weapons.combatProfile(); this.bullets.push({ x: this.player.x, z: this.player.z, y: 2.5, vx: Math.sin(this.player.yaw) * 60, vz: Math.cos(this.player.yaw) * 60, life: 1.6, hostile: false, damage: 42 + wp.missileDamage * 0.2 }); this.clog("MISSILE SALVO · " + wp.names.length + " equipped designs"); }
     else if (key >= "1" && key <= "4") { this.order = Number(key) - 1; this.clog("COMPANION ORDER · " + PILOT_ORDERS[this.order]); }
   },
   onInput(e) {

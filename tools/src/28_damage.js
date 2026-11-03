@@ -38,8 +38,12 @@ MF.damage = {
       parts.push({ id: "weapon#" + i, anchor: w.id, name: w.name, group: "weapon",
         section, hp: maxHp, maxHp, destroyed: false });
     });
+    const shieldRegen = (MF.state.loadout || []).reduce((a, id) => {
+      const w = MF.weapons && MF.weapons.byId(id);
+      return a + (w && w.category === "energy_shield" ? (Number((w.params || {}).armor) || 0) * 0.02 : 0);
+    }, 0);
     return { parts, log: [], cursor: 0, ejected: false, destroyed: false,
-      reason: "", designName: design && design.name ? design.name : "ACTIVE FRAME" };
+      reason: "", shieldRegen, designName: design && design.name ? design.name : "ACTIVE FRAME" };
   },
 
   ensure(force) {
@@ -63,7 +67,31 @@ MF.damage = {
   cockpitDamage(st) { return this.fraction(st.parts.filter((p) => p.section === "cockpit")); },
   torsoDamage(st) { return this.fraction(st.parts.filter((p) => p.section === "torso")); },
   overallDamage(st) { return this.fraction(st.parts); },
-  aliveParts(st) { return st.parts.filter((p) => !p.destroyed); },
+  aliveParts(st) { return st.parts.filter((p) => !p.destroyed); },  shieldParts(st) { return st.parts.filter((p) => p.section === "shield" && !p.destroyed); },
+  shieldPool(st) { return this.shieldParts(st).reduce((a, p) => a + p.hp, 0); },
+  /* Destroyable shields absorb incoming damage before it reaches the hull. */
+  absorb(st, amount) {
+    let left = Math.max(0, Number(amount) || 0), absorbed = 0;
+    for (const p of this.shieldParts(st)) {
+      if (left <= 0) break;
+      const take = Math.min(p.hp, left);
+      p.hp -= take; left -= take; absorbed += take;
+      if (p.hp <= 0) {
+        p.destroyed = true;
+        this.note("SHIELD PART DESTROYED · " + p.name);
+      }
+    }
+    if (absorbed > 0) this.note("SHIELD ABSORBED " + fmt(absorbed, 0) + " dmg");
+    return { absorbed, remaining: left };
+  },
+  /* Energy shielding regenerates slowly between hits. */
+  tick(st, dt) {
+    if (!st || st.destroyed || !st.shieldRegen) return;
+    st.parts.forEach((p) => {
+      if (p.section === "shield" && !p.destroyed && p.hp < p.maxHp)
+        p.hp = Math.min(p.maxHp, p.hp + st.shieldRegen * (Number(dt) || 0));
+    });
+  },
 
   hit(st, id, amount) {
     const p = this.byId(st, id); if (!p || st.destroyed) return null;
@@ -159,7 +187,8 @@ MF.damage = {
         fmt(q.torsoLimit * 100, 0) + "% LIMIT", q.torsoExceeded ? "red" : "amber") +
       MF.ui.barRow("OVERALL", this.overallDamage(st) * 100, 100,
         fmt(this.aliveParts(st).length, 0) + " / " + st.parts.length + " PARTS ALIVE", "green") +
-      '<div class="mf-note">' + esc(this.statusText(st)) + ' · ' +
+      '<div class="mf-note">' + esc(this.statusText(st)) + ' · SHIELD POOL ' +
+      fmt(this.shieldPool(st), 0) + ' HP · ' +
       esc(this.cfg.eject.key) + ' = EMERGENCY EJECT</div>';
   },
 

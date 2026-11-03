@@ -86,7 +86,8 @@ MF.combat = {
   },
   ability(k) {
     if (!this.active || this.paused || !this.player) return;
-    const p = this.player, t = this.telemetry();
+    const p = this.player, t = this.telemetry(),
+      wp = MF.weapons ? MF.weapons.combatProfile() : null;
     const unreliable = t.powerMargin < 0 && Math.random() < 0.65;
     if (k === "q") {
       if (p.core < 100) { this.clog("BURST CORE failed: charge " + fmt(p.core, 0) + "%"); return; }
@@ -94,7 +95,7 @@ MF.combat = {
       p.core = 0;
       this.enemies.forEach((e) => {
         const d = Math.hypot(e.x - p.x, e.y - p.y);
-        if (d < 260) this.hitEnemy(e, 65 + t.powerMargin * 0.6);
+        if (d < 260) this.hitEnemy(e, 65 + t.powerMargin * 0.6 + (wp ? wp.meleeDamage * 0.12 : 0));
       });
       this.burst(p.x, p.y, "#ffb347", 40);
       this.clog("BURST CORE discharged");
@@ -106,10 +107,11 @@ MF.combat = {
       if (p.missileCd > 0) return;
       if (unreliable) { this.clog("MISSILE SALVO failed: BROWNOUT"); return; }
       p.missileCd = 4.5 * t.cooldownMultiplier;
-      const targets = this.enemies.slice(0, 5);
+      const targets = this.enemies.slice(0, Math.min(6, 3 + (wp ? wp.missileCount : 0)));
       if (!targets.length) { this.clog("MISSILE SALVO: no targets"); return; }
       targets.forEach((e, i) => this.bullets.push({ x: p.x, y: p.y, vx: 0, vy: 0,
-        dmg: 30, friendly: true, homing: e, life: 3, size: 4, color: "#ffb347", delay: i * 0.08 }));
+        dmg: 30 + (wp ? wp.missileDamage * 0.18 : 0), friendly: true, homing: e, life: 3,
+        size: 4, color: "#ffb347", delay: i * 0.08 }));
       this.clog("MISSILE SALVO · " + targets.length + " locks");
     } else if (k === "v") {
       if (p.ventCd > 0) return;
@@ -146,7 +148,9 @@ MF.combat = {
   update(dt) {
     const cv = $("combat-canvas"), f = MF.fit(cv, true);
     const w = f ? f.w : 900, h = f ? f.h : 540;
-    const p = this.player, t = this.telemetry();
+    const p = this.player, t = this.telemetry(),
+      wp = MF.weapons ? MF.weapons.combatProfile() : null;
+    MF.damage.tick(MF.damage.ensure(), dt);
     this.t += dt;
     this.shake = Math.max(0, this.shake - dt * 1.6);
     this.glitch = Math.max(0, this.glitch - dt * 1.2);
@@ -201,12 +205,13 @@ MF.combat = {
 
     /* fire */
     if (this.mouse.down && p.fireCd <= 0 && !p.vortex) {
-      p.fireCd = 0.14 / (0.6 + powerFactor * 0.5) / derate;
-      const dmg = 11 * powerFactor * derate;
+      const rate = wp ? clamp(0.6 + wp.fireRate / 120, 0.6, 2.2) : 1;
+      p.fireCd = 0.14 / (0.6 + powerFactor * 0.5) / derate / rate;
+      const dmg = 11 * powerFactor * derate + (wp ? wp.fireDamage * 0.18 : 0);
       this.bullets.push({ x: p.x + Math.cos(p.angle) * 22, y: p.y + Math.sin(p.angle) * 22,
         vx: Math.cos(p.angle) * 470, vy: Math.sin(p.angle) * 470, dmg, friendly: true,
-        life: 1.4, size: 3, color: "#4dd0e1" });
-      p.temp += 0.006;
+        life: 1.4, size: 3, color: (wp && wp.ballistic && !wp.energy) ? "#ffb347" : "#4dd0e1" });
+      p.temp += 0.006 + (wp ? wp.heatPerShot * 0.01 : 0);
     }
     p.core = clamp(p.core + dt * (5 + Math.max(0, t.powerMargin) * 0.10), 0, 100);
 
@@ -246,8 +251,9 @@ MF.combat = {
         if (Math.hypot(p.x - b.x, p.y - b.y) < 17) {
           if (p.vortex && Math.random() < 0.85) { this.burst(b.x, b.y, "#4dd0e1", 5); return false; }
           if (this.invuln <= 0) {
-            p.hp -= b.dmg; this.shake = 0.28; this.burst(b.x, b.y, "#ff5f56", 8);
-            MF.damage.incoming(MF.damage.ensure(), 0, Math.min(0.22, b.dmg / 350));
+            const mit = MF.damage.absorb(MF.damage.ensure(), b.dmg);
+            p.hp -= mit.remaining * 0.5; this.shake = 0.28; this.burst(b.x, b.y, "#ff5f56", 8);
+            MF.damage.incoming(MF.damage.ensure(), 0, Math.min(0.22, mit.remaining / 350));
           }
           return false;
         }
@@ -281,8 +287,9 @@ MF.combat = {
         }
       } else { e.x += Math.cos(this.t + e.y) * 6 * dt; }
       if (dist < 24 && this.invuln <= 0) {
-        p.hp -= dt * 8;
-        MF.damage.incoming(MF.damage.ensure(), 0, Math.min(0.02, dt * 0.006));
+        const mit = MF.damage.absorb(MF.damage.ensure(), dt * 8);
+        p.hp -= mit.remaining;
+        MF.damage.incoming(MF.damage.ensure(), 0, Math.min(0.02, mit.remaining * 0.00075));
       }
       return true;
     });

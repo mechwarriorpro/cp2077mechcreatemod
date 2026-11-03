@@ -181,7 +181,7 @@ function press(slug, down) {
 call('onInit');
 // Open the overlay then exercise every ImGui tab.
 lauxlib.luaL_loadstring(L, enc('MF.visible = true')); lua.lua_pcall(L, 0, 0, 0);
-for (let tab = 1; tab <= 7; tab++) {
+for (let tab = 1; tab <= 10; tab++) {
   lauxlib.luaL_loadstring(L, enc('MF.tab = ' + tab)); lua.lua_pcall(L, 0, 0, 0);
   call('onDraw');
 }
@@ -202,6 +202,22 @@ press('mechfall_ig_camera', true); press('mechfall_ig_camera', false);
 press('mechfall_ig_autodrive', true); press('mechfall_ig_autodrive', false);
 press('mechfall_ig_fire', true); press('mechfall_ig_fire', false);
 for (let i = 0; i < 10; i++) call('onUpdate', [0.033]);
+
+/* --telemetry-json: emit CET MF.compute() numbers for the parity harness. */
+if (process.argv.indexOf('--telemetry-json') >= 0) {
+  const k = ['powerMargin','totalMass','netHeat','rcsFront','speed','detectRange',
+    'jamStrength','temperature','powerUsed','heatGen','heatDiss','moduleScale'];
+  const code = 'local t=MF.compute("bt7274"); return string.format(' +
+    '"' + k.map(() => '%.6f').join('|') + '",' + k.map((x) => 't.' + x).join(',') + ')';
+  const q1 = lauxlib.luaL_loadstring(L, enc(code));
+  if (q1 !== lua.LUA_OK) { console.error('PARITY COMPILE ERROR', errMsg()); process.exit(1); }
+  const q2 = lua.lua_pcall(L, 0, 1, 0);
+  if (q2 !== lua.LUA_OK) { console.error('PARITY RUNTIME ERROR', errMsg()); process.exit(1); }
+  const val = F.to_jsstring(lua.lua_tostring(L, -1));
+  lua.lua_pop(L, 1);
+  process.stdout.write('MF_TELEMETRY=' + val + '\n');
+  process.exit(0);
+}
 
 const checks = [
   ['return #(MF.data.roster or {})', 'roster count'],
@@ -228,6 +244,14 @@ const checks = [
   ['MF.ingame.setPatch("2.5"); local p=MF.ingame.patch; MF.ingame.setPatch("2.31"); return tostring(p).."|"..tostring(MF.ingame.patch)', 'game patch switching'],
   ['return tostring(MF.data.models.onlyExamplesAllowed) .. "|" .. tostring(MF.data.models.allowedCount) .. "|" .. tostring(#MF.data.models.allowedSourceIds)', 'example-only full model policy in CET data'],
   ['return tostring(MF.data.weapons.loadoutLimit) .. "|" .. tostring(MF.data.damage.ejectKey) .. "|" .. tostring(MF.data.damage.cockpitDestruction) .. "|" .. tostring(MF.data.damage.torsoDestruction)', 'CET weapon loadout + destruction thresholds'],
+  ['return tostring(#MF.tabs) .. "|" .. tostring(MF.rcoeffs.outputScale) .. "|" .. tostring(MF.thresholds.brownoutMargin)', '10 CET tabs + generated forgiving reactor/balance data'],
+  ['local t=MF.compute("bt7274"); return tostring(t.moduleScale < 1) .. "|" .. tostring(t.nModules > 0) .. "|" .. tostring(t.powerMargin > 50)', 'CET telemetry uses the module bulk discount'],
+  ['local ex=MF.ingame.modelExamples(); return tostring(#ex) .. "|" .. tostring(#ex[1].anchors) .. "|" .. tostring(ex[1].triangleCount)', '30 example full models drive in-game part layout'],
+  ['MF.ingame.setModel(5); return MF.ingame.modelName() .. "|" .. tostring(MF.ingame.modelIndex)', 'CET example-model selection'],
+  ['local w=(MF.data.weapons.templates)[1]; MF.ingame.toggleWeapon(w.id); local p=MF.ingame.weaponProfile(); return tostring(p.count) .. "|" .. tostring(MF.weaponLoadout[w.id]) .. "|" .. tostring(p.damage > 0)', 'CET weapon loadout syncs into MF.compute'],
+  ['local p=MF.ingame.weaponProfile(); MF.ingame.fire(); return tostring(p.count) .. "|" .. tostring(MF.ingame.heat > 0.34)', 'CET fire consumes designed weapons + heat'],
+  ['MF.ingame.repairParts(); MF.ingame.destroyPart(1); return tostring(MF.ingame.dmgParts[1].destroyed)', 'destroying a CET part despawns its linked entity'],
+
   ['local a,b,c,d = MF.ingame.dmgStats(); return tostring(#MF.ingame.dmgParts) .. "|" .. tostring(c) .. "|" .. tostring(d)', 'CET per-part damage model is populated'],
   ['local st=MF.ingame; st.repairParts(); for i=1,#st.dmgParts do if st.dmgParts[i].section == "cockpit" then st.hitPart(i,0.80) end end; return tostring(st.dmgDestroyed) .. "|" .. tostring(st.dmgEjected) .. "|" .. st.dmgReason', 'CET cockpit >70% triggers FULL DESTRUCTION + pilot eject'],
   ['local st=MF.ingame; st.repairParts(); for i=1,#st.dmgParts do if st.dmgParts[i].section == "torso" then st.hitPart(i,0.95) end end; return tostring(st.dmgDestroyed) .. "|" .. st.dmgReason', 'CET torso >90% triggers FULL DESTRUCTION'],

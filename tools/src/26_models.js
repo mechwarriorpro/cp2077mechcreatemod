@@ -10,6 +10,35 @@ MF.models = {
   library: DATA.models.models,
 
   byId(id) { return this.library.find((m) => m.id === id) || this.library[0]; },
+  useShippedMesh: true,
+
+  /* Convert the SHIPPED indexed triangulated mesh in models.json into the mesh
+     format consumed by MF.mesh3d.render(). No geometry is generated here. */
+  meshFromData(id) {
+    const m = this.byId(id), md = m.mesh;
+    if (!md || !md.vertices || !md.triangles) return null;
+    const V = md.vertices, P = md.parts;
+    const groupOf = { torso: "armor", cockpit: "sensor", limb: "actuator",
+      system: "vent", weapon: "weapon", shield: "armor" };
+    const boneOf = (name) => {
+      const n = String(name).toLowerCase();
+      if (/head|cockpit|canopy|sensor|antenna/.test(n)) return "head";
+      if (/weapon|arm|shoulder/.test(n)) return /\bL\b|_l\b|left/.test(name) ? "armL" : "armR";
+      if (/leg|foot|knee|hip/.test(n)) return /\bL\b|_l\b|left/.test(name) ? "legL" : "legR";
+      return "body";
+    };
+    const tris = md.triangles.map((t, i) => {
+      const part = P[t[3]] || { section: "torso", name: "PART" };
+      return { v: [V[t[0]], V[t[1]], V[t[2]]],
+        group: groupOf[part.section] || "frame", anchor: part.name,
+        bone: boneOf(part.name),
+        var: ((i * 2654435761) % 1000) / 1000 };
+    });
+    let minY = 0;
+    V.forEach((v) => { if (v[1] < minY) minY = v[1]; });
+    return { tris, parts: md.partCount, minY, frame: m.bodyPlan,
+      shipped: true, triangleCount: tris.length };
+  },
   trace(id, view) { return (this.byId(id).trace || {})[view || this.view] || null; },
 
   /* "they are the only ones allowed": reject generic / untyped hulls and any
@@ -101,7 +130,7 @@ MF.models = {
     if (!this.terrain) this.terrain = MF.mesh3d.terrain(7717, DATA.compat.pilot.terrain);
     const m = this.byId(id);
     const fullShape = Object.assign({}, m.shape, { sig: m.sig });
-    const mesh = MF.mesh3d.fromShape(fullShape);
+    const mesh = (this.useShippedMesh && MF.models.meshFromData(id)) || MF.mesh3d.fromShape(fullShape);
     const polys = MF.mesh3d.render(ctx, w, h, {
       camera: { pos: [Math.sin(yaw) * 13.5, 6.4, -Math.cos(yaw) * 13.5], target: [0, 3.1, 0],
         fov: 1.02, near: 0.6, far: 460 },
@@ -113,8 +142,8 @@ MF.models = {
     ctx.save();
     ctx.fillStyle = "rgba(4,10,16,0.74)"; ctx.fillRect(0, 0, w, 22); ctx.fillRect(0, h - 22, w, 22);
     ctx.fillStyle = "#4dd0e1"; ctx.font = "10px monospace";
-    ctx.fillText("EXAMPLE-ONLY FULL MODEL · " + m.name + " · " + String(m.bodyPlan).toUpperCase() +
-      " · " + polys + " POLYS", 7, 14);
+    ctx.fillText("EXAMPLE-ONLY FULL 3D MODEL · " + m.name + " · " + String(m.bodyPlan).toUpperCase() +
+      " · " + polys + " TRIANGLES" + (mesh.shipped ? " (SHIPPED MESH)" : " (PROCEDURAL)"), 7, 14);
     ctx.fillStyle = "#ffb347";
     ctx.fillText("SOURCE " + m.sourceId + " · 30 ALLOWED EXAMPLES · NO IMPORTED GEOMETRY", 7, h - 7);
     ctx.restore();
@@ -130,8 +159,10 @@ MF.models = {
       ' · rejectGenericHulls=' + p.rejectGenericHulls + '</span>' +
       '<span class="k">SOURCE</span><span><code>models.json</code> → 30 entries, each derived only from its own ' +
       '<code>chassis.json</code> roster shape vector + signature-part composition</span>' +
-      '<span class="k">CONTENTS</span><span>complete 20-parameter model · front / side / top trace · ' +
-      'component polygons · internal mounting bays (reactor / bus / coolant / ECM / sensors / actuators)</span>' +
+      '<span class="k">CONTENTS</span><span>complete 20-parameter model · three INDEPENDENT front / side / top ' +
+      'orthographic traces · component polygons · internal mounting bays · <b>real indexed triangulated 3D mesh</b></span>' +
+      '<span class="k">3D MESH</span><span>' + this.library.reduce((a, x) => a + (x.mesh ? x.mesh.triangleCount : 0), 0) +
+      ' triangles across ' + this.library.length + ' example-only full models</span>' +
       '<span class="k">CUSTOM BUILDS</span><span>still fully customisable — parts must come from these examples</span>' +
       '<span class="k">ASSETS</span><span>no ripped / imported / extracted / screenshot-traced geometry, textures or base-mod files</span>' +
       '</div>';
@@ -161,11 +192,16 @@ MF.models = {
       '<div class="mf-grid2"><div class="mf-panel"><h2>FULL 3D MODEL · <span id="models-name">' + esc(m.name) + '</span></h2>' +
       '<canvas id="models-3d" class="mf-scan" width="520" height="360"></canvas>' +
       '<div class="mf-row"><button class="mf-btn small" data-act="models-rotate">ROTATE MODEL</button>' +
+      '<button class="mf-btn small" data-act="models-mesh">' +
+      (this.useShippedMesh ? "USE PROCEDURAL MESH" : "USE SHIPPED 3D MESH") + '</button>' +
       '<button class="mf-btn small" data-act="models-load">LOAD INTO FORGE</button>' +
       '<button class="mf-btn small" data-act="models-pilot">DEPLOY IN PILOT</button>' +
       '<button class="mf-btn small" data-act="models-validate">VALIDATE ACTIVE DESIGN</button></div>' +
-      '<div class="mf-note">Complete triangulated mesh from <code>MF.mesh3d.fromShape()</code> using this example\'s ' +
-      'own shape + signature parts. Six-attribute telemetry: power ' + fmt(t.powerMargin, 1) + ' kW · mass ' +
+      '<div class="mf-note"><b>Shipped 3D mesh</b> from <code>models.json</code> (' +
+      this.byId(this.selected).mesh.triangleCount + ' triangles, ' +
+      this.byId(this.selected).mesh.partCount + ' parts) or the equivalent procedural mesh from ' +
+      '<code>MF.mesh3d.fromShape()</code>. Side / top traces are independent depth / plan measurements, ' +
+      'not affine copies. Six-attribute telemetry: power ' + fmt(t.powerMargin, 1) + ' kW · mass ' +
       fmt(t.totalMass, 0) + ' kg · heat ' + fmt(t.netHeat, 1) + ' kW · RCS ' + fmt(t.rcsFront, 1) +
       ' m² · ECM ' + fmt(t.jamStrength, 1) + '.</div></div>' +
       '<div class="mf-panel"><h2>FULL MODEL TRACE · <span id="models-view-label">FRONT</span></h2>' +
@@ -248,6 +284,8 @@ MF.models = {
     else if (a === "models-pilot") this.deployInPilot(v);
     else if (a === "models-view") { this.view = v; this.update($("tab-models")); }
     else if (a === "models-rotate") { this.yaw += 0.55; this.update($("tab-models")); }
+    else if (a === "models-mesh") { this.useShippedMesh = !this.useShippedMesh;
+      const sec = $("tab-models"); if (sec) { sec.innerHTML = this.html(); this.drawAll(sec); } }
     else if (a === "models-validate") this.validateActive();
   }
 };

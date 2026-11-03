@@ -45,6 +45,39 @@ MF.weapons = {
   dps(w) {
     const p = (w && w.params) || {};
     return (Number(p.damage) || 0) * Math.max(1, Number(p.rate) || 1) / 60;
+  },  /* Aggregate the equipped loadout into values the combat / pilot loops use. */
+  combatProfile() {
+    const out = { fireDamage: 0, fireRate: 0, heatPerShot: 0, dps: 0,
+      missileDamage: 0, missileCount: 0, meleeDamage: 0,
+      shieldPool: 0, shieldRegen: 0, capacity: 0,
+      energy: false, ballistic: false, hybrid: false, names: [], count: 0 };
+    this.loadout().forEach((w) => {
+      const q = w.params || {}, cat = w.category;
+      out.count++; out.names.push(w.name);
+      if (/energy/.test(cat)) out.energy = true;
+      if (/ballistic/.test(cat)) out.ballistic = true;
+      if (/hybrid/.test((this.cfg.categories[cat] || {}).family || "")) out.hybrid = true;
+      if (q.capacity > 0) out.capacity += Number(q.capacity) || 0;
+      if (/_shield$/.test(cat)) {
+        out.shieldPool += Number(q.armor) || 0;
+        if (cat === "energy_shield") out.shieldRegen += (Number(q.armor) || 0) * 0.02;
+      } else if (/missile/.test(cat)) {
+        out.missileDamage += Number(q.damage) || 0;
+        out.missileCount += Math.max(1, Math.round((Number(q.capacity) || 12) / 6));
+      } else if (/melee/.test(cat)) {
+        out.meleeDamage += Number(q.damage) || 0;
+      } else {
+        out.fireDamage += Number(q.damage) || 0;
+        out.fireRate += Math.max(1, Number(q.rate) || 1);
+        out.heatPerShot += (Number(q.heat) || 0) * 0.02;
+      }
+      out.dps += this.dps(w);
+    });
+    /* Bounded so a full loadout is powerful but never breaks the harness. */
+    out.fireDamage = Math.min(420, out.fireDamage);
+    out.missileDamage = Math.min(600, out.missileDamage);
+    out.meleeDamage = Math.min(500, out.meleeDamage);
+    return out;
   },
   sixTotal() {
     const out = { powerDraw: 0, mass: 0, heatGen: 0, heatDiss: 0, rcs: 0, ecm: 0 };

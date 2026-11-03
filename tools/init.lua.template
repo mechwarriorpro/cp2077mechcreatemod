@@ -33,12 +33,18 @@
   discount). weapons.json defines 8 custom weapon / shield categories. damage.json
   makes every part destructible: cockpit > 70% OR torso > 90% aggregate damage
   causes FULL DESTRUCTION + pilot emergency eject (X / mechfall_ig_eject).
+
+  0.1.8-test: 10 ImGui tabs. models.json ships real triangulated 3D meshes +
+  independent front/side/top traces; MF_DATA.models.examples drives in-game part
+  placement. Designed weapons fire in CET; shields absorb and regenerate. Reactor
+  coefficients / thresholds are generated (no stale hardcoded values) and
+  tools/parity_test.js verifies CET <-> browser telemetry.
 ]]
 
 local MF = {}
 MF.visible = false
 MF.tab = 1
-MF.tabs = { "HANGAR", "INTERNAL SYSTEMS", "MECH FORGE", "REACTOR LAB", "SETTINGS", "COMPAT", "IN-GAME PILOT" }
+MF.tabs = { "HANGAR", "INTERNAL SYSTEMS", "MECH FORGE", "REACTOR LAB", "WEAPON FORGE", "MODEL LIBRARY", "DAMAGE CONTROL", "SETTINGS", "COMPAT", "IN-GAME PILOT" }
 MF.rosterIndex = 1
 MF.subIndex = 1
 MF.log = { "FORGE 77 CET overlay ready." }
@@ -190,11 +196,17 @@ MF.biomeIndex = 1
 -- Config (mirrors simulation.json; editable in SETTINGS) -------------------
 MF.coeffs = {}
 for k, v in pairs(MF_DATA.coefficientDefaults or {}) do MF.coeffs[k] = v end
-MF.rcoeffs = {
-  sizeExponent = 0.85, instabilitySizeExponent = 1.6, instabilityFlowExponent = 1.2,
-  gradeBonus = 0.08, derateFactor = 0.45, S_ref = 1.0, F_ref = 4.0,
-  heatLoadFactor = 1.0, signatureFactor = 2.6, resonanceFactor = 0.9, outputScale = 34.0
-}
+-- Reactor coefficients come from reactors.json (generated), never hardcoded,
+-- so CET telemetry always matches the browser's forgiving balance.
+MF.rcoeffs = {}
+for k, v in pairs(MF_DATA.reactorModel or {}) do
+  if type(v) == "number" then MF.rcoeffs[k] = v end
+end
+MF.rcoeffs.sizeExponent = MF.rcoeffs.sizeExponent or 0.85
+MF.rcoeffs.outputScale = MF.rcoeffs.outputScale or 56.0
+MF.rcoeffs.derateFactor = MF.rcoeffs.derateFactor or 0.26
+MF.weaponLoadout = {}
+MF.thresholds = MF_DATA.thresholds or {}
 MF.testMode = true
 MF.unlockAll = true
 MF.allowInvalidDeploy = true
@@ -296,7 +308,8 @@ local function derive(s)
     o.rcs = arm * 1.4 + hp * 0.35 + (1 - brace) * 0.3
     local mat = ({ 1.0, 1.28, 0.78, 1.62, 0.7 })[clamp(math.floor(n("frameMaterial", 1)) + 1, 1, 5)]
     o.extra = { comOffset = off - cw / 260,
-      stress = clamp((arm * 0.48 + hp / 22) / (0.32 + brace * 1.25), 0, 1.6),
+      stress = clamp((arm * 0.48 + hp / 22 + math.abs(off - cw / 260) * 0.55) /
+        (0.32 + brace * 1.25), 0, 1.6),
       mat = mat, armourDensity = arm }
   elseif c == "signature_rcs" then
     local facet, ram, edge, cav, emit, gaps = n("facetAngle", 24), n("ramCoating", 0.4),
@@ -337,7 +350,7 @@ local function derive(s)
     o.heatGen = servos * 0.35 + myo * 0.2
     o.heatDiss = 1 + damp * 2
     o.rcs = joint * 0.6
-    o.extra = { speed = clamp(0.55 + servos / 28 + myo / 22, 0.2, 2.4) }
+    o.extra = { speed = clamp(0.55 + servos / 28 + myo / 22 - n("gearRatio", 1) * 0.18, 0.2, 2.4) }
   elseif c == "freeform" then
     for _, k in ipairs(SIX) do o[k] = n(k, 0) end
   end
@@ -385,15 +398,16 @@ MF.reactorModel = reactorModel
 function MF.compute(designId)
   local d = designById(designId or MF.activeDesignId) or MF.customDesigns[1]
   local r = reactorModel(MF.reactor)
-  local parasitic = 3.5 + r.netOutput * 0.045 + (MF.reactor.W or 1.2) * 1.6 + (MF.reactor.C or 0.74) * 2
-  local used, mass, hg, hd, rcs, ecm = parasitic, 0, r.heat, 0, r.crystalSignature, 0
+  local parasitic = (3.5 + r.netOutput * 0.045 + (MF.reactor.W or 1.2) * 1.6 +
+    (MF.reactor.C or 0.74) * 2) * (MF.coeffs.reactorParasiticScale or 1)
+  local used, mods, nModules, mass, hg, hd, rcs, ecm = parasitic, 0, 0, 0, r.heat, 0, r.crystalSignature, 0
   local comOffset, stress, jamBase, emissions, speedBoost = 0, 0.3, 0, 0, 1
   local rcsMult, ewHeat, transmissionLoss, thermalExtra, mat, arm = 1, 0, 0.08, 0, 1.28, 1.1
   for _, id in ipairs(d.subsystemIds or {}) do
     local s = subById(id)
     if s then
       local x = derive(s)
-      used = used + (x.powerDraw or 0)
+      mods = mods + (x.powerDraw or 0); nModules = nModules + 1
       mass = mass + (x.mass or 0)
       hg = hg + (x.heatGen or 0)
       hd = hd + (x.heatDiss or 0)
@@ -421,6 +435,21 @@ function MF.compute(designId)
       end
     end
   end
+  -- Equipped custom weapons (WEAPON FORGE) feed the same six attributes.
+  for _, w in ipairs((MF_DATA.weapons or {}).templates or {}) do
+    if MF.weaponLoadout[w.id] then
+      local q = w.params or {}
+      mods = mods + (q.power or 0); nModules = nModules + 1
+      mass = mass + (q.mass or 0)
+      hg = hg + (q.heat or 0) * ((q.rate or 60) / 60) * 0.35
+      rcs = rcs + (q.rcs or 0)
+      ecm = ecm + (q.ecm or 0)
+    end
+  end
+  -- Forgiving module economics, identical to MF.sim.compute().
+  local bulk = 1 - (MF.coeffs.bulkModuleDiscount or 0) * clamp((nModules - 1) / 19, 0, 1)
+  local moduleScale = (MF.coeffs.moduleDrawScale or 1) * bulk
+  used = parasitic + mods * moduleScale
   local shape = d.shape or {}
   local sf = ({ angular = 1.0, rounded = 0.94, knight = 1.18, spider = 1.28, tetrapod = 1.34 })[shape.style] or 1.0
   local shapeVolume = ((shape.torsoW or 2.4) * (shape.torsoH or 2.8) * (shape.torsoD or 1.7) * 0.32
@@ -434,7 +463,9 @@ function MF.compute(designId)
   mass = mass + (120 + (MF.reactor.S or 1) * 95 + (MF.reactor.C or 0.74) * 60 + (MF.reactor.Q or 2) * 8)
   hd = hd + (2 + (MF.reactor.W or 1.2) * 6)
   ecm = ecm + (0.4 + (1 - (MF.reactor.C or 0.74)) * 2)
-  local totalMass = frameMass + mass + frameMass * 0.22 + (d.hardpoints or 6) * 18
+  -- structure.six.mass includes frameMass * 0.22 in the browser model.
+  mass = mass + frameMass * 0.22
+  local totalMass = frameMass + mass + (d.hardpoints or 6) * 12
   local usedEff = used * (1 + transmissionLoss)
   local powerMargin = r.netOutput - usedEff
   hg = hg + ewHeat * 0.35
@@ -455,20 +486,23 @@ function MF.compute(designId)
     (1 - (MF.coeffs.k1 or 0.34) * totalMass / (MF.coeffs.massRef or 2200)) *
     (1 - (MF.coeffs.k2 or 0.25) * stress) * speedBoost)
   comOffset = comOffset + ((shape.weaponX or 1.5) - (shape.torsoW or 2.4)) * 0.015
+  local TH = MF.thresholds
   local validation = {}
-  if powerMargin < 0 then table.insert(validation, "BROWNOUT") end
-  if netHeat > 0 and temp > 0.72 then table.insert(validation, "THERMAL SATURATION") end
-  if totalMass / (MF.coeffs.massRef or 2200) > 1.35 then table.insert(validation, "OVER MASS") end
-  if math.abs(comOffset) > 0.34 then table.insert(validation, "COM OFFSET") end
-  if stress > 0.78 then table.insert(validation, "STRUCTURAL STRESS") end
-  if frontRcs > 14 then table.insert(validation, "RCS EXPOSURE") end
-  if emissions > 22 then table.insert(validation, "ECM SELF-DETECTION") end
-  if r.rawHarvest < 0.22 * math.max(MF.reactor.F, 0.01) then table.insert(validation, "MANA STARVATION") end
-  if r.instability > 0.55 then table.insert(validation, "CRYSTAL RESONANCE") end
-  if r.instability > 0.95 then table.insert(validation, "CONTAINMENT FAILURE") end
+  if powerMargin < (TH.brownoutMargin or -12) then table.insert(validation, "BROWNOUT") end
+  if netHeat > 0 and temp > (TH.thermalSaturation or 0.84) then table.insert(validation, "THERMAL SATURATION") end
+  if totalMass / (MF.coeffs.massRef or 2200) > (TH.overMassRatio or 1.6) then table.insert(validation, "OVER MASS") end
+  if math.abs(comOffset) > (TH.comOffsetLimit or 0.44) then table.insert(validation, "COM OFFSET") end
+  if stress > (TH.stressLimit or 0.9) then table.insert(validation, "STRUCTURAL STRESS") end
+  if frontRcs > (TH.rcsExposure or 18) then table.insert(validation, "RCS EXPOSURE") end
+  if emissions > (TH.selfDetection or 28) then table.insert(validation, "ECM SELF-DETECTION") end
+  if r.rawHarvest < (TH.manaStarvation or 0.34) * math.max(MF.reactor.F, 0.01) then table.insert(validation, "MANA STARVATION") end
+  if r.instability > (TH.resonance or 0.68) then table.insert(validation, "CRYSTAL RESONANCE") end
+  if r.instability > (TH.containmentFailure or 0.99) then table.insert(validation, "CONTAINMENT FAILURE") end
   if r.meltdown then table.insert(validation, "MELTDOWN / PROTOCOL 3") end
   return {
-    design = d, reactor = r, powerUsed = usedEff, powerMargin = powerMargin,
+    design = d, reactor = r, powerUsed = used, powerUsedEff = usedEff,
+    powerUsedRaw = parasitic + mods,
+    moduleScale = moduleScale, nModules = nModules, powerMargin = powerMargin,
     totalMass = totalMass, frameMass = frameMass, netHeat = netHeat, heatGen = hg,
     heatDiss = heatDiss, temperature = temp, thermalMass = thermalMass,
     rcsFront = frontRcs, detectRange = detect, jamStrength = jam,
@@ -771,6 +805,88 @@ local function drawCompat()
   textWrapped("Compatibility means shared public concepts, key names and CCP1 share codes, plus pcall-wrapped GetMod detection. It does not ship, patch, require or control those mods. The IN-GAME PILOT tab is a separate CET-only layer that references vanilla entity records; see that tab and docs/INGAME_PILOT.md.")
 end
 
+-- WEAPON FORGE (CET parity with the browser tab) -----------------------------
+local function drawWeaponForge(t)
+  ImGui.Text("WEAPON FORGE · 8 CUSTOM WEAPON / SHIELD CATEGORIES")
+  ImGui.Separator()
+  ImGui.Text("Energy, ballistic, missile, melee, energy missile, energy melee, energy shielding, ballistic shielding.")
+  ImGui.Text("10 editable parameters per design in test_build.html; equip baselines here to drive the in-game pilot.")
+  local W = MF_DATA.weapons or {}
+  for _, w in ipairs(W.templates or {}) do
+    local on = MF.ingame.weaponLoadout[w.id] and true or false
+    local v, ch = ImGui.Checkbox(w.name .. "##wf" .. w.id, on)
+    if ch then MF.ingame.toggleWeapon(w.id) end
+    local q = w.params or {}
+    ImGui.Text("  " .. tostring(w.category) .. " · bus " .. tostring(q.power) .. " kW · mass " ..
+      tostring(q.mass) .. " kg · dmg " .. tostring(q.damage) .. " · armour " .. tostring(q.armor))
+  end
+  ImGui.Separator()
+  local pr = MF.ingame.weaponProfile()
+  bar("DESIGNED DAMAGE", pr.damage, 500, "pts")
+  bar("MISSILE DAMAGE", pr.missile, 500, "pts")
+  bar("SHIELD POOL", pr.shieldPool, 800, "HP")
+  bar("LIVE POWER MARGIN", t.powerMargin, 160, "kW")
+  ImGui.Text("Equipped designs feed IG.fire() and the destructible shield parts in DAMAGE CONTROL.")
+end
+
+-- MODEL LIBRARY (CET parity) -------------------------------------------------
+local function drawModelLibrary(t)
+  ImGui.Text("MODEL LIBRARY · EXAMPLE-ONLY FULL MODELS / TRACES / 3D MESHES")
+  ImGui.Separator()
+  local M = MF_DATA.models or {}
+  ImGui.Text("onlyExamplesAllowed=" .. tostring(M.onlyExamplesAllowed) ..
+    " · allowedCount=" .. tostring(M.allowedCount) ..
+    " · independentOrthographicViews=true · ships3DMesh=true")
+  ImGui.Text("Only the 30 chassis.json examples are allowed. No imported / ripped / extracted geometry.")
+  local ex = M.examples or {}
+  ImGui.BeginChild("mf_models_list", -1, 230)
+  for i, e in ipairs(ex) do
+    if ImGui.Selectable(tostring(i) .. "  " .. tostring(e.name) .. "  ·  " ..
+      tostring(e.bodyPlan) .. "  ·  " .. tostring(e.triangleCount) .. " tris##ml" .. i,
+      i == MF.ingame.modelIndex) then MF.ingame.setModel(i) end
+  end
+  ImGui.EndChild()
+  ImGui.Separator()
+  local cur = ex[MF.ingame.modelIndex]
+  if cur then
+    ImGui.Text("SELECTED " .. tostring(cur.name) .. " · " .. tostring(cur.bodyPlan) ..
+      " · " .. tostring(cur.triangleCount) .. " triangles · " .. tostring(#cur.anchors) ..
+      " in-game part anchors")
+    ImGui.Text("Deploy (F6) positions the vanilla-record signature parts from THIS example's trace.")
+  end
+  bar("ACTIVE RCS FRONT", t.rcsFront, 40, "m2")
+end
+
+-- DAMAGE CONTROL (CET parity) ------------------------------------------------
+local function drawDamageControl(t)
+  ImGui.Text("DAMAGE CONTROL · EVERY PART DESTRUCTIBLE · PILOT EMERGENCY EJECT")
+  ImGui.Separator()
+  local IG = MF.ingame
+  local c, o, cl, ol = IG.dmgStats()
+  bar("COCKPIT DAMAGE", c * 100, 100, "% / LIMIT " .. tostring(math.floor(cl * 100)) .. "%")
+  bar("TORSO DAMAGE", o * 100, 100, "% / LIMIT " .. tostring(math.floor(ol * 100)) .. "%")
+  ImGui.Text("STATUS " .. (IG.dmgDestroyed and ("DESTROYED — " .. IG.dmgReason) or
+    (IG.dmgEjected and "PILOT EJECTED" or "OPERATIONAL")) ..
+    " · " .. tostring(#IG.dmgParts) .. " parts · X = EMERGENCY EJECT")
+  if ImGui.Button("HIT PART 10%") then IG.hitPart(1, 0.10) end
+  ImGui.SameLine()
+  if ImGui.Button("EMERGENCY EJECT (X)") then IG.ejectPilot(true) end
+  ImGui.SameLine()
+  if ImGui.Button("FULL DESTRUCTION") then IG.fullDestruction("MANUAL FULL DESTRUCTION") end
+  ImGui.SameLine()
+  if ImGui.Button("REPAIR ALL") then IG.repairParts() end
+  ImGui.BeginChild("mf_damage_parts", -1, 220)
+  for _, q in ipairs(IG.dmgParts) do
+    ImGui.Text((q.destroyed and "[DEAD] " or "") .. q.name .. " · " .. string.upper(q.section))
+    ImGui.ProgressBar(q.hp / math.max(1, q.maxHp), -1, 10)
+    ImGui.SameLine()
+    if ImGui.Button("HIT##dc" .. tostring(q.id)) then IG.hitPart(q.id, 0.10) end
+    ImGui.SameLine()
+    if ImGui.Button("KILL##dc" .. tostring(q.id)) then IG.destroyPart(q.id) end
+  end
+  ImGui.EndChild()
+end
+
 registerForEvent("onInit", function()
   MF.visible = false
   log("MECHFALL // FORGE 77 loaded · " .. tostring(#(MF_DATA.roster or {})) .. " prefabs, " ..
@@ -808,8 +924,11 @@ registerForEvent("onDraw", function()
   elseif MF.tab == 2 then drawSystems(t)
   elseif MF.tab == 3 then drawForge(t)
   elseif MF.tab == 4 then drawReactor(t)
-  elseif MF.tab == 5 then drawSettings()
-  elseif MF.tab == 6 then drawCompat()
+  elseif MF.tab == 5 then drawWeaponForge(t)
+  elseif MF.tab == 6 then drawModelLibrary(t)
+  elseif MF.tab == 7 then drawDamageControl(t)
+  elseif MF.tab == 8 then drawSettings()
+  elseif MF.tab == 9 then drawCompat()
   else drawIngame(t) end
   ImGui.End()
 end)

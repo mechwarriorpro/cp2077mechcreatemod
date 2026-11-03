@@ -201,7 +201,15 @@ def lua_data(d: dict) -> dict:
             "categories": {k: {"label": v["label"], "family": v["family"], "role": v["role"]}
                            for k, v in d["weapons"]["categories"].items()},
             "templateCount": len(d["weapons"]["templates"]),
+            "templates": [
+                {"id": w["id"], "name": w["name"], "category": w["category"],
+                 "params": w["params"]}
+                for w in d["weapons"]["templates"]
+            ],
         },
+        "balance": {k: v["value"] for k, v in d["simulation"]["coefficients"].items()},
+        "reactorModel": d["reactors"]["model"],
+        "thresholds": d["simulation"]["validationThresholds"],
         "damage": {
             "thresholds": d["damage"]["thresholds"],
             "cockpitDestruction": d["damage"]["thresholds"]["cockpitDestruction"],
@@ -211,6 +219,18 @@ def lua_data(d: dict) -> dict:
             "baseHp": d["damage"]["baseHp"],
         },
         "models": {
+            "examples": [
+                {"id": m["id"], "name": m["name"], "bodyPlan": m["bodyPlan"],
+                 "triangleCount": m["mesh"]["triangleCount"],
+                 "anchors": [
+                     [round((sum(q[0] for q in part["points"]) / len(part["points"]) - 0.5) * 8, 2),
+                      round(sum(q[1] for q in part["points"]) / len(part["points"]) * 6, 2),
+                      -1.2 if part.get("kind") in ("back", "thruster") else
+                      (1.0 if part.get("kind") == "head" else 0.0)]
+                     for part in m["trace"]["front"]["parts"][:8]
+                 ]}
+                for m in d["models"]["models"]
+            ],
             "onlyExamplesAllowed": d["models"]["policy"]["onlyExamplesAllowed"],
             "allowedCount": d["models"]["policy"]["allowedCount"],
             "allowedSourceIds": d["models"]["policy"]["allowedSourceIds"],
@@ -312,6 +332,7 @@ def build_roster(d: dict) -> str:
               "", "`" + ", ".join(c["shapeKeys"]) + "`", "",
               "Spelling variations resolved: Earlcumber/Erlecumber, Tzendolg/Tzendolimble, Toybox/Toy Box.",
               "See `HANDOVER.md` §3.6 and `PERMISSIONS.md` for IP carve-outs.", ""]
+    lines += ["", build_hooks_appendix(d)]
     return "\n".join(lines)
 
 

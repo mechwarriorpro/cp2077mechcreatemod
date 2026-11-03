@@ -1,3 +1,38 @@
+## 2026-11-03 — closing every remaining gap (0.1.8-test)
+
+- **Real 3D full models.** `tools/build_models.py` now generates three genuinely independent
+  front / side / top orthographic traces per example (side uses torso depth, foot length and an
+  asymmetric backpack bulge; top is a width × depth plan view) and a **real indexed triangulated
+  3D mesh** per example (10,704 triangles / 930 parts total). `MF.models.meshFromData()` renders
+  the shipped mesh; MODEL LIBRARY has a shipped/procedural toggle. All 30 outlines are distinct in
+  each view. `validate.py --strict` rejects affine-copy traces and malformed triangles/vertices.
+- **Designed weapons actually work.** `MF.weapons.combatProfile()` feeds bullet damage, rate, heat,
+  missile salvo size/damage and melee burst into COMBAT TEST and PILOT TEST; `IG.weaponProfile()` /
+  `IG.fire()` do the same in CET. Shield designs create destructible `shield` parts,
+  `MF.damage.absorb()` drains them before hull damage and `MF.damage.tick()` regenerates energy
+  shielding. Both HUDs show the live shield pool.
+- **10 CET ImGui tabs.** WEAPON FORGE, MODEL LIBRARY and DAMAGE CONTROL added to `init.lua.template`
+  (HANGAR, INTERNAL SYSTEMS, MECH FORGE, REACTOR LAB, WEAPON FORGE, MODEL LIBRARY, DAMAGE CONTROL,
+  SETTINGS, COMPAT, IN-GAME PILOT). `lua_test.js` now exercises all 10.
+- **Example models drive the in-game chassis.** `lua_data.models.examples` carries 8 per-example
+  3D anchors from each trace; `IG.setModel(i)` + model-driven `partOffset()` replace the generic
+  ring; each spawned part is linked to a damage part (`dmgId`) and despawns when destroyed.
+- **Telemetry parity fixed.** CET's `MF.rcoeffs` was hardcoded to the old `outputScale 34` /
+  `derateFactor 0.45`; it now reads generated `MF_DATA.reactorModel` + `MF_DATA.thresholds`, applies
+  `moduleDrawScale` / `bulkModuleDiscount` / `reactorParasiticScale`, matches browser actuator gear
+  ratio, structure mass and `powerUsed` semantics. New `tools/parity_test.js` compares 12 real
+  values from both implementations: worst delta **3.06%** (was 20.10% on speed).
+- **Complete integration templates.** Four previously stub files are now full, self-consistent
+  specs (redscript `MechfallForgeRuntime` with per-part damage / eject / repair, 8 original TweakXL
+  weapon records, ArchiveXL + WolvenKit `.ent`/`.mesh`/`.app`/`.rig` layout, custom entity spawn +
+  damage binding). `tools/validate_integration.py` checks completeness, balance, thresholds,
+  2.31 matrix, cross-references and no base-mod refs. **Still NOT installed, compiled or in-game
+  verified** — the installable path stays CET-only.
+- `build_hooks_appendix()` wired into `ROSTER.md`. All data versions `0.1.8-test`. Docs, strict
+  validator, smoke test, Lua runtime test, parity test, package, bundle and preview refreshed.
+
+---
+
 ## 2026-11-03 — forgiving energy, custom weapons & per-part destruction (0.1.7-test)
 
 - **Forgiving reactor / energy design.** `reactors.json` `outputScale` 34 → **56**,

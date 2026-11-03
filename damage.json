@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "meta": {
     "name": "MECHFALL // FORGE 77 — per-part destruction model",
-    "version": "0.1.7-test"
+    "version": "0.1.8-test"
   },
   "note": "Every individual part of a chassis is destructible. The cockpit and torso sections have explicit destruction thresholds: >70% cockpit damage OR >90% aggregate torso-section damage triggers FULL DESTRUCTION and an automatic pilot emergency eject. Thresholds are configurable here and enforced identically in the browser prototype and the CET in-game pilot.",
   "thresholds": {

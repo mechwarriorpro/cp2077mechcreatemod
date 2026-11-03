@@ -193,7 +193,7 @@ any derivative-asset work.
 | V teleports awkwardly / camera fights | Uncheck **COCKPIT LOCK**, or switch to **ORBIT**. Press `F7` to stop. |
 | Controls stuck | Press `F7`; undeploy clears all key state. |
 | Game AI attacks you | Expected — spawned NPCs are vanilla. Press `F7`, move to a quiet area. |
-| Overlay tab missing | Regenerate: `python3 tools/generate.py`; confirm `IN-GAME PILOT` is the 7th CET tab. |
+| Overlay tab missing | Regenerate: `python3 tools/generate.py`; confirm `IN-GAME PILOT` is the 10th of 10 CET tabs. |
 
 ## 8. Verification in this repo
 
@@ -225,3 +225,24 @@ a living part every 2 s while a lock is active.
 > binding). See `docs/DAMAGE_MODEL.md`.
 
 Damage is simulation state over vanilla record references; no game assets are edited.
+
+
+## 10. 0.1.8-test — full CET parity
+
+The CET overlay now has **10 ImGui tabs**: HANGAR, INTERNAL SYSTEMS, MECH FORGE, REACTOR LAB,
+**WEAPON FORGE**, **MODEL LIBRARY**, **DAMAGE CONTROL**, SETTINGS, COMPAT, IN-GAME PILOT.
+`lua_test.js` opens and draws all 10.
+
+* **WEAPON FORGE** equips any of the 8 baseline designs; `MF.weaponLoadout` syncs into
+  `MF.compute()` so power margin reflects the loadout, and `IG.fire()` reports designed damage /
+  missile damage / shield HP while adding heat.
+* **MODEL LIBRARY** lists all 30 example-only full models with triangle counts; selecting one
+  calls `IG.setModel(i)`. On F6 deploy the signature-part entities are positioned from that
+  example's 8 trace-derived anchors instead of a generic ring.
+* **DAMAGE CONTROL** shows the 28 destructible parts with HIT / KILL, cockpit / torso threshold
+  bars, EJECT, FULL DESTRUCTION and REPAIR.
+* `MF.rcoeffs` and `MF.thresholds` are now generated from `reactors.json` / `simulation.json`
+  (previously hardcoded to the pre-0.1.7 values). `tools/parity_test.js` proves CET and browser
+  telemetry agree within 3.06% worst-case across 12 values.
+* The four `docs/integration/*.example` specs are complete and validated but **still not
+  installed, compiled or in-game verified**.

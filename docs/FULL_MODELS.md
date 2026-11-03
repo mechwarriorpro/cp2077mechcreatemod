@@ -99,3 +99,22 @@ content.
 * Nothing here is verified inside Cyberpunk 2077. Custom meshes, rigs, animations, VO, vehicle
   seats and mount systems still need ArchiveXL / TweakXL / Codeware / redscript work and, where
   derivative assets are involved, permission from the original authors.
+
+
+---
+
+## 0.1.8-test corrections
+
+The `0.1.6-test` note above said side/top views are affine projections of the front profile.
+**That is no longer true.** `tools/build_models.py` now generates three independent orthographic
+measurements: front (width/height), side (depth/height with an asymmetric backpack bulge), and top
+(width/depth plan view). All 30 outlines are distinct in every view.
+
+Each example also ships a **real indexed triangulated 3D part-soup mesh** in
+`models[i].mesh`: `vertices` (metres), `triangles` (`[a,b,c,partIndex]`), `parts` (name, section,
+center, half, vertexStart, triangleStart). 31 parts / 248 vertices / 372 triangles per example,
+10,704 triangles total. `MF.models.meshFromData(id)` converts it to the `MF.mesh3d.render()` mesh
+format; MODEL LIBRARY toggles between the shipped mesh and the equivalent procedural
+`MF.mesh3d.fromShape()` mesh. No geometry is imported — it is derived only from the example's own
+shape vector. See `docs/integration/archivexl.archive.example.md` for how the mesh maps onto a
+future original `.mesh` resource (still NOT built / installed / in-game verified).

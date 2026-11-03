@@ -191,3 +191,20 @@ damage > 90% triggers FULL DESTRUCTION and an automatic pilot emergency eject.**
 ## Per-part destruction & pilot eject (R18)
 
 `damage.json` + `tools/src/28_damage.js` give every `MF.shapeParts()` box (and every equipped weapon / shield) its own HP. `MF.damage.evaluate()` fires `destroy()` when `cockpitDamage > 0.70 || torsoDamage > 0.90`; `destroy()` marks all parts destroyed, ejects the pilot, releases the cockpit lock, ends the run and despawns CET entities. Manual eject is `X`. Mirrored in `IG.checkDestruction()` / `IG.fullDestruction()` inside the CET Lua. No game assets are edited. See `docs/DAMAGE_MODEL.md`.
+
+## Complete model / weapon / CET / parity pass (R19–R21)
+
+## `0.1.8-test` — closing every remaining gap
+
+| Gap found | What shipped |
+|---|---|
+| Side / top traces were affine copies of the front profile | **Independent** side (depth-driven, asymmetric backpack) and top (plan-view width × depth) orthographic traces, all 30 distinct in each view |
+| No real 3D model data in `models.json` | **Real indexed triangulated 3D part-soup mesh** per example — 31 parts / 248 vertices / 372 triangles each, **10,704 triangles total**; rendered by `MF.models.meshFromData()` with a shipped/procedural toggle |
+| Custom weapons were data only | `MF.weapons.combatProfile()` now drives bullet damage, fire rate, heat, missile salvo damage/count and melee burst in **COMBAT TEST / PILOT TEST**; `IG.fire()` uses the CET loadout |
+| Energy / ballistic shielding had no mechanic | Shield designs create **destructible shield parts** with an HP pool; `MF.damage.absorb()` drains them before hull damage; energy shields regenerate via `MF.damage.tick()` |
+| CET overlay had 7 tabs vs 12 browser tabs | **10 CET ImGui tabs**: WEAPON FORGE, MODEL LIBRARY, DAMAGE CONTROL added; all 10 exercised by `lua_test.js` |
+| Model library did not affect the in-game mech | `lua_data.models.examples[i].anchors` (8 per-example 3D offsets) drive `partOffset()` on deploy; `IG.setModel(i)` selects one of the 30 examples; spawned parts are linked to damage parts so destroying one despawns its entity |
+| CET reactor coefficients were hardcoded to pre-0.1.7 values | `MF.rcoeffs` + `MF.thresholds` now come from generated `MF_DATA.reactorModel` / `MF_DATA.thresholds`; module bulk discount, parasitic scale and relaxed thresholds applied |
+| CET ↔ browser telemetry drift (~20% on speed) | `tools/parity_test.js` runs both real implementations; worst delta now **3.06%** (rcsFront), all 12 values within 12% tolerance |
+| Integration templates were 14–38 line stubs | Four **complete** specs (redscript runtime, TweakXL records, ArchiveXL/WolvenKit layout, custom entity + damage binding), structurally validated by `tools/validate_integration.py`; still NOT installed / compiled / in-game verified |
+| `build_hooks_appendix()` was dead code | Wired into generated `ROSTER.md` (chassis + reactor identifier lists) |

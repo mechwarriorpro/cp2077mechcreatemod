@@ -132,6 +132,65 @@ function IG.detect()
   return v
 end
 
+-- Example-model-driven in-game chassis + weapon loadout -------------------------
+IG.modelIndex = 1
+IG.weaponLoadout = {}
+function IG.modelExamples() return (MF_DATA.models or {}).examples or {} end
+function IG.setModel(i)
+  local ex = IG.modelExamples()
+  if #ex == 0 then return 1 end
+  IG.modelIndex = ((tonumber(i) or 1) - 1) % #ex + 1
+  iglog("FULL MODEL " .. tostring(IG.modelIndex) .. ": " ..
+    tostring(ex[IG.modelIndex].name) .. " · " .. tostring(ex[IG.modelIndex].triangleCount) ..
+    " triangles · in-game part layout follows this example")
+  return IG.modelIndex
+end
+function IG.modelName()
+  local ex = IG.modelExamples()
+  return ex[IG.modelIndex] and ex[IG.modelIndex].name or "EXAMPLE 01"
+end
+function IG.toggleWeapon(id)
+  IG.weaponLoadout[id] = not IG.weaponLoadout[id] or nil
+  if MF.weaponLoadout then MF.weaponLoadout[id] = IG.weaponLoadout[id] end
+  local pr = IG.weaponProfile()
+  iglog("WEAPON LOADOUT · " .. tostring(pr.count) .. " designs · " ..
+    tostring(math.floor(pr.damage)) .. " dmg · " .. tostring(pr.shieldPool) .. " shield HP")
+  return pr.count
+end
+function IG.weaponProfile()
+  local out = { count = 0, damage = 0, heat = 0, missile = 0, shieldPool = 0,
+    rate = 0, names = {} }
+  for _, w in ipairs((MF_DATA.weapons or {}).templates or {}) do
+    if IG.weaponLoadout[w.id] then
+      out.count = out.count + 1
+      local q = w.params or {}
+      if string.match(w.category, "shield$") then
+        out.shieldPool = out.shieldPool + (q.armor or 0)
+      elseif string.match(w.category, "missile") then
+        out.missile = out.missile + (q.damage or 0)
+      else
+        out.damage = out.damage + (q.damage or 0)
+        out.rate = out.rate + (q.rate or 60)
+        out.heat = out.heat + (q.heat or 0) * 0.02
+      end
+      table.insert(out.names, w.name)
+    end
+  end
+  return out
+end
+function IG.despawnPartEntities(dmgId)
+  for _, q in ipairs(IG.parts or {}) do
+    if q.dmgId == dmgId and q.id then
+      pcall(function()
+        if type(Game) == "table" and type(Game.FindEntityByID) == "function" then
+          local e = Game.FindEntityByID(q.id)
+          if e and type(exEntitySpawner) == "table" then exEntitySpawner.Despawn(e) end
+        end
+      end)
+    end
+  end
+end
+
 -- Per-part destruction / pilot emergency eject --------------------------------
 IG.dmgCfg = MF_DATA.damage or {}
 IG.dmgParts = {}
@@ -185,6 +244,7 @@ function IG.destroyPart(i)
   if not q or IG.dmgDestroyed then return false end
   q.hp = 0; q.destroyed = true
   iglog("PART DESTROYED — " .. q.name)
+  IG.despawnPartEntities(i)
   IG.checkDestruction()
   return true
 end
@@ -357,6 +417,14 @@ end
 
 -- Rotated signature-part offsets around the core chassis. --------------------
 local function partOffset(i, total)
+  local ex = (MF_DATA.models.examples or {})[IG.modelIndex]
+  local anchors = ex and ex.anchors or nil
+  if anchors and anchors[i] then
+    local a = anchors[i]
+    return { x = a[1] * 0.55, y = (a[3] or 0) * 0.55,
+             z = 0.6 + (a[2] or 3) * 0.45, phase = i,
+             model = ex.name }
+  end
   local a = (i - 1) * (2 * math.pi / math.max(1, total))
   local r = IG.ph.partSpread
   return { x = math.cos(a) * r, y = math.sin(a) * r,
@@ -442,6 +510,7 @@ function IG.deploy()
     local id = spawnRecord(pr.id, IG.pos.x + off.x, IG.pos.y + off.y, IG.pos.z + off.z, d)
     table.insert(IG.parts, { id = id, entity = nil, off = partOffset(i, n), rec = pr.id, slot = pr.slot, name = pr.name })
   end
+  for k, q in ipairs(IG.parts) do q.dmgId = ((k - 1) % math.max(1, #IG.dmgParts)) + 1 end
   iglog(tostring(n) .. " in-game signature part records queued (" .. tostring(#recs) ..
     " allowed for patch " .. IG.patch .. (IG.hasPL and " + PL" or " / no PL") .. ")")
   pcall(function() IG.telemetry = MF.compute(MF.activeDesignId) end)
@@ -484,7 +553,14 @@ function IG.breakLock()
   iglog("ECM / SALVO — lock broken, hostile despawned (" .. tostring(IG.kills) .. " total)")
   return true
 end
-IG.fire = function() return IG.breakLock() end
+IG.fire = function()
+  local pr = IG.weaponProfile()
+  IG.heat = math.min(1.8, IG.heat + 0.04 + pr.heat * 0.002)
+  iglog("FIRE · " .. tostring(pr.count) .. " designed weapons · " ..
+    tostring(math.floor(pr.damage)) .. " dmg · " .. tostring(pr.missile) ..
+    " missile dmg · shield " .. tostring(pr.shieldPool) .. " HP")
+  return IG.breakLock()
+end
 IG.vent = function()
   IG.heat = math.max(0.34, IG.heat - 0.38)
   IG.venting = 3.0
@@ -672,7 +748,8 @@ end
 function IG.statusText()
   local resolved = 0
   for _, p in ipairs(IG.parts or {}) do if p.entity then resolved = resolved + 1 end end
-  return IG.status .. " · parts " .. tostring(resolved) .. "/" .. tostring(#(IG.parts or {})) ..
+  return IG.status .. " · MODEL " .. IG.modelName() .. " · parts " ..
+    tostring(resolved) .. "/" .. tostring(#(IG.parts or {})) ..
     " · locks " .. tostring(#(IG.hostiles or {})) .. " · " .. IG.cameraMode ..
     " · " .. (IG.cockpitLock and "COCKPIT LOCK ON" or "COCKPIT LOCK OFF")
 end
@@ -753,6 +830,15 @@ local function drawIngame(t)
   ImGui.Text("Speed " .. f(t.speed, 2) .. " m/s · brownout/thermal derate " ..
     ((t.powerMargin < 0 or t.temperature > 0.72) and "ACTIVE" or "nominal") ..
     " · hostile locks " .. tostring(#(IG.hostiles or {})) .. " · kills " .. tostring(IG.kills))
+  ImGui.Separator()
+  local mex = IG.modelExamples()
+  local mlabels = {}
+  for i, e in ipairs(mex) do mlabels[i] = e.name .. " (" .. tostring(e.triangleCount) .. " tris)" end
+  local mi, mch = ImGui.Combo("EXAMPLE FULL MODEL##ig", IG.modelIndex - 1, mlabels, #mlabels)
+  if mch then IG.setModel(mi + 1) end
+  local wpr = IG.weaponProfile()
+  ImGui.Text("WEAPON LOADOUT " .. tostring(wpr.count) .. " designs · " ..
+    tostring(math.floor(wpr.damage)) .. " dmg · " .. tostring(wpr.shieldPool) .. " shield HP")
   ImGui.Separator()
   ImGui.Text("PER-PART DESTRUCTION · PILOT EMERGENCY EJECT")
   local dc, do_, dcl, dol = IG.dmgStats()

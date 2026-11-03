@@ -191,6 +191,24 @@ setTimeout(() => {
     MF.setTab('systems');
 
     // INTERNAL SYSTEMS: blank-slate authoring
+    // FULL 3D MESH + INDEPENDENT ORTHOGRAPHIC TRACES (0.1.8-test)
+    const mm = MF.DATA.models.models[0].mesh;
+    must(mm.triangleCount >= 100 && mm.partCount >= 20 && mm.vertices.length >= 100,
+      'every example ships a real indexed triangulated 3D mesh');
+    const shipped = MF.models.meshFromData(MF.DATA.models.models[0].id);
+    must(shipped && shipped.tris.length === mm.triangleCount && shipped.shipped === true,
+      'MODEL LIBRARY renders the shipped 3D mesh');
+    must(MF.DATA.models.policy.independentOrthographicViews === true &&
+      MF.DATA.models.policy.ships3DMesh === true, 'independent views + shipped mesh policy');
+    const sideW = Math.max(...MF.DATA.models.models[0].trace.side.outline.map(q=>q[0])) -
+      Math.min(...MF.DATA.models.models[0].trace.side.outline.map(q=>q[0]));
+    const topLen = MF.DATA.models.models[0].trace.top.outline.length;
+    must(sideW > 0.05 && topLen !== MF.DATA.models.models[0].trace.front.outline.length,
+      'side / top traces are independent of the front profile');
+    click('[data-act="models-mesh"]');
+    must(MF.models.useShippedMesh === false, 'shipped / procedural mesh toggle works');
+    click('[data-act="models-mesh"]');
+
     // FORGIVING ENERGY / REACTOR BALANCE
     const baseTele = MF.sim.compute(MF.activeDesign());
     must(baseTele.powerMargin > 20, 'forgiving reactor gives a large positive power margin (got ' +
@@ -223,6 +241,23 @@ setTimeout(() => {
     must(postWeapon.heatGen > preWeapon.heatGen, 'equipped weapon feeds heat');
     must(MF.weapons.dps(cw) > 0 && MF.weapons.sixTotal().powerDraw > 0,
       'weapon DPS and six-attribute totals compute');
+
+    // DESIGNED WEAPONS ACTUALLY FIRE / SHIELDS ABSORB (0.1.8-test)
+    const prof = MF.weapons.combatProfile();
+    must(prof.count === 1 && prof.fireDamage > 0 && prof.dps > 0,
+      'equipped design produces a live combat profile');
+    const shieldTpl = MF.DATA.weapons.templates.find(x => x.category === 'energy_shield');
+    MF.weapons.toggle(shieldTpl.id);
+    const ds2 = MF.damage.ensure(true);
+    const shieldParts = ds2.parts.filter(x => x.section === 'shield');
+    must(shieldParts.length >= 1 && MF.damage.shieldPool(ds2) > 0,
+      'equipped shielding creates destructible shield parts with an HP pool');
+    const ab = MF.damage.absorb(ds2, 40);
+    must(ab.absorbed > 0 && ab.remaining < 40, 'shield parts absorb incoming damage');
+    MF.damage.tick(ds2, 1.0);
+    must(MF.damage.shieldPool(ds2) > ab.absorbed - 40, 'energy shielding regenerates between hits');
+    MF.weapons.toggle(shieldTpl.id);
+    MF.damage.ensure(true);
 
     // PER-PART DESTRUCTION + EMERGENCY EJECT
     MF.setTab('damage');

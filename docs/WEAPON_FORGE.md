@@ -65,3 +65,19 @@ These are **simulation parameters**, not meshes, projectiles, sounds, rigs, text
 base-mod / third-party assets. The `0.1.7-test` browser prototype renders the engineering
 consequences; it does not claim to add weapon models to Cyberpunk 2077. The CET installable
 path still references vanilla game records only.
+
+
+---
+
+## 0.1.8-test — designs actually fire
+
+`MF.weapons.combatProfile()` aggregates the loadout into `fireDamage`, `fireRate`, `heatPerShot`,
+`missileDamage`, `missileCount`, `meleeDamage`, `shieldPool`, `shieldRegen` and `dps`. COMBAT TEST
+uses it for primary bullet damage / cooldown / heat / bullet colour, `R` salvo size + damage and
+`Q` burst-core melee bonus. PILOT TEST uses it for primary fire, `R` missile salvo and heat.
+CET `IG.weaponProfile()` / `IG.fire()` use the equivalent CET loadout (`MF.weaponLoadout` is synced
+into `MF.compute()` so the overlay's power margin reflects equipped designs).
+
+Shield designs create destructible `shield` parts in `MF.damage`; `MF.damage.absorb()` drains their
+HP before hull damage, `MF.damage.tick()` regenerates energy shielding, and destroyed shield parts
+stay down until REPAIR ALL. Both COMBAT / PILOT HUDs show the live shield pool.

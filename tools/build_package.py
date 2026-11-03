@@ -25,11 +25,16 @@ FILES = [
     "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
     "docs/FULL_MODELS.md", "docs/WEAPON_FORGE.md", "docs/DAMAGE_MODEL.md",
     "models.json", "weapons.json", "damage.json",
+    "docs/integration/redscript_hook.reds.example",
+    "docs/integration/tweakxl.yaml.example",
+    "docs/integration/archivexl.archive.example.md",
+    "docs/integration/custom_mech_entity.example.md",
     "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua",
     "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/README.md",
 ]
-# Deliberately NOT packaged: docs/integration/*.example (unvalidated redscript/TweakXL/ArchiveXL
-# templates), tools/, the other JSON source data, .github/, generated bundles, and any base-mod
+# The four docs/integration/*.example specs ARE packaged as documentation (they are complete and
+# structurally validated by tools/validate_integration.py, but are NOT installed and NOT compiled).
+# Deliberately NOT packaged: tools/, the other JSON source data, .github/, generated bundles, and any base-mod
 # files. models.json IS packaged: it is the delivered example-only full-model / trace library.
 
 

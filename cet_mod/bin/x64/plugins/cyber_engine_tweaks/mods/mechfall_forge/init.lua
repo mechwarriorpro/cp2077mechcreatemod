@@ -33,12 +33,18 @@
   discount). weapons.json defines 8 custom weapon / shield categories. damage.json
   makes every part destructible: cockpit > 70% OR torso > 90% aggregate damage
   causes FULL DESTRUCTION + pilot emergency eject (X / mechfall_ig_eject).
+
+  0.1.8-test: 10 ImGui tabs. models.json ships real triangulated 3D meshes +
+  independent front/side/top traces; MF_DATA.models.examples drives in-game part
+  placement. Designed weapons fire in CET; shields absorb and regenerate. Reactor
+  coefficients / thresholds are generated (no stale hardcoded values) and
+  tools/parity_test.js verifies CET <-> browser telemetry.
 ]]
 
 local MF = {}
 MF.visible = false
 MF.tab = 1
-MF.tabs = { "HANGAR", "INTERNAL SYSTEMS", "MECH FORGE", "REACTOR LAB", "SETTINGS", "COMPAT", "IN-GAME PILOT" }
+MF.tabs = { "HANGAR", "INTERNAL SYSTEMS", "MECH FORGE", "REACTOR LAB", "WEAPON FORGE", "MODEL LIBRARY", "DAMAGE CONTROL", "SETTINGS", "COMPAT", "IN-GAME PILOT" }
 MF.rosterIndex = 1
 MF.subIndex = 1
 MF.log = { "FORGE 77 CET overlay ready." }
@@ -2533,7 +2539,208 @@ return {
         ["role"] = "defence"
       }
     },
-    ["templateCount"] = 8
+    ["templateCount"] = 8,
+    ["templates"] = {
+      {
+        ["id"] = "tpl_energy_weapon",
+        ["name"] = "ENERGY WEAPON \u{b7} BASELINE",
+        ["category"] = "energy_weapon",
+        ["params"] = {
+          ["power"] = 18,
+          ["mass"] = 180,
+          ["heat"] = 22,
+          ["damage"] = 85,
+          ["range"] = 650,
+          ["rate"] = 45,
+          ["rcs"] = 1.4,
+          ["ecm"] = 4,
+          ["capacity"] = 0,
+          ["armor"] = 0
+        }
+      },
+      {
+        ["id"] = "tpl_ballistic_weapon",
+        ["name"] = "BALLISTIC WEAPON \u{b7} BASELINE",
+        ["category"] = "ballistic_weapon",
+        ["params"] = {
+          ["power"] = 5,
+          ["mass"] = 320,
+          ["heat"] = 7,
+          ["damage"] = 110,
+          ["range"] = 900,
+          ["rate"] = 90,
+          ["rcs"] = 0.3,
+          ["ecm"] = -2,
+          ["capacity"] = 180,
+          ["armor"] = 0
+        }
+      },
+      {
+        ["id"] = "tpl_missile_weapon",
+        ["name"] = "MISSILE WEAPON \u{b7} BASELINE",
+        ["category"] = "missile_weapon",
+        ["params"] = {
+          ["power"] = 7,
+          ["mass"] = 260,
+          ["heat"] = 9,
+          ["damage"] = 160,
+          ["range"] = 1200,
+          ["rate"] = 8,
+          ["rcs"] = 3.2,
+          ["ecm"] = 6,
+          ["capacity"] = 24,
+          ["armor"] = 0
+        }
+      },
+      {
+        ["id"] = "tpl_melee_weapon",
+        ["name"] = "MELEE WEAPON \u{b7} BASELINE",
+        ["category"] = "melee_weapon",
+        ["params"] = {
+          ["power"] = 1,
+          ["mass"] = 420,
+          ["heat"] = 2,
+          ["damage"] = 210,
+          ["range"] = 12,
+          ["rate"] = 30,
+          ["rcs"] = -0.4,
+          ["ecm"] = 0,
+          ["capacity"] = 0,
+          ["armor"] = 0
+        }
+      },
+      {
+        ["id"] = "tpl_energy_missile",
+        ["name"] = "ENERGY MISSILE \u{b7} BASELINE",
+        ["category"] = "energy_missile",
+        ["params"] = {
+          ["power"] = 14,
+          ["mass"] = 210,
+          ["heat"] = 17,
+          ["damage"] = 190,
+          ["range"] = 1050,
+          ["rate"] = 10,
+          ["rcs"] = 2.2,
+          ["ecm"] = 8,
+          ["capacity"] = 12,
+          ["armor"] = 0
+        }
+      },
+      {
+        ["id"] = "tpl_energy_melee",
+        ["name"] = "ENERGY MELEE \u{b7} BASELINE",
+        ["category"] = "energy_melee",
+        ["params"] = {
+          ["power"] = 12,
+          ["mass"] = 300,
+          ["heat"] = 13,
+          ["damage"] = 240,
+          ["range"] = 9,
+          ["rate"] = 35,
+          ["rcs"] = 0.9,
+          ["ecm"] = 2,
+          ["capacity"] = 0,
+          ["armor"] = 0
+        }
+      },
+      {
+        ["id"] = "tpl_energy_shield",
+        ["name"] = "ENERGY SHIELDING \u{b7} BASELINE",
+        ["category"] = "energy_shield",
+        ["params"] = {
+          ["power"] = 22,
+          ["mass"] = 150,
+          ["heat"] = 16,
+          ["damage"] = 15,
+          ["range"] = 0,
+          ["rate"] = 1,
+          ["rcs"] = 2.6,
+          ["ecm"] = 10,
+          ["capacity"] = 0,
+          ["armor"] = 300
+        }
+      },
+      {
+        ["id"] = "tpl_ballistic_shield",
+        ["name"] = "BALLISTIC SHIELDING \u{b7} BASELINE",
+        ["category"] = "ballistic_shield",
+        ["params"] = {
+          ["power"] = 0,
+          ["mass"] = 480,
+          ["heat"] = 0,
+          ["damage"] = 0,
+          ["range"] = 0,
+          ["rate"] = 1,
+          ["rcs"] = -0.8,
+          ["ecm"] = 0,
+          ["capacity"] = 0,
+          ["armor"] = 420
+        }
+      }
+    }
+  },
+  ["balance"] = {
+    ["k1"] = 0.34,
+    ["k2"] = 0.25,
+    ["massRef"] = 2200,
+    ["baseSpeed"] = 9,
+    ["rcsShapeExponent"] = 1.35,
+    ["rcsMaterialExponent"] = 0.85,
+    ["detectionExponent"] = 0.5,
+    ["detectionK"] = 120,
+    ["lockK"] = 6,
+    ["jamK"] = 240,
+    ["ecmFalloffExponent"] = 2,
+    ["shapeMassFactor"] = 75,
+    ["thermalMassFactor"] = 6,
+    ["emissionRcsFactor"] = 0.12,
+    ["enemySensorFactor"] = 1,
+    ["combatDistanceRef"] = 300,
+    ["moduleDrawScale"] = 0.72,
+    ["bulkModuleDiscount"] = 0.42,
+    ["reactorParasiticScale"] = 0.62
+  },
+  ["reactorModel"] = {
+    ["sizeExponent"] = 0.85,
+    ["instabilitySizeExponent"] = 1.6,
+    ["instabilityFlowExponent"] = 1.2,
+    ["gradeBonus"] = 0.08,
+    ["derateFactor"] = 0.26,
+    ["S_ref"] = 1,
+    ["F_ref"] = 4,
+    ["heatLoadFactor"] = 0.8,
+    ["signatureFactor"] = 2.6,
+    ["resonanceFactor"] = 0.9,
+    ["equations"] = {
+      "rawHarvest   = A * biomeMultiplier * L",
+      "growthPool  += (G - F) * dt",
+      "throughput   = min(F, growthPool + rawHarvest)",
+      "grossMana    = throughput * eta * (S^sizeExponent) * (1 + gradeBonus*(Q-1))",
+      "grossOutput  = grossMana * outputScale        // mana/s -> kW unit conversion",
+      "heatLoad     = (throughput/W) * eta * (1-eta) * heatLoadFactor * (1+gradeBonus*(Q-1))  // flow duty, size-independent",
+      "instability  = (S/S_ref)^1.6 * (F/F_ref)^1.2 * (1-eta) * (1-C) * (1+heatLoad)",
+      "netOutput    = grossOutput * (1 - min(instability,1)*derateFactor)",
+      "meltdown     = instability > 1.0"
+    },
+    ["note"] = "outputScale converts mana throughput to kW so the reactor can feed kW-scale subsystem draws. heatLoad is the size-independent flow/regulator duty, so doubling S gives 2^sizeExponent ~1.8x GROSS power and 2^instabilitySizeExponent ~3x instability exactly; netOutput after the derate is lower. All exponents live here and in simulation.json. 0.1.7-test: outputScale raised 34->56, derateFactor lowered 0.45->0.26 and heatLoadFactor lowered 1.0->0.8 so reactor design is more forgiving and supplies substantially more energy. The doubling rule (2^sizeExponent / 2^instabilitySizeExponent) is unchanged.",
+    ["outputScale"] = 56
+  },
+  ["thresholds"] = {
+    ["brownoutMargin"] = -12,
+    ["surgeMargin"] = 40,
+    ["thermalSaturation"] = 0.84,
+    ["meltdownTemperature"] = 1.15,
+    ["overMassRatio"] = 1.6,
+    ["comOffsetLimit"] = 0.44,
+    ["stressLimit"] = 0.9,
+    ["rcsExposure"] = 18,
+    ["selfDetection"] = 28,
+    ["manaStarvation"] = 0.34,
+    ["latticeOverflow"] = 0.86,
+    ["resonance"] = 0.68,
+    ["containmentFailure"] = 0.99,
+    ["hardpointLimit"] = 20,
+    ["maxModules"] = 24
   },
   ["damage"] = {
     ["thresholds"] = {
@@ -2668,6 +2875,1438 @@ return {
     }
   },
   ["models"] = {
+    ["examples"] = {
+      {
+        ["id"] = "bt7274",
+        ["name"] = "BT-7274",
+        ["bodyPlan"] = "vanguard",
+        ["triangleCount"] = 372,
+        ["anchors"] = {
+          {
+            -2.07,
+            3.99,
+            0
+          },
+          {
+            -2.42,
+            4.85,
+            0
+          },
+          {
+            2.07,
+            3.99,
+            0
+          },
+          {
+            2.42,
+            4.85,
+            0
+          },
+          {
+            -0.87,
+            1.49,
+            0
+          },
+          {
+            0.87,
+            1.49,
+            0
+          },
+          {
+            -1.76,
+            4.9,
+            -1.2
+          },
+          {
+            1.72,
+            4.9,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "ion",
+        ["name"] = "Ion",
+        ["bodyPlan"] = "vanguard",
+        ["triangleCount"] = 360,
+        ["anchors"] = {
+          {
+            -2.01,
+            3.98,
+            0
+          },
+          {
+            -2.34,
+            4.85,
+            0
+          },
+          {
+            2.01,
+            3.98,
+            0
+          },
+          {
+            2.34,
+            4.85,
+            0
+          },
+          {
+            -0.86,
+            1.48,
+            0
+          },
+          {
+            0.86,
+            1.48,
+            0
+          },
+          {
+            0,
+            5.77,
+            1
+          },
+          {
+            -0.28,
+            3.12,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "tone",
+        ["name"] = "Tone",
+        ["bodyPlan"] = "hunchback",
+        ["triangleCount"] = 360,
+        ["anchors"] = {
+          {
+            -2.17,
+            3.95,
+            0
+          },
+          {
+            -2.54,
+            4.78,
+            0
+          },
+          {
+            2.17,
+            3.95,
+            0
+          },
+          {
+            2.54,
+            4.78,
+            0
+          },
+          {
+            -0.86,
+            1.48,
+            0
+          },
+          {
+            0.86,
+            1.48,
+            0
+          },
+          {
+            0,
+            5.75,
+            1
+          },
+          {
+            -0.28,
+            3.11,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "northstar",
+        ["name"] = "Northstar",
+        ["bodyPlan"] = "flyer",
+        ["triangleCount"] = 300,
+        ["anchors"] = {
+          {
+            -1.46,
+            2.07,
+            0
+          },
+          {
+            -1.7,
+            3.8,
+            0
+          },
+          {
+            1.46,
+            2.07,
+            0
+          },
+          {
+            1.7,
+            3.8,
+            0
+          },
+          {
+            -2.44,
+            4.05,
+            -1.2
+          },
+          {
+            2.4,
+            4.05,
+            -1.2
+          },
+          {
+            0,
+            5.48,
+            1
+          },
+          {
+            0.04,
+            5.93,
+            0
+          }
+        }
+      },
+      {
+        ["id"] = "ronin",
+        ["name"] = "Ronin",
+        ["bodyPlan"] = "slim",
+        ["triangleCount"] = 384,
+        ["anchors"] = {
+          {
+            -2.05,
+            4.12,
+            0
+          },
+          {
+            -2.38,
+            4.97,
+            0
+          },
+          {
+            2.04,
+            4.12,
+            0
+          },
+          {
+            2.38,
+            4.97,
+            0
+          },
+          {
+            -0.84,
+            1.58,
+            0
+          },
+          {
+            0.84,
+            1.58,
+            0
+          },
+          {
+            0,
+            5.81,
+            1
+          },
+          {
+            -0.28,
+            3.32,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "scorch",
+        ["name"] = "Scorch",
+        ["bodyPlan"] = "atlas",
+        ["triangleCount"] = 360,
+        ["anchors"] = {
+          {
+            -2.05,
+            3.97,
+            0
+          },
+          {
+            -2.39,
+            4.83,
+            0
+          },
+          {
+            2.05,
+            3.97,
+            0
+          },
+          {
+            2.39,
+            4.83,
+            0
+          },
+          {
+            -0.87,
+            1.48,
+            0
+          },
+          {
+            0.86,
+            1.48,
+            0
+          },
+          {
+            0,
+            5.76,
+            1
+          },
+          {
+            -0.28,
+            3.11,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "legion",
+        ["name"] = "Legion",
+        ["bodyPlan"] = "tank",
+        ["triangleCount"] = 264,
+        ["anchors"] = {
+          {
+            -2.22,
+            2.01,
+            0
+          },
+          {
+            -2.59,
+            3.64,
+            0
+          },
+          {
+            2.22,
+            2.01,
+            0
+          },
+          {
+            2.59,
+            3.64,
+            0
+          },
+          {
+            0,
+            5.42,
+            1
+          },
+          {
+            -0.28,
+            0.16,
+            -1.2
+          },
+          {
+            0,
+            0.16,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "monarch",
+        ["name"] = "Monarch",
+        ["bodyPlan"] = "vanguard",
+        ["triangleCount"] = 372,
+        ["anchors"] = {
+          {
+            -2.14,
+            3.98,
+            0
+          },
+          {
+            -2.51,
+            4.82,
+            0
+          },
+          {
+            2.14,
+            3.98,
+            0
+          },
+          {
+            2.51,
+            4.82,
+            0
+          },
+          {
+            -0.87,
+            1.49,
+            0
+          },
+          {
+            0.87,
+            1.49,
+            0
+          },
+          {
+            -1.77,
+            4.88,
+            -1.2
+          },
+          {
+            1.73,
+            4.88,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "ikaruga",
+        ["name"] = "Ikaruga",
+        ["bodyPlan"] = "knight",
+        ["triangleCount"] = 372,
+        ["anchors"] = {
+          {
+            -2.28,
+            3.86,
+            0
+          },
+          {
+            -2.66,
+            4.69,
+            0
+          },
+          {
+            2.28,
+            3.86,
+            0
+          },
+          {
+            2.66,
+            4.69,
+            0
+          },
+          {
+            -0.96,
+            1.43,
+            0
+          },
+          {
+            0.96,
+            1.43,
+            0
+          },
+          {
+            -2,
+            4.77,
+            -1.2
+          },
+          {
+            1.96,
+            4.77,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "toybox",
+        ["name"] = "Toybox",
+        ["bodyPlan"] = "knight",
+        ["triangleCount"] = 372,
+        ["anchors"] = {
+          {
+            -2.33,
+            3.83,
+            0
+          },
+          {
+            -2.72,
+            4.62,
+            0
+          },
+          {
+            2.33,
+            3.83,
+            0
+          },
+          {
+            2.72,
+            4.62,
+            0
+          },
+          {
+            -0.93,
+            1.42,
+            0
+          },
+          {
+            0.93,
+            1.42,
+            0
+          },
+          {
+            0,
+            5.71,
+            1
+          },
+          {
+            -0.28,
+            3,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "kaldatoah",
+        ["name"] = "Kaldatoah",
+        ["bodyPlan"] = "knight",
+        ["triangleCount"] = 372,
+        ["anchors"] = {
+          {
+            -2.28,
+            3.82,
+            0
+          },
+          {
+            -2.67,
+            4.59,
+            0
+          },
+          {
+            2.28,
+            3.82,
+            0
+          },
+          {
+            2.67,
+            4.59,
+            0
+          },
+          {
+            -0.86,
+            1.43,
+            0
+          },
+          {
+            0.86,
+            1.43,
+            0
+          },
+          {
+            -1.94,
+            4.69,
+            -1.2
+          },
+          {
+            1.9,
+            4.69,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "tyrantor",
+        ["name"] = "Tyrantor",
+        ["bodyPlan"] = "knight",
+        ["triangleCount"] = 372,
+        ["anchors"] = {
+          {
+            -2.3,
+            3.85,
+            0
+          },
+          {
+            -2.68,
+            4.67,
+            0
+          },
+          {
+            2.3,
+            3.85,
+            0
+          },
+          {
+            2.68,
+            4.67,
+            0
+          },
+          {
+            -0.93,
+            1.44,
+            0
+          },
+          {
+            0.93,
+            1.44,
+            0
+          },
+          {
+            0,
+            5.73,
+            1
+          },
+          {
+            -0.28,
+            3.03,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "tzendolg",
+        ["name"] = "Tzendolg",
+        ["bodyPlan"] = "tetrapod",
+        ["triangleCount"] = 408,
+        ["anchors"] = {
+          {
+            -1.84,
+            4.18,
+            0
+          },
+          {
+            -2.18,
+            4.96,
+            0
+          },
+          {
+            1.84,
+            4.18,
+            0
+          },
+          {
+            2.18,
+            4.96,
+            0
+          },
+          {
+            -1.34,
+            1.63,
+            0
+          },
+          {
+            1.34,
+            1.63,
+            0
+          },
+          {
+            -2.08,
+            1.6,
+            0
+          },
+          {
+            2.08,
+            1.6,
+            0
+          }
+        }
+      },
+      {
+        ["id"] = "falcon",
+        ["name"] = "Falcon",
+        ["bodyPlan"] = "flyer",
+        ["triangleCount"] = 288,
+        ["anchors"] = {
+          {
+            -1.43,
+            2.07,
+            0
+          },
+          {
+            -1.67,
+            3.77,
+            0
+          },
+          {
+            1.43,
+            2.07,
+            0
+          },
+          {
+            1.67,
+            3.77,
+            0
+          },
+          {
+            -2.43,
+            4.05,
+            -1.2
+          },
+          {
+            2.39,
+            4.05,
+            -1.2
+          },
+          {
+            0,
+            5.45,
+            1
+          },
+          {
+            -0.28,
+            0.16,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "tricera",
+        ["name"] = "Tricera",
+        ["bodyPlan"] = "tank",
+        ["triangleCount"] = 312,
+        ["anchors"] = {
+          {
+            -2.04,
+            2.04,
+            0
+          },
+          {
+            -2.42,
+            3.67,
+            0
+          },
+          {
+            2.04,
+            2.04,
+            0
+          },
+          {
+            2.42,
+            3.67,
+            0
+          },
+          {
+            0,
+            5.39,
+            1
+          },
+          {
+            -0.28,
+            0.16,
+            -1.2
+          },
+          {
+            0,
+            0.16,
+            -1.2
+          },
+          {
+            0.28,
+            0.16,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "narukami",
+        ["name"] = "Narukami",
+        ["bodyPlan"] = "wedge",
+        ["triangleCount"] = 372,
+        ["anchors"] = {
+          {
+            -2.03,
+            3.99,
+            0
+          },
+          {
+            -2.37,
+            4.86,
+            0
+          },
+          {
+            2.03,
+            3.99,
+            0
+          },
+          {
+            2.37,
+            4.86,
+            0
+          },
+          {
+            -0.87,
+            1.49,
+            0
+          },
+          {
+            0.87,
+            1.49,
+            0
+          },
+          {
+            -1.76,
+            4.91,
+            -1.2
+          },
+          {
+            1.72,
+            4.91,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "panther",
+        ["name"] = "Panther",
+        ["bodyPlan"] = "wedge",
+        ["triangleCount"] = 384,
+        ["anchors"] = {
+          {
+            -2.06,
+            4.11,
+            0
+          },
+          {
+            -2.4,
+            4.96,
+            0
+          },
+          {
+            2.06,
+            4.11,
+            0
+          },
+          {
+            2.4,
+            4.96,
+            0
+          },
+          {
+            -0.84,
+            1.57,
+            0
+          },
+          {
+            0.84,
+            1.57,
+            0
+          },
+          {
+            0,
+            5.8,
+            1
+          },
+          {
+            -0.28,
+            3.3,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "welkin",
+        ["name"] = "Welkin",
+        ["bodyPlan"] = "knight",
+        ["triangleCount"] = 360,
+        ["anchors"] = {
+          {
+            -2.21,
+            3.94,
+            0
+          },
+          {
+            -2.58,
+            4.78,
+            0
+          },
+          {
+            2.21,
+            3.94,
+            0
+          },
+          {
+            2.58,
+            4.78,
+            0
+          },
+          {
+            -0.87,
+            1.48,
+            0
+          },
+          {
+            0.87,
+            1.48,
+            0
+          },
+          {
+            0,
+            5.75,
+            1
+          },
+          {
+            -0.28,
+            3.11,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "stego",
+        ["name"] = "Stego",
+        ["bodyPlan"] = "tank",
+        ["triangleCount"] = 312,
+        ["anchors"] = {
+          {
+            -2.14,
+            2.03,
+            0
+          },
+          {
+            -2.53,
+            3.68,
+            0
+          },
+          {
+            2.14,
+            2.03,
+            0
+          },
+          {
+            2.53,
+            3.68,
+            0
+          },
+          {
+            0,
+            5.44,
+            1
+          },
+          {
+            -0.28,
+            0.16,
+            -1.2
+          },
+          {
+            0,
+            0.16,
+            -1.2
+          },
+          {
+            0.28,
+            0.16,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "raven_rj",
+        ["name"] = "Raven-RJ",
+        ["bodyPlan"] = "wedge",
+        ["triangleCount"] = 396,
+        ["anchors"] = {
+          {
+            -2.02,
+            4.12,
+            0
+          },
+          {
+            -2.35,
+            4.98,
+            0
+          },
+          {
+            2.02,
+            4.12,
+            0
+          },
+          {
+            2.35,
+            4.98,
+            0
+          },
+          {
+            -0.84,
+            1.58,
+            0
+          },
+          {
+            0.84,
+            1.58,
+            0
+          },
+          {
+            -1.71,
+            5.01,
+            -1.2
+          },
+          {
+            1.67,
+            5.01,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "tetrapod_ac",
+        ["name"] = "Tetrapod",
+        ["bodyPlan"] = "tetrapod",
+        ["triangleCount"] = 408,
+        ["anchors"] = {
+          {
+            -1.92,
+            4.16,
+            0
+          },
+          {
+            -2.27,
+            4.91,
+            0
+          },
+          {
+            1.92,
+            4.16,
+            0
+          },
+          {
+            2.27,
+            4.91,
+            0
+          },
+          {
+            -1.33,
+            1.62,
+            0
+          },
+          {
+            1.33,
+            1.62,
+            0
+          },
+          {
+            -2.08,
+            1.59,
+            0
+          },
+          {
+            2.08,
+            1.59,
+            0
+          }
+        }
+      },
+      {
+        ["id"] = "balteus",
+        ["name"] = "Balteus",
+        ["bodyPlan"] = "hunchback",
+        ["triangleCount"] = 360,
+        ["anchors"] = {
+          {
+            -2.23,
+            3.95,
+            0
+          },
+          {
+            -2.61,
+            4.78,
+            0
+          },
+          {
+            2.23,
+            3.95,
+            0
+          },
+          {
+            2.61,
+            4.78,
+            0
+          },
+          {
+            -0.86,
+            1.48,
+            0
+          },
+          {
+            0.86,
+            1.48,
+            0
+          },
+          {
+            0,
+            5.75,
+            1
+          },
+          {
+            -0.28,
+            3.12,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "ibis",
+        ["name"] = "IBIS",
+        ["bodyPlan"] = "hover",
+        ["triangleCount"] = 312,
+        ["anchors"] = {
+          {
+            -1.41,
+            2.04,
+            0
+          },
+          {
+            -1.67,
+            3.72,
+            0
+          },
+          {
+            1.41,
+            2.04,
+            0
+          },
+          {
+            1.67,
+            3.72,
+            0
+          },
+          {
+            -2.42,
+            4,
+            -1.2
+          },
+          {
+            2.38,
+            4,
+            -1.2
+          },
+          {
+            0,
+            5.45,
+            1
+          },
+          {
+            -0.28,
+            0.16,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "atlas",
+        ["name"] = "Atlas",
+        ["bodyPlan"] = "atlas",
+        ["triangleCount"] = 360,
+        ["anchors"] = {
+          {
+            -1.99,
+            3.98,
+            0
+          },
+          {
+            -2.33,
+            4.85,
+            0
+          },
+          {
+            1.99,
+            3.98,
+            0
+          },
+          {
+            2.33,
+            4.85,
+            0
+          },
+          {
+            -0.87,
+            1.48,
+            0
+          },
+          {
+            0.87,
+            1.48,
+            0
+          },
+          {
+            0,
+            5.78,
+            1
+          },
+          {
+            -0.28,
+            3.12,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "timber_wolf",
+        ["name"] = "Timber Wolf",
+        ["bodyPlan"] = "hunchback",
+        ["triangleCount"] = 360,
+        ["anchors"] = {
+          {
+            -2.14,
+            3.95,
+            0
+          },
+          {
+            -2.5,
+            4.78,
+            0
+          },
+          {
+            2.14,
+            3.95,
+            0
+          },
+          {
+            2.5,
+            4.78,
+            0
+          },
+          {
+            -0.87,
+            1.47,
+            0
+          },
+          {
+            0.87,
+            1.47,
+            0
+          },
+          {
+            0,
+            5.75,
+            1
+          },
+          {
+            -0.28,
+            3.1,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "jenner",
+        ["name"] = "Jenner",
+        ["bodyPlan"] = "slim",
+        ["triangleCount"] = 384,
+        ["anchors"] = {
+          {
+            -2.23,
+            4.1,
+            0
+          },
+          {
+            -2.61,
+            4.91,
+            0
+          },
+          {
+            2.23,
+            4.1,
+            0
+          },
+          {
+            2.61,
+            4.91,
+            0
+          },
+          {
+            -0.84,
+            1.58,
+            0
+          },
+          {
+            0.84,
+            1.58,
+            0
+          },
+          {
+            0,
+            5.8,
+            1
+          },
+          {
+            -0.28,
+            3.32,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "marauder",
+        ["name"] = "Marauder",
+        ["bodyPlan"] = "atlas",
+        ["triangleCount"] = 372,
+        ["anchors"] = {
+          {
+            -2.04,
+            3.99,
+            0
+          },
+          {
+            -2.39,
+            4.85,
+            0
+          },
+          {
+            2.04,
+            3.99,
+            0
+          },
+          {
+            2.39,
+            4.85,
+            0
+          },
+          {
+            -0.87,
+            1.49,
+            0
+          },
+          {
+            0.87,
+            1.49,
+            0
+          },
+          {
+            0,
+            5.78,
+            1
+          },
+          {
+            0.04,
+            6.23,
+            0
+          }
+        }
+      },
+      {
+        ["id"] = "behemoth",
+        ["name"] = "Militech \"Behemoth\"",
+        ["bodyPlan"] = "tank",
+        ["triangleCount"] = 264,
+        ["anchors"] = {
+          {
+            -2.02,
+            2.13,
+            0
+          },
+          {
+            -2.36,
+            3.93,
+            0
+          },
+          {
+            2.02,
+            2.13,
+            0
+          },
+          {
+            2.36,
+            3.93,
+            0
+          },
+          {
+            0,
+            5.5,
+            1
+          },
+          {
+            -0.28,
+            0.16,
+            -1.2
+          },
+          {
+            0,
+            0.16,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "oni",
+        ["name"] = "Arasaka \"Oni\"",
+        ["bodyPlan"] = "knight",
+        ["triangleCount"] = 372,
+        ["anchors"] = {
+          {
+            -2.3,
+            3.81,
+            0
+          },
+          {
+            -2.69,
+            4.58,
+            0
+          },
+          {
+            2.3,
+            3.81,
+            0
+          },
+          {
+            2.69,
+            4.58,
+            0
+          },
+          {
+            -0.88,
+            1.42,
+            0
+          },
+          {
+            0.88,
+            1.42,
+            0
+          },
+          {
+            -1.91,
+            4.69,
+            -1.2
+          },
+          {
+            1.87,
+            4.69,
+            -1.2
+          }
+        }
+      },
+      {
+        ["id"] = "maxtac_ram",
+        ["name"] = "MaxTac \"RAM\"",
+        ["bodyPlan"] = "spider",
+        ["triangleCount"] = 420,
+        ["anchors"] = {
+          {
+            -2.14,
+            4.32,
+            0
+          },
+          {
+            -2.53,
+            5,
+            0
+          },
+          {
+            2.14,
+            4.32,
+            0
+          },
+          {
+            2.53,
+            5,
+            0
+          },
+          {
+            -1.21,
+            1.76,
+            0
+          },
+          {
+            1.21,
+            1.76,
+            0
+          },
+          {
+            -1.89,
+            1.72,
+            0
+          },
+          {
+            1.89,
+            1.72,
+            0
+          }
+        }
+      }
+    },
     ["onlyExamplesAllowed"] = true,
     ["allowedCount"] = 30,
     ["allowedSourceIds"] = {
@@ -2851,11 +4490,17 @@ MF.biomeIndex = 1
 -- Config (mirrors simulation.json; editable in SETTINGS) -------------------
 MF.coeffs = {}
 for k, v in pairs(MF_DATA.coefficientDefaults or {}) do MF.coeffs[k] = v end
-MF.rcoeffs = {
-  sizeExponent = 0.85, instabilitySizeExponent = 1.6, instabilityFlowExponent = 1.2,
-  gradeBonus = 0.08, derateFactor = 0.45, S_ref = 1.0, F_ref = 4.0,
-  heatLoadFactor = 1.0, signatureFactor = 2.6, resonanceFactor = 0.9, outputScale = 34.0
-}
+-- Reactor coefficients come from reactors.json (generated), never hardcoded,
+-- so CET telemetry always matches the browser's forgiving balance.
+MF.rcoeffs = {}
+for k, v in pairs(MF_DATA.reactorModel or {}) do
+  if type(v) == "number" then MF.rcoeffs[k] = v end
+end
+MF.rcoeffs.sizeExponent = MF.rcoeffs.sizeExponent or 0.85
+MF.rcoeffs.outputScale = MF.rcoeffs.outputScale or 56.0
+MF.rcoeffs.derateFactor = MF.rcoeffs.derateFactor or 0.26
+MF.weaponLoadout = {}
+MF.thresholds = MF_DATA.thresholds or {}
 MF.testMode = true
 MF.unlockAll = true
 MF.allowInvalidDeploy = true
@@ -2957,7 +4602,8 @@ local function derive(s)
     o.rcs = arm * 1.4 + hp * 0.35 + (1 - brace) * 0.3
     local mat = ({ 1.0, 1.28, 0.78, 1.62, 0.7 })[clamp(math.floor(n("frameMaterial", 1)) + 1, 1, 5)]
     o.extra = { comOffset = off - cw / 260,
-      stress = clamp((arm * 0.48 + hp / 22) / (0.32 + brace * 1.25), 0, 1.6),
+      stress = clamp((arm * 0.48 + hp / 22 + math.abs(off - cw / 260) * 0.55) /
+        (0.32 + brace * 1.25), 0, 1.6),
       mat = mat, armourDensity = arm }
   elseif c == "signature_rcs" then
     local facet, ram, edge, cav, emit, gaps = n("facetAngle", 24), n("ramCoating", 0.4),
@@ -2998,7 +4644,7 @@ local function derive(s)
     o.heatGen = servos * 0.35 + myo * 0.2
     o.heatDiss = 1 + damp * 2
     o.rcs = joint * 0.6
-    o.extra = { speed = clamp(0.55 + servos / 28 + myo / 22, 0.2, 2.4) }
+    o.extra = { speed = clamp(0.55 + servos / 28 + myo / 22 - n("gearRatio", 1) * 0.18, 0.2, 2.4) }
   elseif c == "freeform" then
     for _, k in ipairs(SIX) do o[k] = n(k, 0) end
   end
@@ -3046,15 +4692,16 @@ MF.reactorModel = reactorModel
 function MF.compute(designId)
   local d = designById(designId or MF.activeDesignId) or MF.customDesigns[1]
   local r = reactorModel(MF.reactor)
-  local parasitic = 3.5 + r.netOutput * 0.045 + (MF.reactor.W or 1.2) * 1.6 + (MF.reactor.C or 0.74) * 2
-  local used, mass, hg, hd, rcs, ecm = parasitic, 0, r.heat, 0, r.crystalSignature, 0
+  local parasitic = (3.5 + r.netOutput * 0.045 + (MF.reactor.W or 1.2) * 1.6 +
+    (MF.reactor.C or 0.74) * 2) * (MF.coeffs.reactorParasiticScale or 1)
+  local used, mods, nModules, mass, hg, hd, rcs, ecm = parasitic, 0, 0, 0, r.heat, 0, r.crystalSignature, 0
   local comOffset, stress, jamBase, emissions, speedBoost = 0, 0.3, 0, 0, 1
   local rcsMult, ewHeat, transmissionLoss, thermalExtra, mat, arm = 1, 0, 0.08, 0, 1.28, 1.1
   for _, id in ipairs(d.subsystemIds or {}) do
     local s = subById(id)
     if s then
       local x = derive(s)
-      used = used + (x.powerDraw or 0)
+      mods = mods + (x.powerDraw or 0); nModules = nModules + 1
       mass = mass + (x.mass or 0)
       hg = hg + (x.heatGen or 0)
       hd = hd + (x.heatDiss or 0)
@@ -3082,6 +4729,21 @@ function MF.compute(designId)
       end
     end
   end
+  -- Equipped custom weapons (WEAPON FORGE) feed the same six attributes.
+  for _, w in ipairs((MF_DATA.weapons or {}).templates or {}) do
+    if MF.weaponLoadout[w.id] then
+      local q = w.params or {}
+      mods = mods + (q.power or 0); nModules = nModules + 1
+      mass = mass + (q.mass or 0)
+      hg = hg + (q.heat or 0) * ((q.rate or 60) / 60) * 0.35
+      rcs = rcs + (q.rcs or 0)
+      ecm = ecm + (q.ecm or 0)
+    end
+  end
+  -- Forgiving module economics, identical to MF.sim.compute().
+  local bulk = 1 - (MF.coeffs.bulkModuleDiscount or 0) * clamp((nModules - 1) / 19, 0, 1)
+  local moduleScale = (MF.coeffs.moduleDrawScale or 1) * bulk
+  used = parasitic + mods * moduleScale
   local shape = d.shape or {}
   local sf = ({ angular = 1.0, rounded = 0.94, knight = 1.18, spider = 1.28, tetrapod = 1.34 })[shape.style] or 1.0
   local shapeVolume = ((shape.torsoW or 2.4) * (shape.torsoH or 2.8) * (shape.torsoD or 1.7) * 0.32
@@ -3095,7 +4757,9 @@ function MF.compute(designId)
   mass = mass + (120 + (MF.reactor.S or 1) * 95 + (MF.reactor.C or 0.74) * 60 + (MF.reactor.Q or 2) * 8)
   hd = hd + (2 + (MF.reactor.W or 1.2) * 6)
   ecm = ecm + (0.4 + (1 - (MF.reactor.C or 0.74)) * 2)
-  local totalMass = frameMass + mass + frameMass * 0.22 + (d.hardpoints or 6) * 18
+  -- structure.six.mass includes frameMass * 0.22 in the browser model.
+  mass = mass + frameMass * 0.22
+  local totalMass = frameMass + mass + (d.hardpoints or 6) * 12
   local usedEff = used * (1 + transmissionLoss)
   local powerMargin = r.netOutput - usedEff
   hg = hg + ewHeat * 0.35
@@ -3116,20 +4780,23 @@ function MF.compute(designId)
     (1 - (MF.coeffs.k1 or 0.34) * totalMass / (MF.coeffs.massRef or 2200)) *
     (1 - (MF.coeffs.k2 or 0.25) * stress) * speedBoost)
   comOffset = comOffset + ((shape.weaponX or 1.5) - (shape.torsoW or 2.4)) * 0.015
+  local TH = MF.thresholds
   local validation = {}
-  if powerMargin < 0 then table.insert(validation, "BROWNOUT") end
-  if netHeat > 0 and temp > 0.72 then table.insert(validation, "THERMAL SATURATION") end
-  if totalMass / (MF.coeffs.massRef or 2200) > 1.35 then table.insert(validation, "OVER MASS") end
-  if math.abs(comOffset) > 0.34 then table.insert(validation, "COM OFFSET") end
-  if stress > 0.78 then table.insert(validation, "STRUCTURAL STRESS") end
-  if frontRcs > 14 then table.insert(validation, "RCS EXPOSURE") end
-  if emissions > 22 then table.insert(validation, "ECM SELF-DETECTION") end
-  if r.rawHarvest < 0.22 * math.max(MF.reactor.F, 0.01) then table.insert(validation, "MANA STARVATION") end
-  if r.instability > 0.55 then table.insert(validation, "CRYSTAL RESONANCE") end
-  if r.instability > 0.95 then table.insert(validation, "CONTAINMENT FAILURE") end
+  if powerMargin < (TH.brownoutMargin or -12) then table.insert(validation, "BROWNOUT") end
+  if netHeat > 0 and temp > (TH.thermalSaturation or 0.84) then table.insert(validation, "THERMAL SATURATION") end
+  if totalMass / (MF.coeffs.massRef or 2200) > (TH.overMassRatio or 1.6) then table.insert(validation, "OVER MASS") end
+  if math.abs(comOffset) > (TH.comOffsetLimit or 0.44) then table.insert(validation, "COM OFFSET") end
+  if stress > (TH.stressLimit or 0.9) then table.insert(validation, "STRUCTURAL STRESS") end
+  if frontRcs > (TH.rcsExposure or 18) then table.insert(validation, "RCS EXPOSURE") end
+  if emissions > (TH.selfDetection or 28) then table.insert(validation, "ECM SELF-DETECTION") end
+  if r.rawHarvest < (TH.manaStarvation or 0.34) * math.max(MF.reactor.F, 0.01) then table.insert(validation, "MANA STARVATION") end
+  if r.instability > (TH.resonance or 0.68) then table.insert(validation, "CRYSTAL RESONANCE") end
+  if r.instability > (TH.containmentFailure or 0.99) then table.insert(validation, "CONTAINMENT FAILURE") end
   if r.meltdown then table.insert(validation, "MELTDOWN / PROTOCOL 3") end
   return {
-    design = d, reactor = r, powerUsed = usedEff, powerMargin = powerMargin,
+    design = d, reactor = r, powerUsed = used, powerUsedEff = usedEff,
+    powerUsedRaw = parasitic + mods,
+    moduleScale = moduleScale, nModules = nModules, powerMargin = powerMargin,
     totalMass = totalMass, frameMass = frameMass, netHeat = netHeat, heatGen = hg,
     heatDiss = heatDiss, temperature = temp, thermalMass = thermalMass,
     rcsFront = frontRcs, detectRange = detect, jamStrength = jam,
@@ -3302,6 +4969,65 @@ function IG.detect()
   return v
 end
 
+-- Example-model-driven in-game chassis + weapon loadout -------------------------
+IG.modelIndex = 1
+IG.weaponLoadout = {}
+function IG.modelExamples() return (MF_DATA.models or {}).examples or {} end
+function IG.setModel(i)
+  local ex = IG.modelExamples()
+  if #ex == 0 then return 1 end
+  IG.modelIndex = ((tonumber(i) or 1) - 1) % #ex + 1
+  iglog("FULL MODEL " .. tostring(IG.modelIndex) .. ": " ..
+    tostring(ex[IG.modelIndex].name) .. " · " .. tostring(ex[IG.modelIndex].triangleCount) ..
+    " triangles · in-game part layout follows this example")
+  return IG.modelIndex
+end
+function IG.modelName()
+  local ex = IG.modelExamples()
+  return ex[IG.modelIndex] and ex[IG.modelIndex].name or "EXAMPLE 01"
+end
+function IG.toggleWeapon(id)
+  IG.weaponLoadout[id] = not IG.weaponLoadout[id] or nil
+  if MF.weaponLoadout then MF.weaponLoadout[id] = IG.weaponLoadout[id] end
+  local pr = IG.weaponProfile()
+  iglog("WEAPON LOADOUT · " .. tostring(pr.count) .. " designs · " ..
+    tostring(math.floor(pr.damage)) .. " dmg · " .. tostring(pr.shieldPool) .. " shield HP")
+  return pr.count
+end
+function IG.weaponProfile()
+  local out = { count = 0, damage = 0, heat = 0, missile = 0, shieldPool = 0,
+    rate = 0, names = {} }
+  for _, w in ipairs((MF_DATA.weapons or {}).templates or {}) do
+    if IG.weaponLoadout[w.id] then
+      out.count = out.count + 1
+      local q = w.params or {}
+      if string.match(w.category, "shield$") then
+        out.shieldPool = out.shieldPool + (q.armor or 0)
+      elseif string.match(w.category, "missile") then
+        out.missile = out.missile + (q.damage or 0)
+      else
+        out.damage = out.damage + (q.damage or 0)
+        out.rate = out.rate + (q.rate or 60)
+        out.heat = out.heat + (q.heat or 0) * 0.02
+      end
+      table.insert(out.names, w.name)
+    end
+  end
+  return out
+end
+function IG.despawnPartEntities(dmgId)
+  for _, q in ipairs(IG.parts or {}) do
+    if q.dmgId == dmgId and q.id then
+      pcall(function()
+        if type(Game) == "table" and type(Game.FindEntityByID) == "function" then
+          local e = Game.FindEntityByID(q.id)
+          if e and type(exEntitySpawner) == "table" then exEntitySpawner.Despawn(e) end
+        end
+      end)
+    end
+  end
+end
+
 -- Per-part destruction / pilot emergency eject --------------------------------
 IG.dmgCfg = MF_DATA.damage or {}
 IG.dmgParts = {}
@@ -3355,6 +5081,7 @@ function IG.destroyPart(i)
   if not q or IG.dmgDestroyed then return false end
   q.hp = 0; q.destroyed = true
   iglog("PART DESTROYED — " .. q.name)
+  IG.despawnPartEntities(i)
   IG.checkDestruction()
   return true
 end
@@ -3527,6 +5254,14 @@ end
 
 -- Rotated signature-part offsets around the core chassis. --------------------
 local function partOffset(i, total)
+  local ex = (MF_DATA.models.examples or {})[IG.modelIndex]
+  local anchors = ex and ex.anchors or nil
+  if anchors and anchors[i] then
+    local a = anchors[i]
+    return { x = a[1] * 0.55, y = (a[3] or 0) * 0.55,
+             z = 0.6 + (a[2] or 3) * 0.45, phase = i,
+             model = ex.name }
+  end
   local a = (i - 1) * (2 * math.pi / math.max(1, total))
   local r = IG.ph.partSpread
   return { x = math.cos(a) * r, y = math.sin(a) * r,
@@ -3612,6 +5347,7 @@ function IG.deploy()
     local id = spawnRecord(pr.id, IG.pos.x + off.x, IG.pos.y + off.y, IG.pos.z + off.z, d)
     table.insert(IG.parts, { id = id, entity = nil, off = partOffset(i, n), rec = pr.id, slot = pr.slot, name = pr.name })
   end
+  for k, q in ipairs(IG.parts) do q.dmgId = ((k - 1) % math.max(1, #IG.dmgParts)) + 1 end
   iglog(tostring(n) .. " in-game signature part records queued (" .. tostring(#recs) ..
     " allowed for patch " .. IG.patch .. (IG.hasPL and " + PL" or " / no PL") .. ")")
   pcall(function() IG.telemetry = MF.compute(MF.activeDesignId) end)
@@ -3654,7 +5390,14 @@ function IG.breakLock()
   iglog("ECM / SALVO — lock broken, hostile despawned (" .. tostring(IG.kills) .. " total)")
   return true
 end
-IG.fire = function() return IG.breakLock() end
+IG.fire = function()
+  local pr = IG.weaponProfile()
+  IG.heat = math.min(1.8, IG.heat + 0.04 + pr.heat * 0.002)
+  iglog("FIRE · " .. tostring(pr.count) .. " designed weapons · " ..
+    tostring(math.floor(pr.damage)) .. " dmg · " .. tostring(pr.missile) ..
+    " missile dmg · shield " .. tostring(pr.shieldPool) .. " HP")
+  return IG.breakLock()
+end
 IG.vent = function()
   IG.heat = math.max(0.34, IG.heat - 0.38)
   IG.venting = 3.0
@@ -3842,7 +5585,8 @@ end
 function IG.statusText()
   local resolved = 0
   for _, p in ipairs(IG.parts or {}) do if p.entity then resolved = resolved + 1 end end
-  return IG.status .. " · parts " .. tostring(resolved) .. "/" .. tostring(#(IG.parts or {})) ..
+  return IG.status .. " · MODEL " .. IG.modelName() .. " · parts " ..
+    tostring(resolved) .. "/" .. tostring(#(IG.parts or {})) ..
     " · locks " .. tostring(#(IG.hostiles or {})) .. " · " .. IG.cameraMode ..
     " · " .. (IG.cockpitLock and "COCKPIT LOCK ON" or "COCKPIT LOCK OFF")
 end
@@ -3923,6 +5667,15 @@ local function drawIngame(t)
   ImGui.Text("Speed " .. f(t.speed, 2) .. " m/s · brownout/thermal derate " ..
     ((t.powerMargin < 0 or t.temperature > 0.72) and "ACTIVE" or "nominal") ..
     " · hostile locks " .. tostring(#(IG.hostiles or {})) .. " · kills " .. tostring(IG.kills))
+  ImGui.Separator()
+  local mex = IG.modelExamples()
+  local mlabels = {}
+  for i, e in ipairs(mex) do mlabels[i] = e.name .. " (" .. tostring(e.triangleCount) .. " tris)" end
+  local mi, mch = ImGui.Combo("EXAMPLE FULL MODEL##ig", IG.modelIndex - 1, mlabels, #mlabels)
+  if mch then IG.setModel(mi + 1) end
+  local wpr = IG.weaponProfile()
+  ImGui.Text("WEAPON LOADOUT " .. tostring(wpr.count) .. " designs · " ..
+    tostring(math.floor(wpr.damage)) .. " dmg · " .. tostring(wpr.shieldPool) .. " shield HP")
   ImGui.Separator()
   ImGui.Text("PER-PART DESTRUCTION · PILOT EMERGENCY EJECT")
   local dc, do_, dcl, dol = IG.dmgStats()
@@ -4251,6 +6004,88 @@ local function drawCompat()
   textWrapped("Compatibility means shared public concepts, key names and CCP1 share codes, plus pcall-wrapped GetMod detection. It does not ship, patch, require or control those mods. The IN-GAME PILOT tab is a separate CET-only layer that references vanilla entity records; see that tab and docs/INGAME_PILOT.md.")
 end
 
+-- WEAPON FORGE (CET parity with the browser tab) -----------------------------
+local function drawWeaponForge(t)
+  ImGui.Text("WEAPON FORGE · 8 CUSTOM WEAPON / SHIELD CATEGORIES")
+  ImGui.Separator()
+  ImGui.Text("Energy, ballistic, missile, melee, energy missile, energy melee, energy shielding, ballistic shielding.")
+  ImGui.Text("10 editable parameters per design in test_build.html; equip baselines here to drive the in-game pilot.")
+  local W = MF_DATA.weapons or {}
+  for _, w in ipairs(W.templates or {}) do
+    local on = MF.ingame.weaponLoadout[w.id] and true or false
+    local v, ch = ImGui.Checkbox(w.name .. "##wf" .. w.id, on)
+    if ch then MF.ingame.toggleWeapon(w.id) end
+    local q = w.params or {}
+    ImGui.Text("  " .. tostring(w.category) .. " · bus " .. tostring(q.power) .. " kW · mass " ..
+      tostring(q.mass) .. " kg · dmg " .. tostring(q.damage) .. " · armour " .. tostring(q.armor))
+  end
+  ImGui.Separator()
+  local pr = MF.ingame.weaponProfile()
+  bar("DESIGNED DAMAGE", pr.damage, 500, "pts")
+  bar("MISSILE DAMAGE", pr.missile, 500, "pts")
+  bar("SHIELD POOL", pr.shieldPool, 800, "HP")
+  bar("LIVE POWER MARGIN", t.powerMargin, 160, "kW")
+  ImGui.Text("Equipped designs feed IG.fire() and the destructible shield parts in DAMAGE CONTROL.")
+end
+
+-- MODEL LIBRARY (CET parity) -------------------------------------------------
+local function drawModelLibrary(t)
+  ImGui.Text("MODEL LIBRARY · EXAMPLE-ONLY FULL MODELS / TRACES / 3D MESHES")
+  ImGui.Separator()
+  local M = MF_DATA.models or {}
+  ImGui.Text("onlyExamplesAllowed=" .. tostring(M.onlyExamplesAllowed) ..
+    " · allowedCount=" .. tostring(M.allowedCount) ..
+    " · independentOrthographicViews=true · ships3DMesh=true")
+  ImGui.Text("Only the 30 chassis.json examples are allowed. No imported / ripped / extracted geometry.")
+  local ex = M.examples or {}
+  ImGui.BeginChild("mf_models_list", -1, 230)
+  for i, e in ipairs(ex) do
+    if ImGui.Selectable(tostring(i) .. "  " .. tostring(e.name) .. "  ·  " ..
+      tostring(e.bodyPlan) .. "  ·  " .. tostring(e.triangleCount) .. " tris##ml" .. i,
+      i == MF.ingame.modelIndex) then MF.ingame.setModel(i) end
+  end
+  ImGui.EndChild()
+  ImGui.Separator()
+  local cur = ex[MF.ingame.modelIndex]
+  if cur then
+    ImGui.Text("SELECTED " .. tostring(cur.name) .. " · " .. tostring(cur.bodyPlan) ..
+      " · " .. tostring(cur.triangleCount) .. " triangles · " .. tostring(#cur.anchors) ..
+      " in-game part anchors")
+    ImGui.Text("Deploy (F6) positions the vanilla-record signature parts from THIS example's trace.")
+  end
+  bar("ACTIVE RCS FRONT", t.rcsFront, 40, "m2")
+end
+
+-- DAMAGE CONTROL (CET parity) ------------------------------------------------
+local function drawDamageControl(t)
+  ImGui.Text("DAMAGE CONTROL · EVERY PART DESTRUCTIBLE · PILOT EMERGENCY EJECT")
+  ImGui.Separator()
+  local IG = MF.ingame
+  local c, o, cl, ol = IG.dmgStats()
+  bar("COCKPIT DAMAGE", c * 100, 100, "% / LIMIT " .. tostring(math.floor(cl * 100)) .. "%")
+  bar("TORSO DAMAGE", o * 100, 100, "% / LIMIT " .. tostring(math.floor(ol * 100)) .. "%")
+  ImGui.Text("STATUS " .. (IG.dmgDestroyed and ("DESTROYED — " .. IG.dmgReason) or
+    (IG.dmgEjected and "PILOT EJECTED" or "OPERATIONAL")) ..
+    " · " .. tostring(#IG.dmgParts) .. " parts · X = EMERGENCY EJECT")
+  if ImGui.Button("HIT PART 10%") then IG.hitPart(1, 0.10) end
+  ImGui.SameLine()
+  if ImGui.Button("EMERGENCY EJECT (X)") then IG.ejectPilot(true) end
+  ImGui.SameLine()
+  if ImGui.Button("FULL DESTRUCTION") then IG.fullDestruction("MANUAL FULL DESTRUCTION") end
+  ImGui.SameLine()
+  if ImGui.Button("REPAIR ALL") then IG.repairParts() end
+  ImGui.BeginChild("mf_damage_parts", -1, 220)
+  for _, q in ipairs(IG.dmgParts) do
+    ImGui.Text((q.destroyed and "[DEAD] " or "") .. q.name .. " · " .. string.upper(q.section))
+    ImGui.ProgressBar(q.hp / math.max(1, q.maxHp), -1, 10)
+    ImGui.SameLine()
+    if ImGui.Button("HIT##dc" .. tostring(q.id)) then IG.hitPart(q.id, 0.10) end
+    ImGui.SameLine()
+    if ImGui.Button("KILL##dc" .. tostring(q.id)) then IG.destroyPart(q.id) end
+  end
+  ImGui.EndChild()
+end
+
 registerForEvent("onInit", function()
   MF.visible = false
   log("MECHFALL // FORGE 77 loaded · " .. tostring(#(MF_DATA.roster or {})) .. " prefabs, " ..
@@ -4288,8 +6123,11 @@ registerForEvent("onDraw", function()
   elseif MF.tab == 2 then drawSystems(t)
   elseif MF.tab == 3 then drawForge(t)
   elseif MF.tab == 4 then drawReactor(t)
-  elseif MF.tab == 5 then drawSettings()
-  elseif MF.tab == 6 then drawCompat()
+  elseif MF.tab == 5 then drawWeaponForge(t)
+  elseif MF.tab == 6 then drawModelLibrary(t)
+  elseif MF.tab == 7 then drawDamageControl(t)
+  elseif MF.tab == 8 then drawSettings()
+  elseif MF.tab == 9 then drawCompat()
   else drawIngame(t) end
   ImGui.End()
 end)

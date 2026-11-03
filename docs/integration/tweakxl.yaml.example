@@ -1,14 +1,215 @@
-# MECHFALL // FORGE 77 — TWEAKXL TEMPLATE (EXAMPLE ONLY)
-# -----------------------------------------------------
-# DO NOT INSTALL THIS FILE. Validate against CP2077 2.5 before any real TweakXL use.
-# No base-mod records are referenced; no records are overridden here.
-# The installable path in this repository is CET-only (init.lua).
-
-# Illustrative shape only — a real release would define original records and reference them
-# from a validated redscript/ArchiveXL layer. Nothing below is active.
+# MECHFALL // FORGE 77 — COMPLETE TWEAKXL TEMPLATE (EXAMPLE ONLY)
+# ==================================================================
+# STATUS: complete original record definitions, structurally validated by
+#         tools/validate_integration.py. STILL NOT INSTALLED and STILL NOT
+#         VALIDATED against CP2077 2.31 / TweakXL. The installable path in this
+#         repository is CET-only (init.lua); this file lives in docs/integration/.
 #
-# Mechs.Mechfall_Forge_TestFrame:
-#   $type: MechPlaceholder
-#   displayName: "FORGE 77 / TEST FRAME"
-#   powerMargin: 0.0
-#   rcsFront: 0.0
+# WHY NOT INSTALLED: an unvalidated TweakXL patch can override game records at
+# launch. Copy into a WolvenKit/TweakXL project, validate against patch 2.31,
+# and test in-game. No base-mod records, types or display names are referenced.
+# No Donation Points / derivative asset use. All ids below are original.
+#
+# TARGET PATCH: CP2077 2.31 (CET 1.37.1 + RED4ext 1.29/1.30).
+
+# ---------------------------------------------------------------------------
+# 1. Eight custom weapon / shield categories (mirrors weapons.json).
+# ---------------------------------------------------------------------------
+Mechs.Mechfall_Weapon_Energy:
+  $type: MechfallWeaponRecord
+  category: EnergyWeapon
+  displayName: "FORGE 77 / ENERGY WEAPON"
+  family: energy
+  role: weapon
+  powerDraw: 18.0
+  mass: 180.0
+  heatGen: 7.7
+  damage: 85.0
+  range: 650.0
+  rate: 45.0
+  rcs: 1.4
+  ecm: 4.0
+  capacity: 0
+  armor: 0.0
+
+Mechs.Mechfall_Weapon_Ballistic:
+  $type: MechfallWeaponRecord
+  category: BallisticWeapon
+  displayName: "FORGE 77 / BALLISTIC WEAPON"
+  family: ballistic
+  role: weapon
+  powerDraw: 5.0
+  mass: 320.0
+  heatGen: 3.7
+  damage: 110.0
+  range: 900.0
+  rate: 90.0
+  rcs: 0.3
+  ecm: -2.0
+  capacity: 180
+  armor: 0.0
+
+Mechs.Mechfall_Weapon_Missile:
+  $type: MechfallWeaponRecord
+  category: MissileWeapon
+  displayName: "FORGE 77 / MISSILE WEAPON"
+  family: ballistic
+  role: weapon
+  powerDraw: 7.0
+  mass: 260.0
+  heatGen: 0.4
+  damage: 160.0
+  range: 1200.0
+  rate: 8.0
+  rcs: 3.2
+  ecm: 6.0
+  capacity: 24
+  armor: 0.0
+
+Mechs.Mechfall_Weapon_Melee:
+  $type: MechfallWeaponRecord
+  category: MeleeWeapon
+  displayName: "FORGE 77 / MELEE WEAPON"
+  family: ballistic
+  role: weapon
+  powerDraw: 1.0
+  mass: 420.0
+  heatGen: 0.4
+  damage: 210.0
+  range: 12.0
+  rate: 30.0
+  rcs: -0.4
+  ecm: 0.0
+  capacity: 0
+  armor: 0.0
+
+Mechs.Mechfall_Weapon_EnergyMissile:
+  $type: MechfallWeaponRecord
+  category: EnergyMissile
+  displayName: "FORGE 77 / ENERGY MISSILE"
+  family: hybrid
+  role: weapon
+  powerDraw: 14.0
+  mass: 210.0
+  heatGen: 1.0
+  damage: 190.0
+  range: 1050.0
+  rate: 10.0
+  rcs: 2.2
+  ecm: 8.0
+  capacity: 12
+  armor: 0.0
+
+Mechs.Mechfall_Weapon_EnergyMelee:
+  $type: MechfallWeaponRecord
+  category: EnergyMelee
+  displayName: "FORGE 77 / ENERGY MELEE"
+  family: hybrid
+  role: weapon
+  powerDraw: 12.0
+  mass: 300.0
+  heatGen: 2.7
+  damage: 240.0
+  range: 9.0
+  rate: 35.0
+  rcs: 0.9
+  ecm: 2.0
+  capacity: 0
+  armor: 0.0
+
+Mechs.Mechfall_Shield_Energy:
+  $type: MechfallWeaponRecord
+  category: EnergyShield
+  displayName: "FORGE 77 / ENERGY SHIELDING"
+  family: energy
+  role: defence
+  powerDraw: 22.0
+  mass: 150.0
+  heatGen: 0.1
+  damage: 15.0
+  range: 0.0
+  rate: 1.0
+  rcs: 2.6
+  ecm: 10.0
+  capacity: 0
+  armor: 300.0
+
+Mechs.Mechfall_Shield_Ballistic:
+  $type: MechfallWeaponRecord
+  category: BallisticShield
+  displayName: "FORGE 77 / BALLISTIC SHIELDING"
+  family: ballistic
+  role: defence
+  powerDraw: 0.0
+  mass: 480.0
+  heatGen: 0.0
+  damage: 0.0
+  range: 0.0
+  rate: 1.0
+  rcs: -0.8
+  ecm: 0.0
+  capacity: 0
+  armor: 420.0
+
+# ---------------------------------------------------------------------------
+# 2. Forgiving energy / reactor balance (mirrors reactors.json + simulation.json).
+# ---------------------------------------------------------------------------
+Mechs.Mechfall_Balance:
+  $type: MechfallBalanceRecord
+  outputScale: 56.0
+  derateFactor: 0.26
+  heatLoadFactor: 0.80
+  reactorParasiticScale: 0.62
+  moduleDrawScale: 0.72
+  bulkModuleDiscount: 0.42
+  payloadPerHardpoint: 12.0
+  brownoutMargin: -12.0
+  hardpointLimit: 20
+  maxModules: 24
+  loadoutLimit: 8
+
+# ---------------------------------------------------------------------------
+# 3. Per-part destruction thresholds (mirrors damage.json).
+# ---------------------------------------------------------------------------
+Mechs.Mechfall_Damage:
+  $type: MechfallDamageRecord
+  cockpitDestruction: 0.70
+  torsoDestruction: 0.90
+  ejectKey: X
+  fullDestructionMarksEveryPart: true
+  despawnsEntities: true
+  endsRun: true
+  sections:
+    - cockpit
+    - torso
+    - limb
+    - system
+    - weapon
+    - shield
+
+# ---------------------------------------------------------------------------
+# 4. Example-only full-model policy (mirrors models.json).
+# ---------------------------------------------------------------------------
+Mechs.Mechfall_ModelPolicy:
+  $type: MechfallModelPolicyRecord
+  onlyExamplesAllowed: true
+  allowedCount: 30
+  rejectGenericHulls: true
+  customDesignsMustUseExampleParts: true
+  independentOrthographicViews: true
+  ships3DMesh: true
+
+# ---------------------------------------------------------------------------
+# 5. Patch matrix (mirrors compat.json -> ingamePilot.gamePatches).
+# ---------------------------------------------------------------------------
+Mechs.Mechfall_PatchMatrix:
+  $type: MechfallPatchMatrixRecord
+  targetPatch: "2.31"
+  game_2_3_cet: "1.36.0"
+  game_2_31_cet: "1.37.1"
+  game_2_31_red4ext: "1.29.0 / 1.30.0"
+  game_2_5_cet: "1.38.1"
+  note: "CET 1.38.x drops pre-2.5 game support. On 2.31 use CET 1.37.1."
+
+# NOTE: These are ORIGINAL records. Nothing overrides a vanilla or base-mod
+# record. Validate against CP2077 2.31 in-game before any real use.

@@ -118,3 +118,14 @@ emergency eject (`X`); cockpit > 70% or aggregate torso > 90% damage triggers FU
 See `docs/WEAPON_FORGE.md`, `docs/DAMAGE_MODEL.md` and `README.md` section 8. No imported assets
 or in-game meshes are added; the 2.31 CET matrix and the 30-example-only model policy are
 unchanged.
+
+
+---
+
+## 0.1.8-test
+
+Real shipped 3D meshes + independent side/top traces for all 30 example-only models; designed
+weapons now fire (with destructible, regenerating shields); 10 CET ImGui tabs; example-model-driven
+in-game part layout; generated reactor/threshold data with a CET↔browser parity harness; four
+complete (still NOT installed / compiled / in-game verified) integration specs;
+`build_hooks_appendix()` wired into ROSTER. See `README.md` §9 and `CHANGELOG.md`.

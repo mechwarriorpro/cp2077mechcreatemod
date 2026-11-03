@@ -75,3 +75,17 @@ Damage is **simulation state over procedural meshes and vanilla game record refe
 not edit game assets, add custom rigs, add destruction animations, or claim in-game verification.
 No base-mod or third-party files are used. The CET side is `pcall`-wrapped and degrades to
 PHANTOM mode; `GetVersion()` is a CET build tag, not a game-version API.
+
+
+---
+
+## 0.1.8-test additions
+
+* Shield parts absorb incoming damage (`MF.damage.absorb`) before it reaches a hull part; energy
+  shields regenerate (`MF.damage.tick`, `armor × 0.02` HP/s each).
+* CET spawned signature parts are linked to damage parts via `dmgId`; destroying a part despawns
+  its vanilla-record entity (`IG.despawnPartEntities`).
+* CET now has a dedicated **DAMAGE CONTROL** tab (10 ImGui tabs total), plus WEAPON FORGE and
+  MODEL LIBRARY. All are runtime-tested by `lua_test.js`.
+* `IG.setModel(i)` selects one of the 30 example models; `lua_data.models.examples[i].anchors`
+  drive in-game part placement so the spawned chassis follows that example's silhouette.

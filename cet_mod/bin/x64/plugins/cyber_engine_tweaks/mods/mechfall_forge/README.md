@@ -56,3 +56,13 @@ Browser-side **WEAPON FORGE** authors 8 custom weapon / shield categories whose 
 heat, RCS and ECM consequences are mirrored in this overlay. Energy balance is more forgiving
 (`outputScale 56`, module bulk discount, relaxed brownout). See `docs/WEAPON_FORGE.md` and
 `docs/DAMAGE_MODEL.md`.
+
+
+**10 IMGUI TABS (0.1.8-test):** HANGAR · INTERNAL SYSTEMS · MECH FORGE · REACTOR LAB ·
+WEAPON FORGE · MODEL LIBRARY · DAMAGE CONTROL · SETTINGS · COMPAT · IN-GAME PILOT.
+Reactor coefficients and validation thresholds are generated from the JSON data (no stale
+hardcoded values); `tools/parity_test.js` verifies CET ↔ browser telemetry. MODEL LIBRARY selects
+one of the 30 example-only full models whose trace anchors drive in-game part placement;
+`models.json` ships real triangulated 3D meshes + independent front/side/top traces. WEAPON FORGE
+equips 8 custom weapon/shield designs whose damage, heat, missile salvos and shield HP are live.
+See `docs/FULL_MODELS.md`, `docs/WEAPON_FORGE.md`, `docs/DAMAGE_MODEL.md`.

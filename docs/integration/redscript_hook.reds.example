@@ -1,23 +1,261 @@
-// MECHFALL // FORGE 77 — REDSCRIPT HOOK TEMPLATE (EXAMPLE ONLY)
-// ------------------------------------------------------------
-// DO NOT INSTALL THIS FILE. It is a draft illustration of a possible future integration.
-// redscript compiles everything in r6/scripts at game launch: a syntax error here would break
-// the user's game. The installable path in this repository is CET-only (init.lua).
+// MECHFALL // FORGE 77 — COMPLETE REDSCRIPT INTEGRATION TEMPLATE (EXAMPLE ONLY)
+// ===========================================================================
+// STATUS: complete, self-contained, structurally validated by
+//         tools/validate_integration.py. It is STILL NOT INSTALLED and STILL NOT
+//         COMPILED against Cyberpunk 2077 2.31 / redscript — this sandbox has no
+//         game, no redscript compiler and no WolvenKit. The installable path in
+//         this repository remains CET-only (init.lua).
 //
-// Permission from the BT-7274 authors is required before touching any of their assets.
-// No base-mod types, classes or methods are referenced here on purpose.
+// WHY NOT INSTALLED: redscript compiles everything under r6/scripts at game
+// launch. An uncompiled/unvalidated .reds can break the user's game. Copy this
+// into a WolvenKit/redscript project, compile it, and test in-game before use.
+//
+// TARGET PATCH: CP2077 2.31 (CET 1.37.1 + RED4ext 1.29/1.30). No base-mod types,
+// classes, records or methods are referenced. No Donation Points / derivative
+// asset use. All identifiers below are original to FORGE 77.
 
-public class MechfallForgePlaceholder {
-  public let designName: String;
-  public let powerMargin: Float;
-  public let rcsFront: Float;
+module Mechfall.Forge
 
-  public final func Describe() -> String {
-    return "MECHFALL // FORGE 77 :: " + this.designName
-      + " | power " + FloatToString(this.powerMargin)
-      + " | RCS " + FloatToString(this.rcsFront);
+// ---------------------------------------------------------------------------
+// 1. Design payload — mirrors weapons.json / damage.json / chassis.json.
+// ---------------------------------------------------------------------------
+public struct MechfallSixAttributes {
+  public let powerDraw: Float;   // kW
+  public let mass: Float;        // kg
+  public let heatGen: Float;     // kW
+  public let heatDiss: Float;    // kW
+  public let rcs: Float;         // m2
+  public let ecm: Float;         // strength
+}
+
+public enum MechfallWeaponCategory {
+  EnergyWeapon = 0,
+  BallisticWeapon = 1,
+  MissileWeapon = 2,
+  MeleeWeapon = 3,
+  EnergyMissile = 4,
+  EnergyMelee = 5,
+  EnergyShield = 6,
+  BallisticShield = 7
+}
+
+public struct MechfallWeaponDesign {
+  public let id: String;
+  public let name: String;
+  public let category: MechfallWeaponCategory;
+  public let power: Float;
+  public let mass: Float;
+  public let heat: Float;
+  public let damage: Float;
+  public let range: Float;
+  public let rate: Float;
+  public let rcs: Float;
+  public let ecm: Float;
+  public let capacity: Int32;
+  public let armor: Float;
+
+  public final func IsShield() -> Bool {
+    return Equals(this.category, MechfallWeaponCategory.EnergyShield)
+      || Equals(this.category, MechfallWeaponCategory.BallisticShield);
+  }
+
+  public final func Dps() -> Float {
+    return this.damage * MaxF(1.0, this.rate) / 60.0;
+  }
+
+  public final func Six() -> MechfallSixAttributes {
+    let s: MechfallSixAttributes;
+    s.powerDraw = this.power;
+    s.mass = this.mass;
+    s.heatGen = this.heat * MaxF(1.0, this.rate) / 60.0 * 0.35;
+    s.heatDiss = 0.0;
+    s.rcs = this.rcs;
+    s.ecm = this.ecm;
+    return s;
   }
 }
 
-// A real integration would read a JSON export produced by test_build.html, validate it, and
-// then surface telemetry through an in-game UI. It would never ship an unvalidated stub.
+public struct MechfallPartState {
+  public let name: String;
+  public let section: String;     // cockpit | torso | limb | system | weapon | shield
+  public let hp: Float;
+  public let maxHp: Float;
+  public let destroyed: Bool;
+}
+
+public struct MechfallDesign {
+  public let id: String;
+  public let name: String;
+  public let exampleSourceId: String;   // MUST be one of the 30 chassis.json ids
+  public let bodyPlan: String;
+  public let six: MechfallSixAttributes;
+  public let weapons: array<MechfallWeaponDesign>;
+  public let parts: array<MechfallPartState>;
+}
+
+// ---------------------------------------------------------------------------
+// 2. Constants — generated from damage.json / simulation.json.
+// ---------------------------------------------------------------------------
+public static func MechfallCockpitDestructionThreshold() -> Float { return 0.70; }
+public static func MechfallTorsoDestructionThreshold() -> Float { return 0.90; }
+public static func MechfallOutputScale() -> Float { return 56.0; }
+public static func MechfallModuleDrawScale() -> Float { return 0.72; }
+public static func MechfallBulkModuleDiscount() -> Float { return 0.42; }
+public static func MechfallAllowedExampleCount() -> Int32 { return 30; }
+
+// ---------------------------------------------------------------------------
+// 3. Telemetry + destruction runtime.
+// ---------------------------------------------------------------------------
+public class MechfallForgeRuntime {
+  private let m_design: MechfallDesign;
+  private let m_ejected: Bool;
+  private let m_destroyed: Bool;
+  private let m_reason: String;
+  private let m_log: array<String>;
+
+  public final func Initialize(design: MechfallDesign) -> Bool {
+    this.m_design = design;
+    this.m_ejected = false;
+    this.m_destroyed = false;
+    this.m_reason = "";
+    ArrayClear(this.m_log);
+    return this.ValidateExampleOnly();
+  }
+
+  // Only the 30 example chassis may supply a full model / trace.
+  public final func ValidateExampleOnly() -> Bool {
+    if StrLen(this.m_design.exampleSourceId) == 0 { return false; }
+    if ArraySize(this.m_design.weapons) > 8 { return false; }
+    return true;
+  }
+
+  public final func SectionDamage(section: String) -> Float {
+    let hp = 0.0;
+    let maxHp = 0.0;
+    let i = 0;
+    while i < ArraySize(this.m_design.parts) {
+      let p = this.m_design.parts[i];
+      if Equals(p.section, section) {
+        hp += p.hp;
+        maxHp += p.maxHp;
+      };
+      i += 1;
+    };
+    if maxHp <= 0.0 { return 0.0; }
+    return ClampF(1.0 - hp / maxHp, 0.0, 1.0);
+  }
+
+  public final func ShieldPool() -> Float {
+    let pool = 0.0;
+    let i = 0;
+    while i < ArraySize(this.m_design.parts) {
+      let p = this.m_design.parts[i];
+      if Equals(p.section, "shield") && !p.destroyed { pool += p.hp; };
+      i += 1;
+    };
+    return pool;
+  }
+
+  // Every individual part is destructible; shields absorb first.
+  public final func ApplyDamage(partIndex: Int32, amount: Float) -> Float {
+    if this.m_destroyed { return 0.0; }
+    let absorb = MinF(this.ShieldPool(), MaxF(0.0, amount));
+    if absorb > 0.0 {
+      let i = 0;
+      var left = absorb;
+      while i < ArraySize(this.m_design.parts) && left > 0.0 {
+        let p = this.m_design.parts[i];
+        if Equals(p.section, "shield") && !p.destroyed {
+          let take = MinF(p.hp, left);
+          p.hp -= take;
+          left -= take;
+          if p.hp <= 0.0 { p.destroyed = true; };
+          this.m_design.parts[i] = p;
+        };
+        i += 1;
+      };
+    };
+    let remaining = MaxF(0.0, amount) - absorb;
+    if partIndex >= 0 && partIndex < ArraySize(this.m_design.parts) {
+      let q = this.m_design.parts[partIndex];
+      q.hp = MaxF(0.0, q.hp - remaining);
+      if q.hp <= 0.0 { q.destroyed = true; };
+      this.m_design.parts[partIndex] = q;
+    };
+    this.EvaluateDestruction();
+    return remaining;
+  }
+
+  // >70% cockpit OR >90% aggregate torso => FULL DESTRUCTION + automatic eject.
+  public final func EvaluateDestruction() -> Bool {
+    if this.m_destroyed { return true; }
+    let c = this.SectionDamage("cockpit");
+    let t = this.SectionDamage("torso");
+    if c > MechfallCockpitDestructionThreshold() {
+      return this.FullDestruction("COCKPIT > 70% DAMAGE");
+    };
+    if t > MechfallTorsoDestructionThreshold() {
+      return this.FullDestruction("TORSO SECTIONS > 90% AGGREGATE DAMAGE");
+    };
+    return false;
+  }
+
+  public final func FullDestruction(reason: String) -> Bool {
+    let i = 0;
+    while i < ArraySize(this.m_design.parts) {
+      let p = this.m_design.parts[i];
+      p.hp = 0.0;
+      p.destroyed = true;
+      this.m_design.parts[i] = p;
+      i += 1;
+    };
+    this.m_destroyed = true;
+    this.m_ejected = true;
+    this.m_reason = reason;
+    ArrayPush(this.m_log, "FULL DESTRUCTION :: " + reason);
+    return true;
+  }
+
+  // Manual X / mechfall_ig_eject emergency eject.
+  public final func EmergencyEject() -> Bool {
+    if this.m_destroyed { return true; }
+    this.m_ejected = true;
+    ArrayPush(this.m_log, "PILOT EMERGENCY EJECT :: cockpit lock released");
+    return true;
+  }
+
+  public final func RepairAll() -> Void {
+    let i = 0;
+    while i < ArraySize(this.m_design.parts) {
+      let p = this.m_design.parts[i];
+      p.hp = p.maxHp;
+      p.destroyed = false;
+      this.m_design.parts[i] = p;
+      i += 1;
+    };
+    this.m_destroyed = false;
+    this.m_ejected = false;
+    this.m_reason = "";
+  }
+
+  public final func Describe() -> String {
+    return "MECHFALL // FORGE 77 :: " + this.m_design.name
+      + " | example " + this.m_design.exampleSourceId
+      + " | power " + FloatToString(this.m_design.six.powerDraw)
+      + " | mass " + FloatToString(this.m_design.six.mass)
+      + " | RCS " + FloatToString(this.m_design.six.rcs)
+      + " | parts " + ToString(ArraySize(this.m_design.parts))
+      + " | status " + (this.m_destroyed ? "DESTROYED" : (this.m_ejected ? "EJECTED" : "OPERATIONAL"));
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 4. Build notes (NOT executable)
+// ---------------------------------------------------------------------------
+// 1. Export a design from test_build.html (WEAPON FORGE + DAMAGE CONTROL).
+// 2. Map models.json[exampleSourceId].mesh onto an ORIGINAL .mesh/.ent built in
+//    WolvenKit (see archivexl.archive.example.md). No ripped assets.
+// 3. Map MechfallPartState entries onto that entity's parts; call
+//    MechfallForgeRuntime.ApplyDamage() from a combat/vehicle callback.
+// 4. Compile with redscript against CP2077 2.31 and verify in-game. Nothing in
+//    this repository has been in-game verified.

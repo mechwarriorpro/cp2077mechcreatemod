@@ -325,6 +325,35 @@ def main() -> int:
     outlines = {json.dumps(m["trace"]["front"]["outline"]) for m in lib if m.get("trace", {}).get("front")}
     if len(outlines) != len(lib):
         err("example full models must have distinct front outlines (no shared generic hull)")
+    # 0.1.8-test: independent orthographic views + shipped triangulated 3D mesh
+    if pol.get("independentOrthographicViews") is not True or pol.get("ships3DMesh") is not True:
+        err("models.policy must declare independentOrthographicViews and ships3DMesh")
+    side_outlines = set()
+    top_outlines = set()
+    for m in lib:
+        mesh = m.get("mesh", {})
+        if mesh.get("triangleCount", 0) < 100 or mesh.get("partCount", 0) < 20:
+            err(f"full model {m.get('id')} must ship a real 3D mesh (>=100 triangles, >=20 parts)")
+        for tri in mesh.get("triangles", [])[:5]:
+            if len(tri) != 4 or any(not isinstance(i, int) for i in tri):
+                err(f"full model {m.get('id')} has a malformed indexed triangle")
+        for v in mesh.get("vertices", [])[:5]:
+            if len(v) != 3 or any(not isinstance(x, (int, float)) for x in v):
+                err(f"full model {m.get('id')} has a malformed 3D vertex")
+        side_outlines.add(json.dumps(m["trace"]["side"]["outline"]))
+        top_outlines.add(json.dumps(m["trace"]["top"]["outline"]))
+        f = m["trace"]["front"]["outline"]
+        s = m["trace"]["side"]["outline"]
+        t = m["trace"]["top"]["outline"]
+        fw = max(x for x, _ in f) - min(x for x, _ in f)
+        sw = max(x for x, _ in s) - min(x for x, _ in s)
+        tw = max(x for x, _ in t) - min(x for x, _ in t)
+        if abs(sw - fw * 0.62) < 0.02 and abs(tw - fw * 0.85) < 0.02:
+            err(f"full model {m.get('id')} side/top traces still look like affine copies of the front")
+        if len(t) == len(f):
+            err(f"full model {m.get('id')} top plan must have an independent outline length")
+    if len(side_outlines) != len(lib) or len(top_outlines) != len(lib):
+        err("every example must have a distinct side and top outline")
     if mdl.get("meta", {}).get("version") != d["compat"]["meta"]["version"]:
         err("models.meta.version must match compat.meta.version")
     # ------------------------------------------- forgiving energy / reactor balance
@@ -488,7 +517,10 @@ def main() -> int:
                       "energy_shield", "ballistic_shield", "energy_missile", "energy_melee",
                       "DAMAGE CONTROL", "PER-PART DESTRUCTION", "PILOT EMERGENCY EJECT",
                       "MF.damage.hitPct", "FULL DESTRUCTION",
-                      "moduleDrawScale", "bulkModuleDiscount", "cockpitDestruction"):
+                      "moduleDrawScale", "bulkModuleDiscount", "cockpitDestruction",
+                      "USE SHIPPED 3D MESH", "MF.models.meshFromData", "SHIELD POOL",
+                      "combatProfile", "MF.damage.absorb",
+                      "independentOrthographicViews", "triangleCount"):
             if token not in text:
                 err(f"test_build.html missing expected content {token!r}")
         if "MF.draw.matrix" in text or "NO FRANCHISE GEOMETRY" in text:
@@ -545,12 +577,37 @@ def main() -> int:
               "docs/BaseModHooks.md", "docs/AssetManifest.md",
               "docs/PROCEDURAL_PILOT.md", "docs/COMPAT.md", "docs/INGAME_PILOT.md",
               "docs/FULL_MODELS.md", "docs/WEAPON_FORGE.md", "docs/DAMAGE_MODEL.md",
-              "models.json", "weapons.json", "damage.json"):
+              "models.json", "weapons.json", "damage.json",
+              "tools/validate_integration.py", "tools/parity_test.js",
+              "docs/integration/redscript_hook.reds.example",
+              "docs/integration/tweakxl.yaml.example",
+              "docs/integration/archivexl.archive.example.md",
+              "docs/integration/custom_mech_entity.example.md"):
         if not (ROOT / f).exists():
             err(f"missing doc {f}")
     examples = list((ROOT / "docs/integration").glob("*.example*"))
     if len(examples) < 3:
         err("expected 3 .example integration templates")
+
+    # ------------------------------------------- integration templates (0.1.8-test)
+    integ = subprocess.run([sys.executable, str(ROOT / "tools/validate_integration.py")],
+                           capture_output=True, text=True)
+    if integ.returncode != 0:
+        for line in integ.stderr.strip().splitlines():
+            err("integration templates: " + line.strip())
+    else:
+        print("  " + integ.stdout.strip())
+
+    # generated Lua must use the JSON reactor model, not stale hardcoded values
+    lua_path = ROOT / "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua"
+    if lua_path.exists():
+        ltxt = lua_path.read_text(encoding="utf-8")
+        if "MF_DATA.reactorModel" not in ltxt:
+            err("CET init.lua must read reactor coefficients from generated MF_DATA.reactorModel")
+        if "MF_DATA.thresholds" not in ltxt:
+            err("CET init.lua must read validation thresholds from generated MF_DATA.thresholds")
+        if "derateFactor = 0.45" in ltxt or "outputScale = 34.0" in ltxt:
+            err("CET init.lua still contains stale hardcoded pre-0.1.7 reactor values")
 
     # ---------------------------------------------------------------- report
     print(f"\nChecked: {len(roster)} prefabs, {len(templates)} subsystem templates, "
