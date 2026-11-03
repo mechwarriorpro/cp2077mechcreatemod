@@ -1,0 +1,282 @@
+#!/usr/bin/env python3
+"""MECHFALL // FORGE 77 — data integrity, generated-output drift and packaging checks.
+
+Run:  python3 tools/validate.py           (warnings are reported but do not fail)
+      python3 tools/validate.py --strict  (warnings also fail)
+Used by .github/workflows/validate.yml.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA_FILES = ("simulation.json", "reactors.json", "subsystems.json", "chassis.json", "components.json", "teardowns.json")
+SIX = ("powerDraw", "mass", "heatGen", "heatDiss", "rcs", "ecm")
+SHAPE_KEYS = ("torsoW", "torsoH", "torsoD", "headScale", "shoulderW", "shoulderH", "upperArm",
+              "foreArm", "upperLeg", "lowerLeg", "hipW", "footL", "weaponX", "weaponY",
+              "legStance", "armorFlare", "jetCount", "style")
+ANCHORS = {"torso", "head", "backpack", "reactor", "shoulderL", "shoulderR", "upperArmL", "upperArmR",
+           "foreArmL", "foreArmR", "weaponL", "weaponR", "hip", "upperLegL", "upperLegR",
+           "lowerLegL", "lowerLegR", "footL", "footR", "jetL", "jetR", "flareL", "flareR",
+           "extraLegL", "extraLegR", "crest", "shield"}
+TABS = ("HANGAR", "TEARDOWN", "REACTOR LAB", "INTERNAL SYSTEMS", "MECH FORGE", "COMBAT TEST",
+        "DOSSIER", "SETTINGS")
+
+errors: list[str] = []
+warnings: list[str] = []
+
+
+def err(msg: str) -> None:
+    errors.append(msg)
+
+
+def warn(msg: str) -> None:
+    warnings.append(msg)
+
+
+def load(name: str):
+    p = ROOT / name
+    if not p.exists():
+        err(f"missing data file {name}")
+        return {}
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception as e:
+        err(f"{name} is not valid JSON: {e}")
+        return {}
+
+
+def check_num(obj, keys, where):
+    for k in keys:
+        v = obj.get(k)
+        if not isinstance(v, (int, float)) or isinstance(v, bool):
+            err(f"{where}: {k} must be numeric, got {v!r}")
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--strict", action="store_true", help="treat warnings as failures")
+    args = ap.parse_args()
+    d = {n[:-5]: load(n) for n in DATA_FILES}
+
+    # ---------------------------------------------------------------- simulation
+    sim = d["simulation"]
+    for key in ("sixAttributes", "coefficients", "validationThresholds", "validationStates", "equations", "tradeoffs"):
+        if key not in sim:
+            err(f"simulation.json missing {key}")
+    if [a["key"] for a in sim.get("sixAttributes", [])] != list(SIX):
+        err("simulation.json sixAttributes must be exactly the six first-class attributes")
+    if len(sim.get("validationStates", [])) != 12:
+        err("simulation.json must define all 12 validation states")
+    for k, c in sim.get("coefficients", {}).items():
+        check_num(c, ("min", "max", "step", "value"), f"simulation.coefficients.{k}")
+        if c.get("min") >= c.get("max"):
+            err(f"coefficient {k}: min >= max")
+    for k in ("rcsShapeExponent", "rcsMaterialExponent", "detectionExponent", "ecmFalloffExponent", "k1", "k2"):
+        if k not in sim.get("coefficients", {}):
+            err(f"simulation.json missing exposed coefficient {k}")
+
+    # ---------------------------------------------------------------- reactors
+    rx = d["reactors"]
+    presets = rx.get("presets", [])
+    if len(presets) != 6:
+        err(f"reactors.json must have 6 teardown presets, got {len(presets)}")
+    pids = {p["id"] for p in presets}
+    if len(pids) != len(presets):
+        err("duplicate reactor preset ids")
+    params = {p["key"] for p in rx.get("parameters", [])}
+    for p in presets:
+        if set(p.get("params", {})) != params:
+            err(f"reactor preset {p['id']} has wrong parameter set")
+    if len(rx.get("biomes", {})) != 6:
+        err("reactors.json must define 6 biome multipliers")
+    m = rx.get("model", {})
+    for k in ("sizeExponent", "instabilitySizeExponent", "instabilityFlowExponent", "outputScale",
+              "derateFactor", "gradeBonus", "S_ref", "F_ref", "heatLoadFactor"):
+        if not isinstance(m.get(k), (int, float)):
+            err(f"reactors.model.{k} must be a configurable number")
+    if m.get("sizeExponent") and m.get("instabilitySizeExponent"):
+        p = 2 ** m["sizeExponent"]
+        i = 2 ** m["instabilitySizeExponent"]
+        if not (1.6 < p < 2.0 and 2.5 < i < 3.5):
+            warn(f"nominal doubling rule off: 2^sizeExponent={p:.2f}, 2^instability={i:.2f}")
+
+    # ---------------------------------------------------------------- subsystems
+    ss = d["subsystems"]
+    cats = ss.get("categories", {})
+    if "freeform" not in cats:
+        err("subsystems.json must include a freeform/blank-slate category")
+    for cid, cat in cats.items():
+        if not cat.get("params"):
+            err(f"category {cid} has no editable params")
+        for p in cat.get("params", []):
+            check_num(p, ("min", "max", "step", "default"), f"category {cid}.{p.get('key')}")
+            if p.get("min") >= p.get("max"):
+                err(f"category {cid}.{p.get('key')}: min >= max")
+    templates = ss.get("templates", [])
+    tids = {t["id"] for t in templates}
+    if len(tids) != len(templates):
+        err("duplicate subsystem template ids")
+    for t in templates:
+        if t.get("category") not in cats:
+            err(f"template {t['id']} has unknown category {t.get('category')}")
+        else:
+            allowed = {p["key"] for p in cats[t["category"]]["params"]}
+            extra = set(t.get("params", {})) - allowed
+            if extra:
+                err(f"template {t['id']} has params not in its schema: {sorted(extra)}")
+    if not any(t.get("category") == "mana_reactor" for t in templates):
+        err("a mana reactor subsystem template is required")
+    if len(ss.get("dependencyGraph", {}).get("nodes", [])) < 8:
+        err("dependency graph must cover all subsystem families")
+
+    # ---------------------------------------------------------------- chassis
+    ch = d["chassis"]
+    roster = ch.get("roster", [])
+    if len(roster) != 30:
+        err(f"chassis.json must contain 30 prefabs, got {len(roster)}")
+    if len(ch.get("factions", {})) != 6:
+        err("chassis.json must define 6 factions")
+    ids = [c["id"] for c in roster]
+    names = [c["name"] for c in roster]
+    if len(set(ids)) != len(ids) or len(set(names)) != len(names):
+        err("duplicate chassis id or canonical name")
+    if tuple(ch.get("shapeKeys", ())) != SHAPE_KEYS:
+        err("chassis.shapeKeys must be the 18 canonical shape parameters")
+    for c in roster:
+        where = f"chassis {c['id']}"
+        if set(c.get("shape", {})) != set(SHAPE_KEYS):
+            err(f"{where}: shape must have all 18 parameters")
+        if c.get("shape", {}).get("style") not in ch.get("styles", []):
+            err(f"{where}: unknown style")
+        if c.get("reactorId") not in pids:
+            err(f"{where}: unknown reactorId {c.get('reactorId')}")
+        for sid in c.get("subsystems", []):
+            if sid not in tids:
+                err(f"{where}: unknown subsystem id {sid}")
+        if not isinstance(c.get("aliases"), list) or not c["aliases"]:
+            err(f"{where}: aliases must be recorded")
+        if c.get("internalsProfile") not in ("biped", "reversejoint", "knight", "spider", "tetrapod", "corpo"):
+            err(f"{where}: unknown internalsProfile")
+    for a, preset in ch.get("presets", {}).items():
+        if set(preset) != set(SHAPE_KEYS):
+            err(f"shape preset {a} must have all 18 parameters")
+
+    # ---------------------------------------------------------------- components
+    comp = d["components"]
+    for part in comp.get("parts", []):
+        check_num(part, SIX, f"component {part.get('id')}")
+        if part.get("type") not in comp.get("types", []):
+            err(f"component {part.get('id')} has unknown type")
+
+    # ---------------------------------------------------------------- teardowns
+    td = d["teardowns"]
+    catalog = td.get("internalsCatalog", {})
+    if len(catalog) < 8:
+        err("teardowns.json needs at least 8 internals assemblies")
+    for key, asm in catalog.items():
+        for i, internal in enumerate(asm.get("internals", [])):
+            check_num(internal, SIX, f"internalsCatalog.{key}[{i}] {internal.get('name')}")
+            if not isinstance(internal.get("qty"), int) or internal["qty"] < 1:
+                err(f"internalsCatalog.{key}[{i}] qty must be a positive integer")
+    for arch, parts in td.get("partSets", {}).items():
+        if arch not in ("biped", "reversejoint", "knight", "spider", "tetrapod", "corpo"):
+            err(f"unknown teardown archetype {arch}")
+        for p in parts:
+            if p.get("anchor") not in ANCHORS:
+                err(f"teardown {arch}: unknown anchor {p.get('anchor')}")
+            if p.get("internalsKey") not in catalog:
+                err(f"teardown {arch}: unknown internalsKey {p.get('internalsKey')}")
+    for act in ("TEAR DOWN", "SCAN INTERNALS", "EXTRACT TO INVENTORY", "USE AS TEMPLATE", "COMPARE", "REASSEMBLE"):
+        if act not in td.get("actions", []):
+            err(f"teardowns.json missing action {act}")
+
+    # ---------------------------------------------------------------- generated outputs
+    gen = subprocess.run([sys.executable, str(ROOT / "tools/generate.py"), "--check"],
+                         cwd=str(ROOT), capture_output=True, text=True)
+    if gen.returncode != 0:
+        err("generated outputs are stale:\n" + gen.stdout.strip() + "\n" + gen.stderr.strip())
+
+    html = ROOT / "test_build.html"
+    if not html.exists():
+        err("test_build.html missing")
+    else:
+        text = html.read_text(encoding="utf-8")
+        for bad in ("<script src=", "<link ", "<img ", "<iframe ", "@import", "url(http", "fetch(", "XMLHttpRequest"):
+            if bad in text:
+                err(f"test_build.html is not self-contained: found {bad!r}")
+        for marker in ("__MF_CSS__", "__MF_BODY__", "__MF_DATA__", "__MF_JS__", "__MF_GENERATED_DATA__"):
+            if marker in text:
+                err(f"test_build.html contains unreplaced marker {marker}")
+        for tab in TABS:
+            if tab not in text:
+                err(f"test_build.html missing tab {tab}")
+        for token in ("<canvas", "<style>", "application/json", "powerDraw", "heatDiss", "rcsPolar", "jamStrength"):
+            if token not in text:
+                err(f"test_build.html missing expected content {token!r}")
+        if text.count("<script") < 2:
+            err("test_build.html must contain the data script and the app script")
+        print(f"  test_build.html: {len(text):,} bytes, self-contained")
+
+    lua = ROOT / "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge/init.lua"
+    if not lua.exists():
+        err("generated CET init.lua missing")
+    else:
+        code = lua.read_text(encoding="utf-8")
+        if "__MF_GENERATED_DATA__" in code:
+            err("CET init.lua has unreplaced generated data marker")
+        if "registerForEvent" not in code or "pcall" not in code:
+            err("CET init.lua must register events and pcall-wrap optional hooks")
+        if "Game.AddToInventory" in code and "pcall(function()" not in code:
+            err("optional base-mod hooks must be pcall-wrapped")
+
+    # Installable path must be CET-only.
+    mod_dir = ROOT / "cet_mod/bin/x64/plugins/cyber_engine_tweaks/mods/mechfall_forge"
+    forbidden = [p for p in mod_dir.rglob("*") if p.is_file() and p.suffix in (".reds", ".yaml", ".yml", ".archive", ".xl")]
+    if forbidden:
+        err(f"non-CET files in installable path: {[str(p.relative_to(ROOT)) for p in forbidden]}")
+    installed = sorted(p.name for p in mod_dir.iterdir() if p.is_file())
+    if installed != ["README.md", "init.lua"]:
+        warn(f"unexpected files in CET mod folder: {installed}")
+
+    for f in ("README.md", "LICENSE.md", "DESIGN.md", "PERMISSIONS.md", "CHANGELOG.md", "HANDOVER.md",
+              "ROSTER.md", "NEXUS_PAGE.md", "push_to_github.sh", ".gitignore",
+              ".github/workflows/validate.yml", "tools/build_package.py", "test_build.template.html"):
+        if not (ROOT / f).exists():
+            err(f"missing deliverable {f}")
+    for f in ("docs/REACTOR_MODEL.md", "docs/TEARDOWN_SCHEMA.md", "docs/SUBSYSTEM_MODEL.md",
+              "docs/BaseModHooks.md", "docs/AssetManifest.md"):
+        if not (ROOT / f).exists():
+            err(f"missing doc {f}")
+    examples = list((ROOT / "docs/integration").glob("*.example*"))
+    if len(examples) < 3:
+        err("expected 3 .example integration templates")
+
+    # ---------------------------------------------------------------- report
+    print(f"\nChecked: {len(roster)} prefabs, {len(templates)} subsystem templates, "
+          f"{len(presets)} reactor presets, {len(catalog)} internals assemblies, "
+          f"{len(comp.get('parts', []))} assembly components.")
+    if warnings:
+        print(f"Warnings ({len(warnings)}):")
+        for w in warnings:
+            print("  ! " + w)
+    if errors:
+        print(f"\nFAILED ({len(errors)} errors):", file=sys.stderr)
+        for e in errors:
+            print("  x " + e, file=sys.stderr)
+        return 1
+    if args.strict and warnings:
+        print("\nFAILED (--strict: warnings present)", file=sys.stderr)
+        return 1
+    print("\nOK: all validation checks passed.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

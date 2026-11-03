@@ -1,0 +1,1243 @@
+{
+  "schemaVersion": 1,
+  "description": "Player-designed internal subsystems. Every component exposes powerDraw, mass, heatGen, heatDiss, rcs, ecm.",
+  "categories": {
+    "power_bus": {
+      "label": "Power bus / mana distribution",
+      "short": "POWER BUS",
+      "color": "#ffd166",
+      "description": "Conduits, fuses, capacitor bank and routing that move reactor output to every subsystem.",
+      "params": [
+        {
+          "key": "busCapacity",
+          "label": "Bus capacity",
+          "unit": "kW",
+          "min": 0,
+          "max": 600,
+          "step": 5,
+          "default": 180,
+          "help": "Total conduit throughput."
+        },
+        {
+          "key": "conduitGauge",
+          "label": "Conduit gauge",
+          "unit": "AWG",
+          "min": 1,
+          "max": 20,
+          "step": 1,
+          "default": 8,
+          "help": "Thicker conduit = less loss, more mass."
+        },
+        {
+          "key": "voltage",
+          "label": "Voltage",
+          "unit": "V",
+          "min": 12,
+          "max": 480,
+          "step": 4,
+          "default": 120,
+          "help": "Higher voltage lowers resistive loss."
+        },
+        {
+          "key": "routingRedundancy",
+          "label": "Routing redundancy",
+          "unit": "paths",
+          "min": 0,
+          "max": 6,
+          "step": 1,
+          "default": 1,
+          "help": "Extra paths resist battle damage and brownout."
+        },
+        {
+          "key": "fuseLimit",
+          "label": "Fuse limit",
+          "unit": "kW",
+          "min": 20,
+          "max": 600,
+          "step": 5,
+          "default": 170,
+          "help": "Brownout threshold for the bus."
+        },
+        {
+          "key": "capacitorBank",
+          "label": "Capacitor bank",
+          "unit": "kJ",
+          "min": 0,
+          "max": 200,
+          "step": 2,
+          "default": 24,
+          "help": "Surge tolerance for burst abilities."
+        },
+        {
+          "key": "grounding",
+          "label": "Grounding quality",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.7,
+          "help": "Reduces ECM self-noise and quickhack susceptibility."
+        }
+      ],
+      "derived": [
+        "brownoutThreshold",
+        "surgeTolerance",
+        "transmissionLoss"
+      ]
+    },
+    "thermal_loop": {
+      "label": "Thermal loop",
+      "short": "THERMAL",
+      "color": "#ff7b54",
+      "description": "Coolant, pumps, radiator area, heat pipes and phase-change mass. Radiators cost RCS.",
+      "params": [
+        {
+          "key": "coolantType",
+          "label": "Coolant type",
+          "unit": "0=water 1=glycol 2=liquid mana 3=phase gel",
+          "min": 0,
+          "max": 3,
+          "step": 1,
+          "default": 1,
+          "help": "Coolant efficiency multiplier."
+        },
+        {
+          "key": "pumpRate",
+          "label": "Pump rate",
+          "unit": "%",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 48,
+          "help": "Coolant flow; draws power."
+        },
+        {
+          "key": "radiatorArea",
+          "label": "Radiator area",
+          "unit": "m2",
+          "min": 0,
+          "max": 160,
+          "step": 1,
+          "default": 38,
+          "help": "↑ dissipation, ↑ RCS, ↑ mass."
+        },
+        {
+          "key": "heatPipeCount",
+          "label": "Heat pipes",
+          "unit": "count",
+          "min": 0,
+          "max": 64,
+          "step": 1,
+          "default": 14,
+          "help": "Moves hotspots into radiators."
+        },
+        {
+          "key": "phaseChangeMass",
+          "label": "Phase-change mass",
+          "unit": "kg",
+          "min": 0,
+          "max": 120,
+          "step": 1,
+          "default": 18,
+          "help": "Thermal mass buffer against spikes."
+        },
+        {
+          "key": "ventThreshold",
+          "label": "Vent threshold",
+          "unit": "0.3-1.5",
+          "min": 0.3,
+          "max": 1.5,
+          "step": 0.01,
+          "default": 0.9,
+          "help": "Temperature at which vents open (adds RCS)."
+        },
+        {
+          "key": "insulation",
+          "label": "Insulation",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.3,
+          "help": "Protects internals but traps heat."
+        }
+      ],
+      "derived": [
+        "heatDiss",
+        "thermalMass",
+        "hotspots",
+        "overheatTimer"
+      ]
+    },
+    "mass_structure": {
+      "label": "Mass / structure",
+      "short": "STRUCTURE",
+      "color": "#9fb4c7",
+      "description": "Frame material, armour density, counterweights, hardpoints, CoM offset and bracing.",
+      "params": [
+        {
+          "key": "frameMaterial",
+          "label": "Frame material",
+          "unit": "0=composite 1=Ti 2=myomer 3=corite 4=ether lattice",
+          "min": 0,
+          "max": 4,
+          "step": 1,
+          "default": 1,
+          "help": "Density and strength."
+        },
+        {
+          "key": "armourDensity",
+          "label": "Armour density",
+          "unit": "x",
+          "min": 0,
+          "max": 3,
+          "step": 0.05,
+          "default": 1.1,
+          "help": "Mass and heat retention."
+        },
+        {
+          "key": "counterweights",
+          "label": "Counterweights",
+          "unit": "kg",
+          "min": 0,
+          "max": 120,
+          "step": 1,
+          "default": 12,
+          "help": "Corrects CoM offset at a mass cost."
+        },
+        {
+          "key": "hardpoints",
+          "label": "Payload hardpoints",
+          "unit": "count",
+          "min": 0,
+          "max": 20,
+          "step": 1,
+          "default": 4,
+          "help": "Weapon/payload mounts."
+        },
+        {
+          "key": "comOffset",
+          "label": "CoM offset",
+          "unit": "-1..1",
+          "min": -1,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.0,
+          "help": "Design bias; large offsets hurt handling."
+        },
+        {
+          "key": "bracing",
+          "label": "Bracing",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.55,
+          "help": "Resists structural stress."
+        }
+      ],
+      "derived": [
+        "frameMass",
+        "inertia",
+        "sprintSpeed",
+        "dashCost",
+        "structuralStress",
+        "comOffset"
+      ]
+    },
+    "signature_rcs": {
+      "label": "Signature / RCS",
+      "short": "SIGNATURE",
+      "color": "#4dd0e1",
+      "description": "Facet angles, RAM coating, edge alignment, cavity shielding, emitter placement and panel gaps.",
+      "params": [
+        {
+          "key": "facetAngle",
+          "label": "Facet angle",
+          "unit": "deg",
+          "min": 0,
+          "max": 60,
+          "step": 1,
+          "default": 24,
+          "help": "Steeper facets deflect returns away from the emitter."
+        },
+        {
+          "key": "ramCoating",
+          "label": "RAM coating",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.4,
+          "help": "↓ RCS, ↑ mass, ↓ dissipation."
+        },
+        {
+          "key": "edgeAlignment",
+          "label": "Edge alignment",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.5,
+          "help": "Aligns edges into a few bright spikes."
+        },
+        {
+          "key": "cavityShielding",
+          "label": "Cavity shielding",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.35,
+          "help": "Masks engine and weapon cavities."
+        },
+        {
+          "key": "emitterPlacement",
+          "label": "Emitter placement",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.5,
+          "help": "Keeps active emitters off the frontal aspect."
+        },
+        {
+          "key": "panelGaps",
+          "label": "Panel gaps",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.2,
+          "help": "Gaps and seams add return spikes."
+        }
+      ],
+      "derived": [
+        "rcsMultiplier",
+        "rcsFront",
+        "rcsSide",
+        "rcsRear",
+        "detectionRange",
+        "missileLockTime"
+      ]
+    },
+    "ecm_ew": {
+      "label": "ECM / electronic warfare",
+      "short": "ECM / EW",
+      "color": "#c792ea",
+      "description": "Jammers, antenna gain, band coverage, decoys, LPI, ECCM, chaff, spoofing, EMCON.",
+      "params": [
+        {
+          "key": "jammerPower",
+          "label": "Jammer power",
+          "unit": "kW",
+          "min": 0,
+          "max": 200,
+          "step": 1,
+          "default": 28,
+          "help": "Strong jamming burns power and emits."
+        },
+        {
+          "key": "antennaGain",
+          "label": "Antenna gain",
+          "unit": "dBi",
+          "min": 0,
+          "max": 20,
+          "step": 0.5,
+          "default": 5,
+          "help": "Focuses jam energy."
+        },
+        {
+          "key": "bandCoverage",
+          "label": "Band coverage",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.6,
+          "help": "Wider coverage costs power."
+        },
+        {
+          "key": "decoyCount",
+          "label": "Decoy count",
+          "unit": "count",
+          "min": 0,
+          "max": 24,
+          "step": 1,
+          "default": 4,
+          "help": "Consumables that break locks."
+        },
+        {
+          "key": "lpiMode",
+          "label": "LPI mode",
+          "unit": "0/1",
+          "min": 0,
+          "max": 1,
+          "step": 1,
+          "default": 0,
+          "help": "Low probability of intercept: 0.25 emissions, weaker jam."
+        },
+        {
+          "key": "eccmResistance",
+          "label": "ECCM resistance",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.4,
+          "help": "Resists hostile jamming and quickhacks."
+        },
+        {
+          "key": "chaff",
+          "label": "Chaff bundles",
+          "unit": "count",
+          "min": 0,
+          "max": 24,
+          "step": 1,
+          "default": 2,
+          "help": "Missile countermeasures."
+        },
+        {
+          "key": "spoofing",
+          "label": "Spoofing",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.3,
+          "help": "False returns; raises self-emissions."
+        },
+        {
+          "key": "emcon",
+          "label": "EMCON",
+          "unit": "0/1",
+          "min": 0,
+          "max": 1,
+          "step": 1,
+          "default": 0,
+          "help": "Emissions control: near-silent, jam mostly disabled."
+        }
+      ],
+      "derived": [
+        "jamStrength",
+        "lockBreak",
+        "quickhackResist",
+        "selfEmissions",
+        "decoys"
+      ]
+    },
+    "sensors_os": {
+      "label": "Sensors / OS",
+      "short": "SENSORS",
+      "color": "#8bd450",
+      "description": "Radar aperture, optics, passive listen mode, targeting solver and AI assist.",
+      "params": [
+        {
+          "key": "radarAperture",
+          "label": "Radar aperture",
+          "unit": "m",
+          "min": 0,
+          "max": 12,
+          "step": 0.1,
+          "default": 2.4,
+          "help": "Active aperture: detection but emissions."
+        },
+        {
+          "key": "opticalGrade",
+          "label": "Optical grade",
+          "unit": "0-5",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "default": 2,
+          "help": "Passive identification range."
+        },
+        {
+          "key": "passiveMode",
+          "label": "Passive / listen",
+          "unit": "0/1",
+          "min": 0,
+          "max": 1,
+          "step": 1,
+          "default": 0,
+          "help": "No active emissions."
+        },
+        {
+          "key": "targetingSolver",
+          "label": "Targeting solver",
+          "unit": "0-5",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "default": 2,
+          "help": "Lock speed and ECCM quality."
+        },
+        {
+          "key": "aiAssist",
+          "label": "AI assist",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.4,
+          "help": "Cooldown multiplier; draws power."
+        }
+      ],
+      "derived": [
+        "detectionRange",
+        "lockSpeed",
+        "cooldownMultiplier",
+        "eccmQuality"
+      ]
+    },
+    "actuators": {
+      "label": "Actuators / limbs",
+      "short": "ACTUATORS",
+      "color": "#f78fb3",
+      "description": "Servos, myomer layers, gear ratio, damper stiffness and joint range.",
+      "params": [
+        {
+          "key": "servoCount",
+          "label": "Servo count",
+          "unit": "count",
+          "min": 0,
+          "max": 40,
+          "step": 1,
+          "default": 10,
+          "help": "↑ speed, ↑ power, ↑ heat per move."
+        },
+        {
+          "key": "myomerLayers",
+          "label": "Myomer layers",
+          "unit": "count",
+          "min": 0,
+          "max": 20,
+          "step": 1,
+          "default": 5,
+          "help": "Force multiplication and mass."
+        },
+        {
+          "key": "gearRatio",
+          "label": "Gear ratio",
+          "unit": "x",
+          "min": 0.2,
+          "max": 3,
+          "step": 0.05,
+          "default": 1.0,
+          "help": "High ratio = torque, low top speed."
+        },
+        {
+          "key": "damperStiffness",
+          "label": "Damper stiffness",
+          "unit": "0-1",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.5,
+          "help": "Recoil control vs. dash agility."
+        },
+        {
+          "key": "jointRange",
+          "label": "Joint range",
+          "unit": "0-1.5",
+          "min": 0,
+          "max": 1.5,
+          "step": 0.01,
+          "default": 0.9,
+          "help": "Limb travel; wide stances raise RCS."
+        }
+      ],
+      "derived": [
+        "speed",
+        "dodge",
+        "heatPerMove",
+        "movingRcs"
+      ]
+    },
+    "mana_reactor": {
+      "label": "Mana reactor",
+      "short": "REACTOR",
+      "color": "#ffb347",
+      "description": "The power source. Params are shared with REACTOR LAB; derived outputs come from the reactor model.",
+      "params": [
+        {
+          "key": "F",
+          "label": "manaFlow",
+          "unit": "mana/s",
+          "min": 0.0,
+          "max": 12.0,
+          "step": 0.1,
+          "default": 4.0
+        },
+        {
+          "key": "G",
+          "label": "manaGrowthRate",
+          "unit": "mana/s",
+          "min": 0.0,
+          "max": 12.0,
+          "step": 0.1,
+          "default": 5.2
+        },
+        {
+          "key": "A",
+          "label": "rawAtmosphericManaInput",
+          "unit": "mana/s",
+          "min": 0.0,
+          "max": 12.0,
+          "step": 0.1,
+          "default": 4.0
+        },
+        {
+          "key": "eta",
+          "label": "manaCrystalEfficiency",
+          "unit": "0-1",
+          "min": 0.05,
+          "max": 0.99,
+          "step": 0.01,
+          "default": 0.72
+        },
+        {
+          "key": "S",
+          "label": "crystalSize",
+          "unit": "S_ref units",
+          "min": 0.2,
+          "max": 3.2,
+          "step": 0.05,
+          "default": 1.0
+        },
+        {
+          "key": "Q",
+          "label": "crystalGrade",
+          "unit": "1-5",
+          "min": 1.0,
+          "max": 5.0,
+          "step": 1.0,
+          "default": 2.0
+        },
+        {
+          "key": "C",
+          "label": "containment",
+          "unit": "0-1",
+          "min": 0.0,
+          "max": 0.98,
+          "step": 0.01,
+          "default": 0.74
+        },
+        {
+          "key": "W",
+          "label": "coolantFlow",
+          "unit": "flow",
+          "min": 0.05,
+          "max": 4.0,
+          "step": 0.05,
+          "default": 1.2
+        },
+        {
+          "key": "L",
+          "label": "filtration",
+          "unit": "0-1",
+          "min": 0.0,
+          "max": 1.0,
+          "step": 0.01,
+          "default": 0.8
+        }
+      ],
+      "derived": [
+        "netOutput",
+        "grossOutput",
+        "instability",
+        "heatLoad",
+        "crystalSignature",
+        "meltdown"
+      ]
+    },
+    "freeform": {
+      "label": "Freeform / blank slate",
+      "short": "FREEFORM",
+      "color": "#ffffff",
+      "description": "Author the six attributes directly. Nothing is derived: this is your own component.",
+      "params": [
+        {
+          "key": "powerDraw",
+          "label": "Power use",
+          "unit": "kW",
+          "min": -300,
+          "max": 300,
+          "step": 1,
+          "default": 0,
+          "help": ""
+        },
+        {
+          "key": "mass",
+          "label": "Weight",
+          "unit": "kg",
+          "min": -500,
+          "max": 1500,
+          "step": 5,
+          "default": 0,
+          "help": ""
+        },
+        {
+          "key": "heatGen",
+          "label": "Heat generated",
+          "unit": "kW",
+          "min": 0,
+          "max": 300,
+          "step": 1,
+          "default": 0,
+          "help": ""
+        },
+        {
+          "key": "heatDiss",
+          "label": "Heat dissipated",
+          "unit": "kW",
+          "min": 0,
+          "max": 300,
+          "step": 1,
+          "default": 0,
+          "help": ""
+        },
+        {
+          "key": "rcs",
+          "label": "RCS contribution",
+          "unit": "m2",
+          "min": -40,
+          "max": 60,
+          "step": 0.5,
+          "default": 0,
+          "help": ""
+        },
+        {
+          "key": "ecm",
+          "label": "ECM contribution",
+          "unit": "str",
+          "min": -40,
+          "max": 80,
+          "step": 0.5,
+          "default": 0,
+          "help": ""
+        }
+      ],
+      "derived": []
+    }
+  },
+  "templates": [
+    {
+      "id": "bus_standard",
+      "name": "Vanguard Distribution Bus",
+      "category": "power_bus",
+      "params": {
+        "busCapacity": 180,
+        "conduitGauge": 8,
+        "voltage": 120,
+        "routingRedundancy": 1,
+        "fuseLimit": 170,
+        "capacitorBank": 24,
+        "grounding": 0.7
+      },
+      "note": "Baseline redundant bus from BT-7274 teardown.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "bus_ether",
+      "name": "Twin Ether Bus",
+      "category": "power_bus",
+      "params": {
+        "busCapacity": 320,
+        "conduitGauge": 12,
+        "voltage": 240,
+        "routingRedundancy": 3,
+        "fuseLimit": 290,
+        "capacitorBank": 64,
+        "grounding": 0.7
+      },
+      "note": "Ikaruga-derived dual-path distribution.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "bus_corite",
+      "name": "Corixium Heavy Bus",
+      "category": "power_bus",
+      "params": {
+        "busCapacity": 400,
+        "conduitGauge": 16,
+        "voltage": 380,
+        "routingRedundancy": 1,
+        "fuseLimit": 340,
+        "capacitorBank": 90,
+        "grounding": 0.55
+      },
+      "note": "Mecha Break high-current bus.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "loop_standard",
+      "name": "Baseline Glycol Loop",
+      "category": "thermal_loop",
+      "params": {
+        "coolantType": 1,
+        "pumpRate": 48,
+        "radiatorArea": 38,
+        "heatPipeCount": 14,
+        "phaseChangeMass": 18,
+        "ventThreshold": 0.9,
+        "insulation": 0.3
+      },
+      "note": "Standard pump/radiator package.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "loop_battle_thermal",
+      "name": "Clan Heat-Sink Loop",
+      "category": "thermal_loop",
+      "params": {
+        "coolantType": 2,
+        "pumpRate": 72,
+        "radiatorArea": 92,
+        "heatPipeCount": 34,
+        "phaseChangeMass": 54,
+        "ventThreshold": 0.9,
+        "insulation": 0.3
+      },
+      "note": "BattleTech-style heat sinks: heavy, high dissipation.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "loop_stealth",
+      "name": "Low-Signature Phase Loop",
+      "category": "thermal_loop",
+      "params": {
+        "coolantType": 1,
+        "pumpRate": 30,
+        "radiatorArea": 12,
+        "heatPipeCount": 8,
+        "phaseChangeMass": 80,
+        "ventThreshold": 1.2,
+        "insulation": 0.7
+      },
+      "note": "Small radiators, phase-change buffering.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "structure_standard",
+      "name": "Vanguard Frame",
+      "category": "mass_structure",
+      "params": {
+        "frameMaterial": 1,
+        "armourDensity": 1.1,
+        "counterweights": 12,
+        "hardpoints": 4,
+        "comOffset": 0.0,
+        "bracing": 0.55
+      },
+      "note": "Balanced composite/titanium frame.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "structure_heavy",
+      "name": "Atlas-Class Bracing",
+      "category": "mass_structure",
+      "params": {
+        "frameMaterial": 3,
+        "armourDensity": 2.4,
+        "counterweights": 48,
+        "hardpoints": 8,
+        "comOffset": 0.0,
+        "bracing": 0.9
+      },
+      "note": "Heavy armour, high inertia, strong bracing.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "structure_light",
+      "name": "Striker Myomer Frame",
+      "category": "mass_structure",
+      "params": {
+        "frameMaterial": 2,
+        "armourDensity": 0.5,
+        "counterweights": 2,
+        "hardpoints": 3,
+        "comOffset": 0.0,
+        "bracing": 0.35
+      },
+      "note": "Light, agile, low hardpoint count.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "signature_standard",
+      "name": "Faceted Panel Set",
+      "category": "signature_rcs",
+      "params": {
+        "facetAngle": 24,
+        "ramCoating": 0.4,
+        "edgeAlignment": 0.5,
+        "cavityShielding": 0.35,
+        "emitterPlacement": 0.5,
+        "panelGaps": 0.2
+      },
+      "note": "Baseline shaping and partial RAM.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "signature_stealth",
+      "name": "RAM / Edge-Aligned Shell",
+      "category": "signature_rcs",
+      "params": {
+        "facetAngle": 48,
+        "ramCoating": 0.92,
+        "edgeAlignment": 0.9,
+        "cavityShielding": 0.85,
+        "emitterPlacement": 0.88,
+        "panelGaps": 0.05
+      },
+      "note": "Heavy stealth coating: low RCS, trapped heat.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "ew_standard",
+      "name": "Vanguard EW Suite",
+      "category": "ecm_ew",
+      "params": {
+        "jammerPower": 18,
+        "antennaGain": 5,
+        "bandCoverage": 0.6,
+        "decoyCount": 4,
+        "lpiMode": 0,
+        "eccmResistance": 0.4,
+        "chaff": 2,
+        "spoofing": 0.3,
+        "emcon": 0
+      },
+      "note": "Balanced jammer/decoy/ECCM: audible but below the self-detection threshold.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "ew_blackout",
+      "name": "MaxTac Blackout Suite",
+      "category": "ecm_ew",
+      "params": {
+        "jammerPower": 110,
+        "antennaGain": 11,
+        "bandCoverage": 0.95,
+        "decoyCount": 10,
+        "lpiMode": 0,
+        "eccmResistance": 0.4,
+        "chaff": 9,
+        "spoofing": 0.85,
+        "emcon": 0
+      },
+      "note": "Very loud: breaks locks but paints the frame.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "ew_emcon",
+      "name": "Silent EMCON Suite",
+      "category": "ecm_ew",
+      "params": {
+        "jammerPower": 6,
+        "antennaGain": 2,
+        "bandCoverage": 0.25,
+        "decoyCount": 4,
+        "lpiMode": 1,
+        "eccmResistance": 0.8,
+        "chaff": 2,
+        "spoofing": 0,
+        "emcon": 1
+      },
+      "note": "Passive/EMCON: quiet, minimal jamming.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "sensors_standard",
+      "name": "Vanguard Sensor/OS",
+      "category": "sensors_os",
+      "params": {
+        "radarAperture": 2.4,
+        "opticalGrade": 2,
+        "passiveMode": 0,
+        "targetingSolver": 2,
+        "aiAssist": 0.4
+      },
+      "note": "Balanced radar and optical suite.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "sensors_passive",
+      "name": "Listen-Mode Optics",
+      "category": "sensors_os",
+      "params": {
+        "radarAperture": 0,
+        "opticalGrade": 5,
+        "passiveMode": 1,
+        "targetingSolver": 3,
+        "aiAssist": 0.4
+      },
+      "note": "Passive detection; no active emissions.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "actuators_standard",
+      "name": "Vanguard Servo Set",
+      "category": "actuators",
+      "params": {
+        "servoCount": 10,
+        "myomerLayers": 5,
+        "gearRatio": 1.0,
+        "damperStiffness": 0.5,
+        "jointRange": 0.9
+      },
+      "note": "Baseline biped actuators.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "actuators_striker",
+      "name": "Falcon Striker Actuators",
+      "category": "actuators",
+      "params": {
+        "servoCount": 22,
+        "myomerLayers": 11,
+        "gearRatio": 0.65,
+        "damperStiffness": 0.3,
+        "jointRange": 1.2
+      },
+      "note": "High speed, high heat per move.",
+      "faction": "generic",
+      "custom": false
+    },
+    {
+      "id": "reactor_standard",
+      "name": "Vanguard Link Shard",
+      "category": "mana_reactor",
+      "params": {
+        "F": 4.0,
+        "G": 5.2,
+        "A": 4.0,
+        "eta": 0.72,
+        "S": 1.0,
+        "Q": 2.0,
+        "C": 0.74,
+        "W": 1.2,
+        "L": 0.8
+      },
+      "note": "Reactor Lab default preset.",
+      "faction": "generic",
+      "custom": false
+    }
+  ],
+  "dependencyGraph": {
+    "nodes": [
+      {
+        "id": "reactor",
+        "label": "MANA REACTOR"
+      },
+      {
+        "id": "bus",
+        "label": "POWER BUS"
+      },
+      {
+        "id": "thermal",
+        "label": "THERMAL LOOP"
+      },
+      {
+        "id": "structure",
+        "label": "MASS / STRUCTURE"
+      },
+      {
+        "id": "signature",
+        "label": "SIGNATURE"
+      },
+      {
+        "id": "ecm",
+        "label": "ECM / EW"
+      },
+      {
+        "id": "sensors",
+        "label": "SENSORS / OS"
+      },
+      {
+        "id": "actuators",
+        "label": "ACTUATORS"
+      }
+    ],
+    "edges": [
+      [
+        "reactor",
+        "bus"
+      ],
+      [
+        "bus",
+        "thermal"
+      ],
+      [
+        "bus",
+        "ecm"
+      ],
+      [
+        "bus",
+        "sensors"
+      ],
+      [
+        "bus",
+        "actuators"
+      ],
+      [
+        "structure",
+        "signature"
+      ],
+      [
+        "structure",
+        "actuators"
+      ],
+      [
+        "thermal",
+        "signature"
+      ],
+      [
+        "ecm",
+        "signature"
+      ],
+      [
+        "sensors",
+        "ecm"
+      ],
+      [
+        "reactor",
+        "thermal"
+      ],
+      [
+        "reactor",
+        "signature"
+      ]
+    ]
+  },
+  "actions": [
+    "CREATE NEW SUBSYSTEM",
+    "SAVE",
+    "EXPORT SUBSYSTEM JSON",
+    "GENERATE CET LUA",
+    "SEND TO FORGE",
+    "STRESS TEST"
+  ],
+  "equations": [
+    {
+      "id": "powerUsed",
+      "label": "Power budget",
+      "formula": "powerUsed = Σ subsystem.powerDraw"
+    },
+    {
+      "id": "powerMargin",
+      "label": "Power margin",
+      "formula": "powerMargin = reactor.netOutput - powerUsed   // <0 => BROWNOUT"
+    },
+    {
+      "id": "totalMass",
+      "label": "Total mass",
+      "formula": "totalMass = frame.mass + Σ part.mass + payload"
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "formula": "speed = baseSpeed * (1 - k1*totalMass/massRef) * (1 - k2*structuralStress)"
+    },
+    {
+      "id": "heatGen",
+      "label": "Heat generated",
+      "formula": "heatGen = reactor.heat + Σ part.heatGen + movementHeat + ecmHeat"
+    },
+    {
+      "id": "heatDiss",
+      "label": "Heat dissipated",
+      "formula": "heatDiss = Σ radiator.area * coolantFlow * efficiency"
+    },
+    {
+      "id": "netHeat",
+      "label": "Net heat",
+      "formula": "netHeat = heatGen - heatDiss"
+    },
+    {
+      "id": "temperature",
+      "label": "Temperature",
+      "formula": "temperature += netHeat * dt / thermalMass   // >1 => DERATE / VENT / MELTDOWN"
+    },
+    {
+      "id": "rcs",
+      "label": "Radar cross section",
+      "formula": "rcs = shapeFactor(facets, torsoW, limbStance) * materialFactor(RAM, coating) + crystalSignature(S, η) + activeEmissions(jammer, radar, charge)"
+    },
+    {
+      "id": "detectRange",
+      "label": "Detection range",
+      "formula": "detectRange = k * sqrt(rcs) * enemySensorFactor"
+    },
+    {
+      "id": "jamStrength",
+      "label": "Jam strength",
+      "formula": "jamStrength = jammerPower * antennaGain / (dist^2 * enemyECCM)"
+    },
+    {
+      "id": "lockBreak",
+      "label": "Lock break",
+      "formula": "lockBreak = clamp(jamStrength - enemyLockQuality, 0, 1)"
+    },
+    {
+      "id": "selfEmissions",
+      "label": "Self emissions",
+      "formula": "selfEmissions = jammerPower * (LPI ? 0.25 : 1.0)   // jamming makes you visible"
+    }
+  ],
+  "tradeoffs": [
+    {
+      "left": "Radiator area",
+      "effect": "↓ heat, ↑ RCS, ↑ mass"
+    },
+    {
+      "left": "RAM / stealth coating",
+      "effect": "↓ RCS, ↑ mass, traps heat"
+    },
+    {
+      "left": "Larger mana crystal S",
+      "effect": "↑ power, ↑ instability, ↑ heat, ↑ resonance RCS"
+    },
+    {
+      "left": "Active ECM",
+      "effect": "↑ power draw, ↑ heat, ↑ self-emissions; passive EMCON is quiet but weak"
+    },
+    {
+      "left": "Heavy armour",
+      "effect": "↑ mass, ↑ inertia, ↑ heat retention; stealth shaping constrains limb geometry"
+    },
+    {
+      "left": "Power deficit",
+      "effect": "brownouts: abilities fail, HUD flicker"
+    },
+    {
+      "left": "Heat saturation",
+      "effect": "weapon derate, forced vent, meltdown"
+    },
+    {
+      "left": "High RCS",
+      "effect": "hostiles detect and lock faster"
+    },
+    {
+      "left": "ECM jamming",
+      "effect": "breaks locks but paints you as a target"
+    }
+  ]
+}

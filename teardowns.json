@@ -1,0 +1,1239 @@
+{
+  "schemaVersion": 1,
+  "description": "Exploded procedural wireframes and per-part INTERNALS trees. Every internal exposes the six attributes.",
+  "actions": [
+    "TEAR DOWN",
+    "SCAN INTERNALS",
+    "EXTRACT TO INVENTORY",
+    "USE AS TEMPLATE",
+    "COMPARE",
+    "REASSEMBLE"
+  ],
+  "internalsCatalog": {
+    "shoulder_actuator": {
+      "label": "Shoulder actuator",
+      "internals": [
+        {
+          "name": "Servo motor",
+          "qty": 2,
+          "powerDraw": 6.0,
+          "mass": 18,
+          "heatGen": 3.2,
+          "heatDiss": 0,
+          "rcs": 0.4,
+          "ecm": 0,
+          "material": "myomer/copper"
+        },
+        {
+          "name": "Myomer bundle",
+          "qty": 4,
+          "powerDraw": 1.5,
+          "mass": 9,
+          "heatGen": 1.1,
+          "heatDiss": 0,
+          "rcs": 0.2,
+          "ecm": 0,
+          "material": "myomer"
+        },
+        {
+          "name": "Coolant capillary",
+          "qty": 6,
+          "powerDraw": 0.2,
+          "mass": 2,
+          "heatGen": 0,
+          "heatDiss": 1.4,
+          "rcs": 0.1,
+          "ecm": 0,
+          "material": "glycol"
+        },
+        {
+          "name": "Mana conduit",
+          "qty": 2,
+          "powerDraw": 0.8,
+          "mass": 4,
+          "heatGen": 0.6,
+          "heatDiss": 0,
+          "rcs": 0.3,
+          "ecm": 0.2,
+          "material": "crystal-lined"
+        },
+        {
+          "name": "Crystal shard",
+          "qty": 1,
+          "powerDraw": -1.2,
+          "mass": 3,
+          "heatGen": 0.4,
+          "heatDiss": 0,
+          "rcs": 0.7,
+          "ecm": 0.4,
+          "material": "ether crystal"
+        },
+        {
+          "name": "Logic chip",
+          "qty": 1,
+          "powerDraw": 0.6,
+          "mass": 0.4,
+          "heatGen": 0.2,
+          "heatDiss": 0,
+          "rcs": 0.05,
+          "ecm": 0.9,
+          "material": "silicon"
+        },
+        {
+          "name": "Bolts",
+          "qty": 8,
+          "powerDraw": 0,
+          "mass": 0.6,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 0.02,
+          "ecm": 0,
+          "material": "titanium"
+        }
+      ]
+    },
+    "reactor_core": {
+      "label": "Reactor core",
+      "internals": [
+        {
+          "name": "Mana crystal",
+          "qty": 1,
+          "powerDraw": -120,
+          "mass": 140,
+          "heatGen": 18,
+          "heatDiss": 0,
+          "rcs": 6.5,
+          "ecm": 0,
+          "material": "ether crystal"
+        },
+        {
+          "name": "Containment lattice",
+          "qty": 1,
+          "powerDraw": 12,
+          "mass": 90,
+          "heatGen": 4,
+          "heatDiss": 0,
+          "rcs": 1.2,
+          "ecm": 0.2,
+          "material": "corite"
+        },
+        {
+          "name": "Atmospheric inlet filter",
+          "qty": 1,
+          "powerDraw": 1.5,
+          "mass": 12,
+          "heatGen": 0.4,
+          "heatDiss": 0.8,
+          "rcs": 0.4,
+          "ecm": 0,
+          "material": "ceramic"
+        },
+        {
+          "name": "Flow regulator",
+          "qty": 1,
+          "powerDraw": 3,
+          "mass": 16,
+          "heatGen": 1.2,
+          "heatDiss": 0,
+          "rcs": 0.3,
+          "ecm": 0.3,
+          "material": "crystal"
+        },
+        {
+          "name": "Growth coil",
+          "qty": 1,
+          "powerDraw": 8,
+          "mass": 28,
+          "heatGen": 3.4,
+          "heatDiss": 0,
+          "rcs": 1.0,
+          "ecm": 0.6,
+          "material": "myomer/copper"
+        },
+        {
+          "name": "Vent stack",
+          "qty": 1,
+          "powerDraw": 0,
+          "mass": 20,
+          "heatGen": 0,
+          "heatDiss": 14,
+          "rcs": 2.8,
+          "ecm": 0,
+          "material": "titanium"
+        },
+        {
+          "name": "Dampening-field emitter",
+          "qty": 1,
+          "powerDraw": 6,
+          "mass": 14,
+          "heatGen": 1.6,
+          "heatDiss": 0,
+          "rcs": 0.6,
+          "ecm": 3.5,
+          "material": "corite"
+        },
+        {
+          "name": "Backup capacitor",
+          "qty": 1,
+          "powerDraw": -4,
+          "mass": 24,
+          "heatGen": 0.8,
+          "heatDiss": 0,
+          "rcs": 0.5,
+          "ecm": 0.2,
+          "material": "lithium"
+        },
+        {
+          "name": "Resonance damper",
+          "qty": 4,
+          "powerDraw": 1.2,
+          "mass": 8,
+          "heatGen": 0.2,
+          "heatDiss": 0.4,
+          "rcs": 0.2,
+          "ecm": 0.5,
+          "material": "phase gel"
+        }
+      ]
+    },
+    "leg_actuator": {
+      "label": "Leg assembly",
+      "internals": [
+        {
+          "name": "Upper actuator",
+          "qty": 1,
+          "powerDraw": 7,
+          "mass": 32,
+          "heatGen": 3.4,
+          "heatDiss": 0,
+          "rcs": 0.8,
+          "ecm": 0,
+          "material": "myomer"
+        },
+        {
+          "name": "Lower actuator",
+          "qty": 1,
+          "powerDraw": 7,
+          "mass": 30,
+          "heatGen": 3.2,
+          "heatDiss": 0,
+          "rcs": 0.7,
+          "ecm": 0,
+          "material": "myomer"
+        },
+        {
+          "name": "Knee damper",
+          "qty": 1,
+          "powerDraw": 0.4,
+          "mass": 14,
+          "heatGen": 0.3,
+          "heatDiss": 0.5,
+          "rcs": 0.3,
+          "ecm": 0,
+          "material": "phase gel"
+        },
+        {
+          "name": "Mana bus",
+          "qty": 1,
+          "powerDraw": 1.2,
+          "mass": 9,
+          "heatGen": 0.5,
+          "heatDiss": 0,
+          "rcs": 0.4,
+          "ecm": 0.1,
+          "material": "crystal-lined"
+        },
+        {
+          "name": "Foot pad",
+          "qty": 1,
+          "powerDraw": 0,
+          "mass": 18,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 0.5,
+          "ecm": 0,
+          "material": "rubber/titanium"
+        },
+        {
+          "name": "Ankle gyro",
+          "qty": 1,
+          "powerDraw": 2.0,
+          "mass": 6,
+          "heatGen": 0.6,
+          "heatDiss": 0,
+          "rcs": 0.2,
+          "ecm": 0.4,
+          "material": "silicon"
+        },
+        {
+          "name": "Armour plates",
+          "qty": 4,
+          "powerDraw": 0,
+          "mass": 26,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 1.1,
+          "ecm": 0,
+          "material": "composite"
+        }
+      ]
+    },
+    "ew_suite": {
+      "label": "EW suite",
+      "internals": [
+        {
+          "name": "Jammer array",
+          "qty": 1,
+          "powerDraw": 34,
+          "mass": 28,
+          "heatGen": 11,
+          "heatDiss": 0,
+          "rcs": 2.4,
+          "ecm": 14,
+          "material": "gallium"
+        },
+        {
+          "name": "Antenna",
+          "qty": 2,
+          "powerDraw": 2.0,
+          "mass": 5,
+          "heatGen": 0.4,
+          "heatDiss": 0,
+          "rcs": 1.1,
+          "ecm": 3.0,
+          "material": "composite"
+        },
+        {
+          "name": "Decoy dispenser",
+          "qty": 1,
+          "powerDraw": 3,
+          "mass": 14,
+          "heatGen": 0.8,
+          "heatDiss": 0,
+          "rcs": 0.5,
+          "ecm": 5.0,
+          "material": "magazine"
+        },
+        {
+          "name": "LPI modulator",
+          "qty": 1,
+          "powerDraw": 4,
+          "mass": 7,
+          "heatGen": 1.1,
+          "heatDiss": 0,
+          "rcs": -0.6,
+          "ecm": 2.5,
+          "material": "silicon"
+        },
+        {
+          "name": "ECCM filter",
+          "qty": 1,
+          "powerDraw": 5,
+          "mass": 9,
+          "heatGen": 1.0,
+          "heatDiss": 0,
+          "rcs": 0.3,
+          "ecm": 6.0,
+          "material": "corite"
+        }
+      ]
+    },
+    "torso": {
+      "label": "Torso shell",
+      "internals": [
+        {
+          "name": "Frame spar",
+          "qty": 4,
+          "powerDraw": 0,
+          "mass": 42,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 1.2,
+          "ecm": 0,
+          "material": "titanium"
+        },
+        {
+          "name": "Armour plate",
+          "qty": 6,
+          "powerDraw": 0,
+          "mass": 36,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 1.8,
+          "ecm": 0,
+          "material": "composite"
+        },
+        {
+          "name": "Mana trunk",
+          "qty": 1,
+          "powerDraw": 2.2,
+          "mass": 12,
+          "heatGen": 0.8,
+          "heatDiss": 0,
+          "rcs": 0.4,
+          "ecm": 0.2,
+          "material": "crystal-lined"
+        },
+        {
+          "name": "Coolant manifold",
+          "qty": 1,
+          "powerDraw": 0.4,
+          "mass": 10,
+          "heatGen": 0,
+          "heatDiss": 3.2,
+          "rcs": 0.3,
+          "ecm": 0,
+          "material": "glycol"
+        }
+      ]
+    },
+    "cockpit": {
+      "label": "Cockpit / OS",
+      "internals": [
+        {
+          "name": "Optics cluster",
+          "qty": 1,
+          "powerDraw": 2.5,
+          "mass": 6,
+          "heatGen": 0.4,
+          "heatDiss": 0,
+          "rcs": 0.3,
+          "ecm": 0.4,
+          "material": "glass"
+        },
+        {
+          "name": "Targeting solver",
+          "qty": 1,
+          "powerDraw": 6,
+          "mass": 4,
+          "heatGen": 1.0,
+          "heatDiss": 0,
+          "rcs": 0.1,
+          "ecm": 2.2,
+          "material": "silicon"
+        },
+        {
+          "name": "Neural link",
+          "qty": 1,
+          "powerDraw": 3,
+          "mass": 2,
+          "heatGen": 0.2,
+          "heatDiss": 0,
+          "rcs": 0.0,
+          "ecm": 1.2,
+          "material": "bio-interface"
+        },
+        {
+          "name": "Eject charge",
+          "qty": 2,
+          "powerDraw": 0,
+          "mass": 5,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 0.1,
+          "ecm": 0,
+          "material": "pyrotechnic"
+        }
+      ]
+    },
+    "weapon_mount": {
+      "label": "Weapon mount",
+      "internals": [
+        {
+          "name": "Recoil cradle",
+          "qty": 1,
+          "powerDraw": 0,
+          "mass": 22,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 0.9,
+          "ecm": 0,
+          "material": "titanium"
+        },
+        {
+          "name": "Charge coil",
+          "qty": 1,
+          "powerDraw": 18,
+          "mass": 16,
+          "heatGen": 6.0,
+          "heatDiss": 0,
+          "rcs": 0.8,
+          "ecm": 0.4,
+          "material": "copper"
+        },
+        {
+          "name": "Ammo/energy feed",
+          "qty": 1,
+          "powerDraw": 1.0,
+          "mass": 12,
+          "heatGen": 0.4,
+          "heatDiss": 0,
+          "rcs": 0.3,
+          "ecm": 0,
+          "material": "magazine"
+        },
+        {
+          "name": "Barrel shroud",
+          "qty": 1,
+          "powerDraw": 0,
+          "mass": 9,
+          "heatGen": 0,
+          "heatDiss": 2.0,
+          "rcs": 0.6,
+          "ecm": 0,
+          "material": "composite"
+        }
+      ]
+    },
+    "jet_pack": {
+      "label": "Jet / vent pack",
+      "internals": [
+        {
+          "name": "Thruster bell",
+          "qty": 2,
+          "powerDraw": 9,
+          "mass": 18,
+          "heatGen": 7.0,
+          "heatDiss": 0,
+          "rcs": 1.4,
+          "ecm": 0,
+          "material": "ceramic"
+        },
+        {
+          "name": "Mana injector",
+          "qty": 2,
+          "powerDraw": 2.0,
+          "mass": 6,
+          "heatGen": 1.2,
+          "heatDiss": 0,
+          "rcs": 0.3,
+          "ecm": 0.2,
+          "material": "crystal"
+        },
+        {
+          "name": "Vector vane",
+          "qty": 2,
+          "powerDraw": 0.6,
+          "mass": 4,
+          "heatGen": 0.1,
+          "heatDiss": 0,
+          "rcs": 0.5,
+          "ecm": 0,
+          "material": "titanium"
+        },
+        {
+          "name": "Heat exchanger",
+          "qty": 1,
+          "powerDraw": 0,
+          "mass": 10,
+          "heatGen": 0,
+          "heatDiss": 6.0,
+          "rcs": 1.0,
+          "ecm": 0,
+          "material": "phase gel"
+        }
+      ]
+    },
+    "hip": {
+      "label": "Hip assembly",
+      "internals": [
+        {
+          "name": "Hip rotary",
+          "qty": 2,
+          "powerDraw": 5,
+          "mass": 20,
+          "heatGen": 2.0,
+          "heatDiss": 0,
+          "rcs": 0.6,
+          "ecm": 0,
+          "material": "myomer"
+        },
+        {
+          "name": "Counterweight",
+          "qty": 1,
+          "powerDraw": 0,
+          "mass": 28,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 0.4,
+          "ecm": 0,
+          "material": "tungsten"
+        },
+        {
+          "name": "Gyro cluster",
+          "qty": 1,
+          "powerDraw": 2,
+          "mass": 5,
+          "heatGen": 0.3,
+          "heatDiss": 0,
+          "rcs": 0.1,
+          "ecm": 0.3,
+          "material": "silicon"
+        }
+      ]
+    },
+    "foot": {
+      "label": "Foot assembly",
+      "internals": [
+        {
+          "name": "Foot pad",
+          "qty": 1,
+          "powerDraw": 0,
+          "mass": 18,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 0.5,
+          "ecm": 0,
+          "material": "rubber"
+        },
+        {
+          "name": "Ankle servo",
+          "qty": 1,
+          "powerDraw": 3,
+          "mass": 10,
+          "heatGen": 1.0,
+          "heatDiss": 0,
+          "rcs": 0.2,
+          "ecm": 0,
+          "material": "myomer"
+        },
+        {
+          "name": "Traction spike",
+          "qty": 2,
+          "powerDraw": 0,
+          "mass": 4,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 0.3,
+          "ecm": 0,
+          "material": "titanium"
+        }
+      ]
+    },
+    "armor": {
+      "label": "Armour panel group",
+      "internals": [
+        {
+          "name": "RAM layer",
+          "qty": 1,
+          "powerDraw": 0,
+          "mass": 26,
+          "heatGen": 0,
+          "heatDiss": -3.0,
+          "rcs": -4.0,
+          "ecm": 0,
+          "material": "RAM coating"
+        },
+        {
+          "name": "Composite plate",
+          "qty": 2,
+          "powerDraw": 0,
+          "mass": 30,
+          "heatGen": 0,
+          "heatDiss": -1.0,
+          "rcs": 1.4,
+          "ecm": 0,
+          "material": "composite"
+        },
+        {
+          "name": "Panel fasteners",
+          "qty": 8,
+          "powerDraw": 0,
+          "mass": 2,
+          "heatGen": 0,
+          "heatDiss": 0,
+          "rcs": 0.1,
+          "ecm": 0,
+          "material": "titanium"
+        }
+      ]
+    }
+  },
+  "partSets": {
+    "biped": [
+      {
+        "anchor": "torso",
+        "name": "Torso shell",
+        "internalsKey": "torso",
+        "salvage": 40,
+        "blueprint": "bp_biped_0"
+      },
+      {
+        "anchor": "head",
+        "name": "Cockpit / OS",
+        "internalsKey": "cockpit",
+        "salvage": 48,
+        "blueprint": "bp_biped_1"
+      },
+      {
+        "anchor": "shoulderL",
+        "name": "L shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 56,
+        "blueprint": "bp_biped_2"
+      },
+      {
+        "anchor": "shoulderR",
+        "name": "R shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 64,
+        "blueprint": "bp_biped_3"
+      },
+      {
+        "anchor": "weaponL",
+        "name": "Weapon mount L",
+        "internalsKey": "weapon_mount",
+        "salvage": 72,
+        "blueprint": "bp_biped_4"
+      },
+      {
+        "anchor": "weaponR",
+        "name": "Weapon mount R",
+        "internalsKey": "weapon_mount",
+        "salvage": 80,
+        "blueprint": "bp_biped_5"
+      },
+      {
+        "anchor": "upperLegL",
+        "name": "Leg assembly L",
+        "internalsKey": "leg_actuator",
+        "salvage": 88,
+        "blueprint": "bp_biped_6"
+      },
+      {
+        "anchor": "upperLegR",
+        "name": "Leg assembly R",
+        "internalsKey": "leg_actuator",
+        "salvage": 96,
+        "blueprint": "bp_biped_7"
+      },
+      {
+        "anchor": "footL",
+        "name": "Foot L",
+        "internalsKey": "foot",
+        "salvage": 104,
+        "blueprint": "bp_biped_8"
+      },
+      {
+        "anchor": "footR",
+        "name": "Foot R",
+        "internalsKey": "foot",
+        "salvage": 112,
+        "blueprint": "bp_biped_9"
+      },
+      {
+        "anchor": "hip",
+        "name": "Hip assembly",
+        "internalsKey": "hip",
+        "salvage": 120,
+        "blueprint": "bp_biped_10"
+      },
+      {
+        "anchor": "backpack",
+        "name": "Jet / vent pack",
+        "internalsKey": "jet_pack",
+        "salvage": 128,
+        "blueprint": "bp_biped_11"
+      },
+      {
+        "anchor": "reactor",
+        "name": "Reactor core",
+        "internalsKey": "reactor_core",
+        "salvage": 136,
+        "blueprint": "bp_biped_12"
+      }
+    ],
+    "knight": [
+      {
+        "anchor": "torso",
+        "name": "Torso shell",
+        "internalsKey": "torso",
+        "salvage": 40,
+        "blueprint": "bp_knight_0"
+      },
+      {
+        "anchor": "head",
+        "name": "Cockpit / OS",
+        "internalsKey": "cockpit",
+        "salvage": 48,
+        "blueprint": "bp_knight_1"
+      },
+      {
+        "anchor": "shoulderL",
+        "name": "L shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 56,
+        "blueprint": "bp_knight_2"
+      },
+      {
+        "anchor": "shoulderR",
+        "name": "R shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 64,
+        "blueprint": "bp_knight_3"
+      },
+      {
+        "anchor": "weaponL",
+        "name": "Ether projector L",
+        "internalsKey": "weapon_mount",
+        "salvage": 72,
+        "blueprint": "bp_knight_4"
+      },
+      {
+        "anchor": "weaponR",
+        "name": "Weapon mount R",
+        "internalsKey": "weapon_mount",
+        "salvage": 80,
+        "blueprint": "bp_knight_5"
+      },
+      {
+        "anchor": "upperLegL",
+        "name": "Leg assembly L",
+        "internalsKey": "leg_actuator",
+        "salvage": 88,
+        "blueprint": "bp_knight_6"
+      },
+      {
+        "anchor": "upperLegR",
+        "name": "Leg assembly R",
+        "internalsKey": "leg_actuator",
+        "salvage": 96,
+        "blueprint": "bp_knight_7"
+      },
+      {
+        "anchor": "hip",
+        "name": "Hip assembly",
+        "internalsKey": "hip",
+        "salvage": 104,
+        "blueprint": "bp_knight_8"
+      },
+      {
+        "anchor": "backpack",
+        "name": "Ether jet / vent pack",
+        "internalsKey": "jet_pack",
+        "salvage": 112,
+        "blueprint": "bp_knight_9"
+      },
+      {
+        "anchor": "reactor",
+        "name": "Twin ether reactor core",
+        "internalsKey": "reactor_core",
+        "salvage": 120,
+        "blueprint": "bp_knight_10"
+      }
+    ],
+    "reversejoint": [
+      {
+        "anchor": "torso",
+        "name": "Torso shell",
+        "internalsKey": "torso",
+        "salvage": 40,
+        "blueprint": "bp_reversejoint_0"
+      },
+      {
+        "anchor": "head",
+        "name": "Cockpit / OS",
+        "internalsKey": "cockpit",
+        "salvage": 48,
+        "blueprint": "bp_reversejoint_1"
+      },
+      {
+        "anchor": "shoulderL",
+        "name": "L shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 56,
+        "blueprint": "bp_reversejoint_2"
+      },
+      {
+        "anchor": "shoulderR",
+        "name": "R shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 64,
+        "blueprint": "bp_reversejoint_3"
+      },
+      {
+        "anchor": "weaponL",
+        "name": "Weapon mount L",
+        "internalsKey": "weapon_mount",
+        "salvage": 72,
+        "blueprint": "bp_reversejoint_4"
+      },
+      {
+        "anchor": "upperLegL",
+        "name": "RJ leg assembly L",
+        "internalsKey": "leg_actuator",
+        "salvage": 80,
+        "blueprint": "bp_reversejoint_5"
+      },
+      {
+        "anchor": "upperLegR",
+        "name": "RJ leg assembly R",
+        "internalsKey": "leg_actuator",
+        "salvage": 88,
+        "blueprint": "bp_reversejoint_6"
+      },
+      {
+        "anchor": "footL",
+        "name": "Foot L",
+        "internalsKey": "foot",
+        "salvage": 96,
+        "blueprint": "bp_reversejoint_7"
+      },
+      {
+        "anchor": "footR",
+        "name": "Foot R",
+        "internalsKey": "foot",
+        "salvage": 104,
+        "blueprint": "bp_reversejoint_8"
+      },
+      {
+        "anchor": "backpack",
+        "name": "Jet / vent pack",
+        "internalsKey": "jet_pack",
+        "salvage": 112,
+        "blueprint": "bp_reversejoint_9"
+      },
+      {
+        "anchor": "reactor",
+        "name": "Reactor core",
+        "internalsKey": "reactor_core",
+        "salvage": 120,
+        "blueprint": "bp_reversejoint_10"
+      }
+    ],
+    "spider": [
+      {
+        "anchor": "torso",
+        "name": "Torso shell",
+        "internalsKey": "torso",
+        "salvage": 40,
+        "blueprint": "bp_spider_0"
+      },
+      {
+        "anchor": "head",
+        "name": "Cockpit / OS",
+        "internalsKey": "cockpit",
+        "salvage": 48,
+        "blueprint": "bp_spider_1"
+      },
+      {
+        "anchor": "shoulderL",
+        "name": "L shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 56,
+        "blueprint": "bp_spider_2"
+      },
+      {
+        "anchor": "shoulderR",
+        "name": "R shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 64,
+        "blueprint": "bp_spider_3"
+      },
+      {
+        "anchor": "weaponL",
+        "name": "Weapon mount L",
+        "internalsKey": "weapon_mount",
+        "salvage": 72,
+        "blueprint": "bp_spider_4"
+      },
+      {
+        "anchor": "weaponR",
+        "name": "Weapon mount R",
+        "internalsKey": "weapon_mount",
+        "salvage": 80,
+        "blueprint": "bp_spider_5"
+      },
+      {
+        "anchor": "upperLegL",
+        "name": "Fore leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 88,
+        "blueprint": "bp_spider_6"
+      },
+      {
+        "anchor": "upperLegR",
+        "name": "Fore leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 96,
+        "blueprint": "bp_spider_7"
+      },
+      {
+        "anchor": "lowerLegL",
+        "name": "Rear leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 104,
+        "blueprint": "bp_spider_8"
+      },
+      {
+        "anchor": "lowerLegR",
+        "name": "Rear leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 112,
+        "blueprint": "bp_spider_9"
+      },
+      {
+        "anchor": "hip",
+        "name": "Hip assembly",
+        "internalsKey": "hip",
+        "salvage": 120,
+        "blueprint": "bp_spider_10"
+      },
+      {
+        "anchor": "reactor",
+        "name": "Reactor core",
+        "internalsKey": "reactor_core",
+        "salvage": 128,
+        "blueprint": "bp_spider_11"
+      }
+    ],
+    "tetrapod": [
+      {
+        "anchor": "torso",
+        "name": "Torso shell",
+        "internalsKey": "torso",
+        "salvage": 40,
+        "blueprint": "bp_tetrapod_0"
+      },
+      {
+        "anchor": "head",
+        "name": "Cockpit / OS",
+        "internalsKey": "cockpit",
+        "salvage": 48,
+        "blueprint": "bp_tetrapod_1"
+      },
+      {
+        "anchor": "shoulderL",
+        "name": "L shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 56,
+        "blueprint": "bp_tetrapod_2"
+      },
+      {
+        "anchor": "shoulderR",
+        "name": "R shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 64,
+        "blueprint": "bp_tetrapod_3"
+      },
+      {
+        "anchor": "weaponL",
+        "name": "Weapon mount L",
+        "internalsKey": "weapon_mount",
+        "salvage": 72,
+        "blueprint": "bp_tetrapod_4"
+      },
+      {
+        "anchor": "upperLegL",
+        "name": "Fore leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 80,
+        "blueprint": "bp_tetrapod_5"
+      },
+      {
+        "anchor": "upperLegR",
+        "name": "Fore leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 88,
+        "blueprint": "bp_tetrapod_6"
+      },
+      {
+        "anchor": "lowerLegL",
+        "name": "Rear leg L",
+        "internalsKey": "leg_actuator",
+        "salvage": 96,
+        "blueprint": "bp_tetrapod_7"
+      },
+      {
+        "anchor": "lowerLegR",
+        "name": "Rear leg R",
+        "internalsKey": "leg_actuator",
+        "salvage": 104,
+        "blueprint": "bp_tetrapod_8"
+      },
+      {
+        "anchor": "hip",
+        "name": "Hip assembly",
+        "internalsKey": "hip",
+        "salvage": 112,
+        "blueprint": "bp_tetrapod_9"
+      },
+      {
+        "anchor": "backpack",
+        "name": "Jet / vent pack",
+        "internalsKey": "jet_pack",
+        "salvage": 120,
+        "blueprint": "bp_tetrapod_10"
+      },
+      {
+        "anchor": "reactor",
+        "name": "Reactor core",
+        "internalsKey": "reactor_core",
+        "salvage": 128,
+        "blueprint": "bp_tetrapod_11"
+      }
+    ],
+    "corpo": [
+      {
+        "anchor": "torso",
+        "name": "Torso shell",
+        "internalsKey": "torso",
+        "salvage": 40,
+        "blueprint": "bp_corpo_0"
+      },
+      {
+        "anchor": "head",
+        "name": "Cockpit / OS",
+        "internalsKey": "cockpit",
+        "salvage": 48,
+        "blueprint": "bp_corpo_1"
+      },
+      {
+        "anchor": "shoulderL",
+        "name": "L shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 56,
+        "blueprint": "bp_corpo_2"
+      },
+      {
+        "anchor": "shoulderR",
+        "name": "R shoulder actuator",
+        "internalsKey": "shoulder_actuator",
+        "salvage": 64,
+        "blueprint": "bp_corpo_3"
+      },
+      {
+        "anchor": "weaponL",
+        "name": "Weapon mount L",
+        "internalsKey": "weapon_mount",
+        "salvage": 72,
+        "blueprint": "bp_corpo_4"
+      },
+      {
+        "anchor": "upperLegL",
+        "name": "Leg assembly L",
+        "internalsKey": "leg_actuator",
+        "salvage": 80,
+        "blueprint": "bp_corpo_5"
+      },
+      {
+        "anchor": "upperLegR",
+        "name": "Leg assembly R",
+        "internalsKey": "leg_actuator",
+        "salvage": 88,
+        "blueprint": "bp_corpo_6"
+      },
+      {
+        "anchor": "hip",
+        "name": "Hip assembly",
+        "internalsKey": "hip",
+        "salvage": 96,
+        "blueprint": "bp_corpo_7"
+      },
+      {
+        "anchor": "backpack",
+        "name": "RAM / EW pack",
+        "internalsKey": "ew_suite",
+        "salvage": 104,
+        "blueprint": "bp_corpo_8"
+      },
+      {
+        "anchor": "reactor",
+        "name": "RTG reactor core",
+        "internalsKey": "reactor_core",
+        "salvage": 112,
+        "blueprint": "bp_corpo_9"
+      }
+    ]
+  },
+  "explode": {
+    "stepScale": 0.42,
+    "directions": {
+      "torso": [
+        0,
+        0.4,
+        0
+      ],
+      "head": [
+        0,
+        1.0,
+        0
+      ],
+      "shoulderL": [
+        -1,
+        0.35,
+        0
+      ],
+      "shoulderR": [
+        1,
+        0.35,
+        0
+      ],
+      "weaponL": [
+        -1,
+        -0.15,
+        0.4
+      ],
+      "weaponR": [
+        1,
+        -0.15,
+        0.4
+      ],
+      "upperLegL": [
+        -0.7,
+        -0.8,
+        0
+      ],
+      "upperLegR": [
+        0.7,
+        -0.8,
+        0
+      ],
+      "lowerLegL": [
+        -0.7,
+        -1.2,
+        0
+      ],
+      "lowerLegR": [
+        0.7,
+        -1.2,
+        0
+      ],
+      "footL": [
+        -0.8,
+        -1.4,
+        0
+      ],
+      "footR": [
+        0.8,
+        -1.4,
+        0
+      ],
+      "hip": [
+        0,
+        -0.5,
+        0
+      ],
+      "backpack": [
+        0,
+        0.5,
+        -1.2
+      ],
+      "reactor": [
+        0,
+        0,
+        1.4
+      ],
+      "jetL": [
+        -0.6,
+        0.6,
+        -1
+      ],
+      "jetR": [
+        0.6,
+        0.6,
+        -1
+      ]
+    }
+  }
+}

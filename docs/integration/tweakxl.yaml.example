@@ -1,0 +1,14 @@
+# MECHFALL // FORGE 77 — TWEAKXL TEMPLATE (EXAMPLE ONLY)
+# -----------------------------------------------------
+# DO NOT INSTALL THIS FILE. Validate against CP2077 2.5 before any real TweakXL use.
+# No base-mod records are referenced; no records are overridden here.
+# The installable path in this repository is CET-only (init.lua).
+
+# Illustrative shape only — a real release would define original records and reference them
+# from a validated redscript/ArchiveXL layer. Nothing below is active.
+#
+# Mechs.Mechfall_Forge_TestFrame:
+#   $type: MechPlaceholder
+#   displayName: "FORGE 77 / TEST FRAME"
+#   powerMargin: 0.0
+#   rcsFront: 0.0

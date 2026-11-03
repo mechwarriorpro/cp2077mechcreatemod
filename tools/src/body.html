@@ -1,0 +1,97 @@
+<div class="mf-top">
+  <div>
+    <div class="mf-brand">MECHFALL <span>//</span> FORGE 77</div>
+    <div class="mf-sub">CUSTOM MECH ENGINEERING SANDBOX · OPTIONAL COMPANION LAYER FOR BT-7274 (NEXUS 35041) · NO RIPPED ASSETS</div>
+  </div>
+  <div class="mf-row">
+    <span class="mf-pill amber">TEST BUILD</span>
+    <span class="mf-pill cyan">CET-ONLY MOD</span>
+    <span id="mf-build-stamp" class="mf-build">BUILD 2026-11-03</span>
+  </div>
+</div>
+
+<nav id="mf-tabs" aria-label="Main tabs">
+  <button class="mf-tabbtn" data-tab="hangar"><span class="n">01</span>HANGAR</button>
+  <button class="mf-tabbtn" data-tab="teardown"><span class="n">02</span>TEARDOWN</button>
+  <button class="mf-tabbtn" data-tab="reactor"><span class="n">03</span>REACTOR LAB</button>
+  <button class="mf-tabbtn" data-tab="systems"><span class="n">04</span>INTERNAL SYSTEMS</button>
+  <button class="mf-tabbtn" data-tab="forge"><span class="n">05</span>MECH FORGE</button>
+  <button class="mf-tabbtn" data-tab="combat"><span class="n">06</span>COMBAT TEST</button>
+  <button class="mf-tabbtn" data-tab="dossier"><span class="n">07</span>DOSSIER</button>
+  <button class="mf-tabbtn" data-tab="settings"><span class="n">08</span>SETTINGS</button>
+</nav>
+
+<main>
+  <section id="tab-hangar" class="mf-tab"></section>
+  <section id="tab-teardown" class="mf-tab"></section>
+  <section id="tab-reactor" class="mf-tab"></section>
+  <section id="tab-systems" class="mf-tab"></section>
+  <section id="tab-forge" class="mf-tab"></section>
+
+  <section id="tab-combat" class="mf-tab">
+    <div class="mf-combat-wrap">
+      <div>
+        <div class="mf-panel tight mb">
+          <div class="mf-row between">
+            <div class="mf-row">
+              <button class="mf-btn primary" id="combat-start">START COMBAT TEST</button>
+              <button class="mf-btn" id="combat-stop">STOP</button>
+              <button class="mf-btn" id="combat-pause">PAUSE</button>
+              <button class="mf-btn" id="combat-vent">VENT (V)</button>
+            </div>
+            <div class="mf-row">
+              <span class="mf-pill">WAVE <b id="combat-wave">0</b></span>
+              <span class="mf-pill amber">DEPLOYING: <b id="combat-design">—</b></span>
+              <span class="mf-pill green">XP <b id="combat-xp">0</b></span>
+              <span class="mf-pill violet">SALVAGE <b id="combat-salvage">0</b></span>
+            </div>
+          </div>
+        </div>
+        <canvas id="combat-canvas" class="mf-scan" aria-label="Combat test canvas"></canvas>
+        <div class="mf-note">WASD move · mouse aim · LMB fire · Q burst core · E vortex shield · R missile salvo ·
+          Shift dash · V forced vent · 1–4 companion orders · P pause. Your baked chassis silhouette and
+          player-authored subsystems deploy together: power, mass, heat, RCS, ECM and reactor instability all
+          have live combat consequences.</div>
+      </div>
+      <div class="mf-panel cyan" id="combat-hud-panel">
+        <h2>TELEMETRY / HUD</h2>
+        <div class="mf-hud-line"><span>STRUCTURE</span><div class="mf-bar"><i id="hud-hp" class="green" style="width:100%"></i></div><span class="v" id="hud-hp-v">100%</span></div>
+        <div class="mf-hud-line"><span>POWER MARGIN</span><div class="mf-bar"><i id="hud-power" class="amber" style="width:60%"></i></div><span class="v" id="hud-power-v">0 kW</span></div>
+        <div class="mf-hud-line"><span>HEAT</span><div class="mf-bar"><i id="hud-heat" class="red" style="width:10%"></i></div><span class="v" id="hud-heat-v">0.00</span></div>
+        <div class="mf-hud-line"><span>SIGNATURE</span><div class="mf-bar"><i id="hud-rcs" class="violet" style="width:30%"></i></div><span class="v" id="hud-rcs-v">0 m2</span></div>
+        <div class="mf-hud-line"><span>ECM</span><div class="mf-bar"><i id="hud-ecm" class="cyan" style="width:20%"></i></div><span class="v" id="hud-ecm-v">0 str</span></div>
+        <div class="mf-hud-line"><span>CORE CHARGE</span><div class="mf-bar"><i id="hud-core" class="green" style="width:0%"></i></div><span class="v" id="hud-core-v">0%</span></div>
+        <div class="mf-hr"></div>
+        <div class="mf-kv">
+          <span class="k">SPEED</span><span id="hud-speed">—</span>
+          <span class="k">MASS</span><span id="hud-mass">—</span>
+          <span class="k">DETECT RANGE</span><span id="hud-detect">—</span>
+          <span class="k">LOCK TIME</span><span id="hud-lock">—</span>
+          <span class="k">JAM / LOCK BREAK</span><span id="hud-jam">—</span>
+          <span class="k">REACTOR</span><span id="hud-reactor">—</span>
+          <span class="k">COMPANION</span><span id="hud-order">—</span>
+        </div>
+        <div class="mf-hr"></div>
+        <h3>VALIDATION</h3>
+        <div id="combat-validation" class="mf-chips"></div>
+        <div class="mf-hr"></div>
+        <h3>EVENT LOG</h3>
+        <div id="combat-log" class="mf-list short" style="max-height:190px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-dossier" class="mf-tab"></section>
+  <section id="tab-settings" class="mf-tab"></section>
+</main>
+
+<footer class="mf-foot">
+  <div id="mf-status-left">INITIALISING…</div>
+  <div id="mf-status-right">FORGE 77 · BROWSER PROTOTYPE · <b>NO NETWORK / NO EXTERNAL ASSETS</b></div>
+</footer>
+
+<div id="mf-toast" aria-live="polite"></div>
+<div id="mf-modal"><div class="mf-modal-box">
+  <div class="mf-row between"><h2 id="mf-modal-title">MODAL</h2><button class="mf-btn small" id="mf-modal-close">CLOSE ✕</button></div>
+  <div id="mf-modal-body"></div>
+</div></div>

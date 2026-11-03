@@ -1,0 +1,16 @@
+{
+  "name": "mechfall-forge-tests",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Optional dev tests: jsdom browser smoke test + Lua parse/runtime test for MECHFALL // FORGE 77",
+  "scripts": {
+    "test": "node smoke_test.js && node lua_test.js",
+    "test:browser": "node smoke_test.js",
+    "test:lua": "node lua_test.js"
+  },
+  "devDependencies": {
+    "fengari": "^0.1.5",
+    "jsdom": "^24.1.3",
+    "luaparse": "^0.3.1"
+  }
+}

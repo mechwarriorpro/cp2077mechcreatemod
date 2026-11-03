@@ -1,0 +1,19 @@
+# MECHFALL // FORGE 77 — generated / local artifacts
+dist/
+*.zip
+mechfall-forge.bundle
+*.bundle
+node_modules/
+npm-debug.log*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# NOTE: test_build.html, ROSTER.md and cet_mod/.../init.lua are GENERATED but intentionally
+# committed: they are the deliverables and must work with no build step. Re-run
+# `python3 tools/generate.py` after editing JSON / tools/src / tools/init.lua.template.

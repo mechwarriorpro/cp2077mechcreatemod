@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "units": {
+    "power": "kW",
+    "mass": "kg",
+    "heat": "kW",
+    "rcs": "m2",
+    "ecm": "strength",
+    "temperature": "normalized (1.0 = derate)",
+    "speed": "m/s",
+    "distance": "m"
+  },
+  "sixAttributes": [
+    {
+      "key": "powerDraw",
+      "label": "Power use",
+      "unit": "kW",
+      "help": "Negative values supply power to the bus."
+    },
+    {
+      "key": "mass",
+      "label": "Weight",
+      "unit": "kg",
+      "help": "Dry mass including bracing and coolant."
+    },
+    {
+      "key": "heatGen",
+      "label": "Heat generated",
+      "unit": "kW",
+      "help": "Added to the thermal load."
+    },
+    {
+      "key": "heatDiss",
+      "label": "Heat dissipated",
+      "unit": "kW",
+      "help": "Radiators and phase-change capacity."
+    },
+    {
+      "key": "rcs",
+      "label": "RCS contribution",
+      "unit": "m2",
+      "help": "Negative = signature reduction."
+    },
+    {
+      "key": "ecm",
+      "label": "ECM contribution",
+      "unit": "str",
+      "help": "Jamming / ECCM / decoy strength."
+    }
+  ],
+  "coefficients": {
+    "k1": {
+      "label": "Mass → speed penalty (k1)",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "value": 0.34
+    },
+    "k2": {
+      "label": "Structural stress → speed penalty (k2)",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "value": 0.25
+    },
+    "massRef": {
+      "label": "Reference mass (kg)",
+      "min": 100,
+      "max": 4000,
+      "step": 50,
+      "value": 2200
+    },
+    "baseSpeed": {
+      "label": "Base speed (m/s)",
+      "min": 2,
+      "max": 20,
+      "step": 0.5,
+      "value": 9.0
+    },
+    "rcsShapeExponent": {
+      "label": "RCS shape exponent",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.05,
+      "value": 1.35
+    },
+    "rcsMaterialExponent": {
+      "label": "RCS material exponent",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.05,
+      "value": 0.85
+    },
+    "detectionExponent": {
+      "label": "Detection sqrt(RCS) exponent",
+      "min": 0.2,
+      "max": 1.2,
+      "step": 0.05,
+      "value": 0.5
+    },
+    "detectionK": {
+      "label": "Detection range constant (k)",
+      "min": 20,
+      "max": 400,
+      "step": 5,
+      "value": 120
+    },
+    "lockK": {
+      "label": "Missile lock time constant",
+      "min": 0.5,
+      "max": 20,
+      "step": 0.5,
+      "value": 6.0
+    },
+    "jamK": {
+      "label": "Jammer strength constant",
+      "min": 10,
+      "max": 1000,
+      "step": 10,
+      "value": 240
+    },
+    "ecmFalloffExponent": {
+      "label": "ECM distance falloff exponent",
+      "min": 1.0,
+      "max": 3.5,
+      "step": 0.05,
+      "value": 2.0
+    },
+    "shapeMassFactor": {
+      "label": "Frame volume → mass",
+      "min": 20,
+      "max": 400,
+      "step": 5,
+      "value": 75
+    },
+    "thermalMassFactor": {
+      "label": "Mass → thermal mass",
+      "min": 0.5,
+      "max": 20,
+      "step": 0.5,
+      "value": 6.0
+    },
+    "emissionRcsFactor": {
+      "label": "Active emissions → RCS",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "value": 0.12
+    },
+    "enemySensorFactor": {
+      "label": "Hostile sensor factor (difficulty)",
+      "min": 0.3,
+      "max": 2.5,
+      "step": 0.05,
+      "value": 1.0
+    },
+    "combatDistanceRef": {
+      "label": "ECM reference distance (m)",
+      "min": 50,
+      "max": 1000,
+      "step": 25,
+      "value": 300
+    }
+  },
+  "validationThresholds": {
+    "brownoutMargin": 0.0,
+    "surgeMargin": 25.0,
+    "thermalSaturation": 0.72,
+    "meltdownTemperature": 1.0,
+    "overMassRatio": 1.35,
+    "comOffsetLimit": 0.34,
+    "stressLimit": 0.78,
+    "rcsExposure": 14.0,
+    "selfDetection": 22.0,
+    "manaStarvation": 0.22,
+    "latticeOverflow": 0.72,
+    "resonance": 0.55,
+    "containmentFailure": 0.95,
+    "hardpointLimit": 12
+  },
+  "validationStates": [
+    {
+      "code": "BROWNOUT",
+      "severity": "critical",
+      "detail": "powerMargin < 0 — abilities fail, HUD flickers, weapon damage derates."
+    },
+    {
+      "code": "THERMAL SATURATION",
+      "severity": "critical",
+      "detail": "Heat generation exceeds dissipation; weapons derate and vents open."
+    },
+    {
+      "code": "OVER MASS",
+      "severity": "warning",
+      "detail": "Mass above reference budget — speed, dash and jump are penalised."
+    },
+    {
+      "code": "COM OFFSET",
+      "severity": "warning",
+      "detail": "Centre of mass is outside the stability envelope; recoil drift and screen shake."
+    },
+    {
+      "code": "STRUCTURAL STRESS",
+      "severity": "warning",
+      "detail": "Hardpoint and armour loading exceeds bracing capacity."
+    },
+    {
+      "code": "RCS EXPOSURE",
+      "severity": "warning",
+      "detail": "High radar cross section — hostiles detect and lock faster."
+    },
+    {
+      "code": "ECM SELF-DETECTION",
+      "severity": "warning",
+      "detail": "Jamming paints you as a target; self-emissions dominate the signature."
+    },
+    {
+      "code": "MANA STARVATION",
+      "severity": "warning",
+      "detail": "Atmospheric harvest and growth pool cannot sustain the requested flow."
+    },
+    {
+      "code": "LATTICE OVERFLOW",
+      "severity": "critical",
+      "detail": "Containment lattice is driven beyond its design flux."
+    },
+    {
+      "code": "CRYSTAL RESONANCE",
+      "severity": "warning",
+      "detail": "Crystal size/flow resonance adds signature and surge risk."
+    },
+    {
+      "code": "CONTAINMENT FAILURE",
+      "severity": "critical",
+      "detail": "Instability > threshold; surges, forced vent, meltdown / Protocol 3 eject."
+    },
+    {
+      "code": "HARDPOINT OVERFLOW",
+      "severity": "warning",
+      "detail": "More hardpoints than the frame can brace."
+    }
+  ],
+  "keyBindings": {
+    "move": "W A S D",
+    "aim": "Mouse",
+    "fire": "LMB",
+    "abilities": "Q / E / R",
+    "dash": "Shift",
+    "companion": "1 - 4",
+    "pause": "P",
+    "vent": "V"
+  },
+  "equations": [
+    {
+      "id": "powerUsed",
+      "label": "Power budget",
+      "formula": "powerUsed = Σ subsystem.powerDraw"
+    },
+    {
+      "id": "powerMargin",
+      "label": "Power margin",
+      "formula": "powerMargin = reactor.netOutput - powerUsed   // <0 => BROWNOUT"
+    },
+    {
+      "id": "totalMass",
+      "label": "Total mass",
+      "formula": "totalMass = frame.mass + Σ part.mass + payload"
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "formula": "speed = baseSpeed * (1 - k1*totalMass/massRef) * (1 - k2*structuralStress)"
+    },
+    {
+      "id": "heatGen",
+      "label": "Heat generated",
+      "formula": "heatGen = reactor.heat + Σ part.heatGen + movementHeat + ecmHeat"
+    },
+    {
+      "id": "heatDiss",
+      "label": "Heat dissipated",
+      "formula": "heatDiss = Σ radiator.area * coolantFlow * efficiency"
+    },
+    {
+      "id": "netHeat",
+      "label": "Net heat",
+      "formula": "netHeat = heatGen - heatDiss"
+    },
+    {
+      "id": "temperature",
+      "label": "Temperature",
+      "formula": "temperature += netHeat * dt / thermalMass   // >1 => DERATE / VENT / MELTDOWN"
+    },
+    {
+      "id": "rcs",
+      "label": "Radar cross section",
+      "formula": "rcs = shapeFactor(facets, torsoW, limbStance) * materialFactor(RAM, coating) + crystalSignature(S, η) + activeEmissions(jammer, radar, charge)"
+    },
+    {
+      "id": "detectRange",
+      "label": "Detection range",
+      "formula": "detectRange = k * sqrt(rcs) * enemySensorFactor"
+    },
+    {
+      "id": "jamStrength",
+      "label": "Jam strength",
+      "formula": "jamStrength = jammerPower * antennaGain / (dist^2 * enemyECCM)"
+    },
+    {
+      "id": "lockBreak",
+      "label": "Lock break",
+      "formula": "lockBreak = clamp(jamStrength - enemyLockQuality, 0, 1)"
+    },
+    {
+      "id": "selfEmissions",
+      "label": "Self emissions",
+      "formula": "selfEmissions = jammerPower * (LPI ? 0.25 : 1.0)   // jamming makes you visible"
+    }
+  ],
+  "tradeoffs": [
+    {
+      "left": "Radiator area",
+      "effect": "↓ heat, ↑ RCS, ↑ mass"
+    },
+    {
+      "left": "RAM / stealth coating",
+      "effect": "↓ RCS, ↑ mass, traps heat"
+    },
+    {
+      "left": "Larger mana crystal S",
+      "effect": "↑ power, ↑ instability, ↑ heat, ↑ resonance RCS"
+    },
+    {
+      "left": "Active ECM",
+      "effect": "↑ power draw, ↑ heat, ↑ self-emissions; passive EMCON is quiet but weak"
+    },
+    {
+      "left": "Heavy armour",
+      "effect": "↑ mass, ↑ inertia, ↑ heat retention; stealth shaping constrains limb geometry"
+    },
+    {
+      "left": "Power deficit",
+      "effect": "brownouts: abilities fail, HUD flicker"
+    },
+    {
+      "left": "Heat saturation",
+      "effect": "weapon derate, forced vent, meltdown"
+    },
+    {
+      "left": "High RCS",
+      "effect": "hostiles detect and lock faster"
+    },
+    {
+      "left": "ECM jamming",
+      "effect": "breaks locks but paints you as a target"
+    }
+  ]
+}
